@@ -6,7 +6,7 @@
 
 pkgname=wine-staging-ntsync-pure
 pkgver=9.21.r212.g044527c671d
-pkgrel=1
+pkgrel=2
 source=(
   "$pkgname::git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -49,7 +49,6 @@ makedepends=(autoconf bison perl flex mingw-w64-gcc git
   opencl-headers
   opencl-icd-loader
   sdl2
-  unixodbc
   vulkan-headers
   vulkan-icd-loader
 )
@@ -66,10 +65,11 @@ optdepends=(
   libxcomposite
   opencl-icd-loader
   sdl2
-  unixodbc
   wine-gecko
   wine-mono
 )
+provides=("wine-staging" "wine" 'wine-wow64')
+conflicts=("wine")
 makedepends=(${makedepends[@]} ${depends[@]})
 install=wine.install
 
@@ -120,6 +120,7 @@ build() {
     --without-gphoto2 \
     --without-xinerama \
     --without-pcap \
+    --without-odbc \
     --enable-archs=x86_64,i386
 
   make
