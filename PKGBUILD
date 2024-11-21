@@ -5,8 +5,8 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure
-pkgver=9.21.r212.g044527c671d
-pkgrel=2
+pkgver=9.21.r248.gf350a8782b2
+pkgrel=1
 source=(
   "$pkgname::git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -19,7 +19,7 @@ sha512sums=(
   'SKIP'
   '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
   'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285'
-  '76cb5520bbc04d8a2a6d41b511339208077d39e6c053ae1aabca30b9eedcc794532878491d562541d5c8d4fc771a69db2d82b076ed6b66800822df07a3b41ac9'
+  '612628caf558a3bbadad83d39883d94e215da89e0c80fcf1e5606b1caea682303f81f41042ccda2468549498debcb11f3d90ebaffa41a33b60dddc2c9d19898f'
 )
 pkgdesc="A compatibility layer for running Windows programs"
 url="https://www.winehq.org"
