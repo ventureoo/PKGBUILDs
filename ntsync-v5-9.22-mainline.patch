@@ -229,7 +229,7 @@ index e8e2aa9bf5a..fdc1fcc5d0a 100644
      {
          req->handle = wine_server_obj_handle( handle );
 diff --git a/dlls/ntdll/unix/sync.c b/dlls/ntdll/unix/sync.c
-index f91af6d0800..abfd08e180d 100644
+index f91af6d0800..5aa21c1ec6c 100644
 --- a/dlls/ntdll/unix/sync.c
 +++ b/dlls/ntdll/unix/sync.c
 @@ -30,9 +30,11 @@
@@ -1446,6 +1446,24 @@ index f91af6d0800..abfd08e180d 100644
      if (!handle) handle = keyed_event;
      if ((ULONG_PTR)key & 1) return STATUS_INVALID_PARAMETER_1;
      if (alertable) flags |= SELECT_ALERTABLE;
+@@ -2048,7 +3048,7 @@ NTSTATUS WINAPI NtRemoveIoCompletion( HANDLE handle, ULONG_PTR *key, ULONG_PTR *
+     }
+     SERVER_END_REQ;
+     if (status != STATUS_PENDING) return status;
+-    if (!timeout || timeout->QuadPart) status = NtWaitForSingleObject( wait_handle, FALSE, timeout );
++    if (!timeout || timeout->QuadPart) status = server_wait_for_object( wait_handle, FALSE, timeout );
+     else                               status = STATUS_TIMEOUT;
+     if (status != WAIT_OBJECT_0) return status;
+ 
+@@ -2110,7 +3110,7 @@ NTSTATUS WINAPI NtRemoveIoCompletionEx( HANDLE handle, FILE_IO_COMPLETION_INFORM
+         assert( status == STATUS_USER_APC );
+         goto done;
+     }
+-    if (!timeout || timeout->QuadPart) status = NtWaitForSingleObject( wait_handle, alertable, timeout );
++    if (!timeout || timeout->QuadPart) status = server_wait_for_object( wait_handle, alertable, timeout );
+     else                               status = STATUS_TIMEOUT;
+     if (status != WAIT_OBJECT_0) goto done;
+ 
 diff --git a/dlls/ntdll/unix/thread.c b/dlls/ntdll/unix/thread.c
 index a7114825118..9aa6cf35414 100644
 --- a/dlls/ntdll/unix/thread.c
@@ -3588,7 +3606,7 @@ index bd0307c5d79..ec233613809 100644
 +    obj_handle_t handle;          /* handle to the event */
 +@END
 diff --git a/server/queue.c b/server/queue.c
-index 47870884644..3aa4f8e4515 100644
+index 47870884644..b89ef85ee04 100644
 --- a/server/queue.c
 +++ b/server/queue.c
 @@ -133,6 +133,8 @@ struct msg_queue
@@ -3705,13 +3723,13 @@ index 47870884644..3aa4f8e4515 100644
                  }
                  SHARED_WRITE_END;
 +                fast_reset_event( queue->fast_sync );
-+            }
+             }
+-            else wake_up( &queue->obj, 0 );
 +            else
 +            {
 +                wake_up( &queue->obj, 0 );
 +                fast_set_event( queue->fast_sync );
-             }
--            else wake_up( &queue->obj, 0 );
++            }
 +        }
 +        else
 +        {
@@ -3746,7 +3764,7 @@ index 47870884644..3aa4f8e4515 100644
      set_error( STATUS_PENDING );  /* FIXME */
  }
  
-@@ -4183,3 +4228,63 @@ DECL_HANDLER(set_keyboard_repeat)
+@@ -4183,3 +4228,59 @@ DECL_HANDLER(set_keyboard_repeat)
  
      release_object( desktop );
  }
@@ -3769,12 +3787,8 @@ index 47870884644..3aa4f8e4515 100644
 +    {
 +        const queue_shm_t *queue_shm = queue->shared;
 +
-+        SHARED_WRITE_BEGIN( queue_shm, queue_shm_t )
-+        {
-+            if (current->process->idle_event && !(shared->wake_mask & QS_SMRESULT))
-+                set_event( current->process->idle_event );
-+        }
-+        SHARED_WRITE_END;
++        if (current->process->idle_event && !(queue_shm->wake_mask & QS_SMRESULT))
++            set_event( current->process->idle_event );
 +
 +        if (queue->fd)
 +            set_fd_events( queue->fd, POLLIN );

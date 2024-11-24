@@ -6,7 +6,7 @@
 
 pkgname=wine-staging-ntsync-pure
 pkgver=9.22.r0.g51ccd95c49c
-pkgrel=3
+pkgrel=4
 source=(
   "$pkgname::git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -22,11 +22,12 @@ sha512sums=(
   'SKIP'
   '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
   'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285'
-  '8e6b18fbd93100e58c6b4b0f4c036d840a1186780ddc6e58b085643203eaf86d6cf4e0127cbdd04ab5bf1711f61dee269ce7ba9de778b1d068031b666835ffbc'
+  '5064e7cb133bae1a7c3d177d63f3ea5a85207cfe8eea05f23ffed63ad9c3718344b11e32318c36901c163db1a4d1c8894773e213de2d6d77f1b91e7c169594fd'
   'f47afccd51f010a282cab07f343479fba6f14ed8c654c8ff7bbc5c808c0d15be967f35d555f496b5f9bc281aa34f78bb9fd2c93a6e1241682cf3ad201dfe88f3'
   'd32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea'
   '15f767f2fd7d019bb0e15ece646f1fd1db2e7fda1830c38a05d0fbe3dca580b43d568bcb6094362a57322e78cf4bf599199b0edb7b3c4557779d64bbc1a7b071'
 )
+
 pkgdesc="A compatibility layer for running Windows programs"
 url="https://www.winehq.org"
 arch=(x86_64)
