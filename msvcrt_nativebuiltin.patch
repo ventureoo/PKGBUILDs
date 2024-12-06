@@ -1,17 +1,18 @@
-From 0400502cb3bb695476003d1d986cf35bdea79f2f Mon Sep 17 00:00:00 2001
+From baca310f0c45c6d71f14cf6a100b60ed040abdb7 Mon Sep 17 00:00:00 2001
 From: Andrew Eikum <aeikum@codeweavers.com>
 Date: Thu, 29 Mar 2018 11:09:53 -0500
 Subject: [PATCH] HACK: wine.inf: Add native,builtin overrides for msvcrt DLLs
 
+Signed-off-by: Vasiliy Stelmachenok <ventureo@yandex.ru>
 ---
- loader/wine.inf.in | 54 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+ loader/wine.inf.in | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
 diff --git a/loader/wine.inf.in b/loader/wine.inf.in
-index 37162036e6..cf8ff5a19a 100644
+index e3426b7ec95..23c8c604eba 100644
 --- a/loader/wine.inf.in
 +++ b/loader/wine.inf.in
-@@ -3687,6 +3687,33 @@ HKLM,Software\Wine\LicenseInformation,"Shell-PremiumInBoxGames-Chess-EnableGame"
+@@ -2619,6 +2619,33 @@ HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-Shanghai-EnableGame",0x1
  HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-Solitaire-EnableGame",0x10001,0x00000001
  HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-SpiderSolitaire-EnableGame",0x10001,0x00000001
  HKLM,Software\Wine\LicenseInformation,"Shell-PremiumInBoxGames-Chess-EnableGame",0x10001,0x00000001
@@ -43,5 +44,8 @@ index 37162036e6..cf8ff5a19a 100644
 +HKCU,Software\Wine\DllOverrides,"vcomp140",0x2,"native,builtin"
 +HKCU,Software\Wine\DllOverrides,"vcruntime140",0x2,"native,builtin"
  
- [InfFiles]
- winebus.inf
+ [ColorFiles]
+ srgb color space profile.icm,"@%11%\mscms.dll,-1"
+-- 
+2.47.1
+

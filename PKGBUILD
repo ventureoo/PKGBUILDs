@@ -5,8 +5,8 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure
-pkgver=9.22.r0.g51ccd95c49c
-pkgrel=4
+pkgver=9.22.r286.g13c47c91e2d
+pkgrel=1
 source=(
   "$pkgname::git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -17,15 +17,16 @@ source=(
   explorer-prefer-wayland-over-x11-by-default.patch
   msvcrt_nativebuiltin.patch
 )
+
 sha512sums=(
   'SKIP'
   'SKIP'
   '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
   'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285'
-  '5064e7cb133bae1a7c3d177d63f3ea5a85207cfe8eea05f23ffed63ad9c3718344b11e32318c36901c163db1a4d1c8894773e213de2d6d77f1b91e7c169594fd'
+  'bb10e4ada4be6e89a7664ba213d9ae4be8a242f78048515d6753c0716cec6455f84456e49cf8ad9fa37ec473097fccacd06608ae5dd51447cce1a5edda8f2da8'
   'f47afccd51f010a282cab07f343479fba6f14ed8c654c8ff7bbc5c808c0d15be967f35d555f496b5f9bc281aa34f78bb9fd2c93a6e1241682cf3ad201dfe88f3'
   'd32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea'
-  '15f767f2fd7d019bb0e15ece646f1fd1db2e7fda1830c38a05d0fbe3dca580b43d568bcb6094362a57322e78cf4bf599199b0edb7b3c4557779d64bbc1a7b071'
+  '8d4fca16472648e68e9e29e0d406384d8a0e48863c69e511e548b664353a930af83e3ddedf34aab6931b29ca47ee8340980c2c9c84196b0fce0b2f64e0b1cfd9'
 )
 
 pkgdesc="A compatibility layer for running Windows programs"
@@ -95,9 +96,9 @@ prepare() {
   # apply wine-staging patchset (no Esync to prevent conflicts with NTSync)
   ../wine-staging/staging/patchinstall.py --backend=git-apply --all \
     -W eventfd_synchronization \
-    -W ntdll-Syscall_Emulation \
+    -W server-Signal_Thread \
     -W server-PeekMessage \
-    -W server-Signal_Thread
+    -W ntdll-Syscall_Emulation
 
   # NTSync for Wine 9.22
   patch -Np1 -i "${srcdir}/ntsync-v5-9.22-mainline.patch"
