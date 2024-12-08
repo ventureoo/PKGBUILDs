@@ -5,7 +5,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure
-pkgver=9.22.r286.g13c47c91e2d
+pkgver=10.0rc1.r0.g4161e62e478
 pkgrel=1
 source=(
   "$pkgname::git+https://gitlab.winehq.org/wine/wine.git"
@@ -16,6 +16,7 @@ source=(
   wineserver-enable-link-time-optimization.patch
   explorer-prefer-wayland-over-x11-by-default.patch
   msvcrt_nativebuiltin.patch
+  6663.patch
 )
 
 sha512sums=(
@@ -27,6 +28,7 @@ sha512sums=(
   'f47afccd51f010a282cab07f343479fba6f14ed8c654c8ff7bbc5c808c0d15be967f35d555f496b5f9bc281aa34f78bb9fd2c93a6e1241682cf3ad201dfe88f3'
   'd32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea'
   '8d4fca16472648e68e9e29e0d406384d8a0e48863c69e511e548b664353a930af83e3ddedf34aab6931b29ca47ee8340980c2c9c84196b0fce0b2f64e0b1cfd9'
+  'b6b369fd1307d3adf805d5c9abd0bca787d7d59dc4c433371049cacf8f08c58e740c0345a174d8a211c45c8301498c986d5a637abd713a752d6de3b49be81b9a'
 )
 
 pkgdesc="A compatibility layer for running Windows programs"
@@ -111,6 +113,11 @@ prepare() {
 
   # Use native Visual C++ DLLs
   patch -Np1 -i "${srcdir}/msvcrt_nativebuiltin.patch"
+
+  # Fix low GL performance when using new WoW64 mode
+  # Requires patches for Mesa Zink driver:
+  # https://gitlab.freedesktop.org/Guy1524/mesa/-/commits/placed_allocation
+  patch -Np1 -i "${srcdir}/6663.patch"
 }
 
 build() {
