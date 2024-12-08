@@ -1,0 +1,169 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+# Contributor: Laurent Carlier <lordheavym@gmail.com>
+# Contributor: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+# Contributor: Andreas Radke <andyrtr@archlinux.org>
+
+pkgname=mesa-pure
+pkgver=24.3.1
+pkgrel=1
+epoch=1
+pkgdesc="A purely personal Mesa build"
+url="https://www.mesa3d.org/"
+arch=(x86_64)
+license=("MIT AND BSD-3-Clause AND SGI-B-2.0")
+makedepends=(
+    'xorgproto'
+    'libxml2'
+    'libvdpau'
+    'libva'
+    'elfutils'
+    'libxrandr'
+    'meson'
+    'ninja'
+    'glslang'
+    'python-mako'
+    'python-ply'
+    'cbindgen'
+    'wayland-protocols'
+    'cmake'
+    'python-packaging'
+    'python-pyaml'
+)
+depends=(
+    'libdrm'
+    'libxxf86vm'
+    'libxdamage'
+    'libxshmfence'
+    'libelf'
+    'libunwind'
+    'libglvnd'
+    'wayland'
+    'lm_sensors'
+    'vulkan-icd-loader'
+    'zstd'
+    'expat'
+    'gcc-libs'
+    'libxfixes'
+    'libx11'
+    'systemd-libs'
+    'libxext'
+    'libxcb'
+    'glibc'
+    'zlib'
+    'python'
+    'xcb-util-keysyms'
+)
+optdepends=('opengl-man-pages: for the OpenGL API man pages')
+provides=(
+    'vulkan-mesa-layers'
+    'opencl-driver'
+    'opengl-driver'
+    'vulkan-driver'
+    'vulkan-radeon'
+    'libva-mesa-driver'
+    'mesa-libgl'
+    'mesa'
+)
+conflicts=(
+    'vulkan-mesa-layers'
+    'opencl-clover-mesa'
+    'vulkan-radeon'
+    'libva-mesa-driver'
+    'mesa-libgl'
+    'mesa'
+)
+options=(
+  # GCC 14 LTO causes segfault in LLVM under si_llvm_optimize_module
+  # https://gitlab.freedesktop.org/mesa/mesa/-/issues/11140
+  #
+  # In general, upstream considers LTO to be broken until explicit notice.
+  !lto
+)
+source=(
+  "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
+  0001-dri-don-t-fetch-X11-modifiers-if-we-don-t-support-th.patch
+  0002-egl-wayland-only-supply-LINEAR-modifier-when-support.patch
+  0003-egl-wayland-fallback-to-implicit-modifiers-if-advert.patch
+  d58064d68c7b436ed9c62b020a91ffe646ee60d1.patch
+  3df25e76a5e83a42b4db9527ac6ca3cc14c47ae6.patch
+  06ea60e4d820ecc058d565d25ff55c66fcc37d65.patch
+)
+sha256sums=(
+  '9c795900449ce5bc7c526ba0ab3532a22c3c951cab7e0dd9de5fcac41b0843af'
+  '2c20fee505be9a1f08546b63457b8378b0f1fcff58e60c03378b7de0a87a1e81'
+  'a58e6d0631da6dd077530136bb44f0233cd279fc75e3b65b495ec90be16db91a'
+  '606acb4073f46c7ca7edec96b6af06619642f3bbcd6afab2c57bff26266b917f'
+  'd1725b68d23abe8e7f75c35a9d494c91c9becb24b37888227fad02e53ec878e9'
+  '99247002327d3471cd2d758c0e81483af773f368645a16b0952356243727c28f'
+  '30d87cd454f50b32d689fa44339c81deea3f10441c8909bf71b2ce37c2206e09'
+)
+
+prepare() {
+  cd mesa-$pkgver
+
+  # https://gitlab.archlinux.org/archlinux/packaging/packages/mesa/-/issues/19
+  # https://gitlab.freedesktop.org/mesa/mesa/-/issues/12253
+  # https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/32535
+  patch -Np1 -i ../0001-dri-don-t-fetch-X11-modifiers-if-we-don-t-support-th.patch
+  patch -Np1 -i ../0002-egl-wayland-only-supply-LINEAR-modifier-when-support.patch
+  patch -Np1 -i ../0003-egl-wayland-fallback-to-implicit-modifiers-if-advert.patch
+  
+  # Fix Wine WoW64 performance in GL
+  patch -Np1 -i ../d58064d68c7b436ed9c62b020a91ffe646ee60d1.patch
+  patch -Np1 -i ../3df25e76a5e83a42b4db9527ac6ca3cc14c47ae6.patch
+  patch -Np1 -i ../06ea60e4d820ecc058d565d25ff55c66fcc37d65.patch
+
+  # Include package release in version string so Chromium invalidates
+  # its GPU cache; otherwise it can cause pages to render incorrectly.
+  # https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/2020604
+  echo "$pkgver-arch$epoch.$pkgrel" >VERSION
+}
+
+build() {
+  local meson_options=(
+    -D android-libbacktrace=disabled
+    -D b_ndebug=true
+    -D gallium-drivers=radeonsi,zink
+    -D gallium-extra-hud=false
+    -D gallium-nine=false
+    -D gallium-opencl=disabled
+    -D gallium-rusticl=false
+    -D gallium-xa=disabled
+    -D gallium-vdpau=disabled
+    -D gles1=disabled
+    -D glx=dri
+    -D html-docs=disabled
+    -D intel-rt=disabled
+    -D libunwind=disabled
+    -D microsoft-clc=disabled
+    -D osmesa=false
+    -D platforms=x11,wayland
+    -D valgrind=enabled
+    -D video-codecs=all
+    -D vulkan-drivers=amd
+    -D vulkan-layers=device-select,overlay,screenshot
+  )
+
+  # Build only minimal debug info to reduce size
+  CFLAGS+=" -g1"
+  CXXFLAGS+=" -g1"
+
+  # Inject subproject packages
+  export MESON_PACKAGE_CACHE_DIR="$srcdir"
+
+  arch-meson mesa-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+
+  # indirect rendering
+  ln -s /usr/lib/libGLX_mesa.so.0 "${pkgdir}/usr/lib/libGLX_indirect.so.0"
+
+  install -Dm644 mesa-$pkgver/docs/license.rst -t "$pkgdir/usr/share/licenses/$pkgname"
+}
+
+# vim:set sw=2 sts=-1 et:
