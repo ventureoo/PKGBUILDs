@@ -1,4 +1,4 @@
-pkgbase = wine-staging-ntsync-pure
+pkgbase = wine-staging-ntsync-pure-git
 	pkgdesc = A compatibility layer for running Windows programs
 	pkgver = 10.0rc1.r0.g4161e62e478
 	pkgrel = 2
@@ -67,7 +67,7 @@ pkgbase = wine-staging-ntsync-pure
 	conflicts = wine
 	options = staticlibs
 	options = !lto
-	source = wine-staging-ntsync-pure::git+https://gitlab.winehq.org/wine/wine.git
+	source = git+https://gitlab.winehq.org/wine/wine.git
 	source = git+https://gitlab.winehq.org/wine/wine-staging.git
 	source = 30-win32-aliases.conf
 	source = wine-binfmt.conf
@@ -88,4 +88,4 @@ pkgbase = wine-staging-ntsync-pure
 	sha512sums = b6b369fd1307d3adf805d5c9abd0bca787d7d59dc4c433371049cacf8f08c58e740c0345a174d8a211c45c8301498c986d5a637abd713a752d6de3b49be81b9a
 	sha512sums = c53200271fc1d6081d5fbaace91e32210437c5b5f33689f2e3130e0f541940f0de6f85da71b3859cd4a88bd22f87566a93d3427b6a346621fa3e675bc072e873
 
-pkgname = wine-staging-ntsync-pure
+pkgname = wine-staging-ntsync-pure-git

@@ -53,7 +53,7 @@ depends=(
   ffmpeg
   unixodbc
 )
-makedepends=(autoconf bison perl flex mingw-w64-gcc-pure git
+makedepends=(autoconf bison perl flex mingw-w64-gcc git
   alsa-lib
   gnutls
   gst-plugins-base-libs
