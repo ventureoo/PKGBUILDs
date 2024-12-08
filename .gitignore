@@ -1,4 +1,5 @@
 *.pkg.tar.zst
 *.log
 *.tar.xz
-*/FETCH_HEAD
+**/FETCH_HEAD
+
