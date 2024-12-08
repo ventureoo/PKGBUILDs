@@ -5,11 +5,11 @@
 # Contributor: Eduardo Romero <eduardo@archlinux.org>
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
-pkgname=wine-staging-ntsync-pure
+pkgname=wine-staging-ntsync-pure-git
 pkgver=10.0rc1.r0.g4161e62e478
 pkgrel=2
 source=(
-  "$pkgname::git+https://gitlab.winehq.org/wine/wine.git"
+  "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
   30-win32-aliases.conf
   wine-binfmt.conf
@@ -53,7 +53,7 @@ depends=(
   ffmpeg
   unixodbc
 )
-makedepends=(autoconf bison perl flex mingw-w64-gcc git
+makedepends=(autoconf bison perl flex mingw-w64-gcc-pure git
   alsa-lib
   gnutls
   gst-plugins-base-libs
@@ -88,7 +88,7 @@ makedepends=(${makedepends[@]} ${depends[@]})
 install=wine.install
 
 pkgver() {
-  git -C "$pkgname" describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s/^wine.//;s/^v//;s/\.rc/rc/'
+  git -C wine describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s/^wine.//;s/^v//;s/\.rc/rc/'
 }
 
 prepare() {
@@ -96,7 +96,7 @@ prepare() {
   rm -rf "$pkgname-build"
   mkdir "$pkgname-build"
 
-  cd "$pkgname"
+  cd wine
 
   # apply wine-staging patchset (no Esync to prevent conflicts with NTSync)
   ../wine-staging/staging/patchinstall.py --backend=git-apply --all \
@@ -137,7 +137,7 @@ build() {
 
   echo "Building Wine..."
   cd "$pkgname-build"
-  ../$pkgname/configure \
+  ../wine/configure \
     --disable-tests \
     --prefix=/usr \
     --libdir=/usr/lib \
