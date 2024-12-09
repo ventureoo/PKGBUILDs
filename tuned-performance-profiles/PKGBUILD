@@ -1,0 +1,21 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+pkgname=tuned-performance-profiles
+pkgdesc="My profiles for tuned"
+pkgver=1
+pkgrel=1
+arch=('any')
+makedepends=('coreutils')
+depends=("linux>=6.12" "tuned")
+source=(
+    "interactive-performance.conf"
+    "eevdf-tunable.sh"
+)
+sha256sums=(
+    '20c5bef725061119ec8f513824ca0b154ace1fecf9f13f21af5c64126481f3a2'
+    '698d351c4d536a7d1b7c805f1b0386f0c01ff32c421f7ec3711b53efa607e35f'
+)
+
+package() {
+    install -Dm644 interactive-performance.conf "$pkgdir/usr/lib/tuned/profiles/interactive-performance/tuned.conf"
+    install -Dm755 eevdf-tunable.sh "$pkgdir/usr/lib/tuned/profiles/interactive-performance/eevdf-tunable.sh"
+}
