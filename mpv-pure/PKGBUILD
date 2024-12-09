@@ -1,0 +1,85 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+## Arch Linux maintainers:
+# Maintainer: Christian Hesse <mail@eworm.de>
+# Maintainer: Robin Candau <antiz@archlinux.org>
+# Contributor: Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
+# Contributor: Eivind Uggedal <eivind@uggedal.com>
+
+pkgname=mpv-pure
+epoch=1
+pkgver=0.39.0
+pkgrel=1
+pkgdesc='a free, open source, and cross-platform media player'
+arch=('x86_64')
+license=('GPL-2.0-or-later AND LGPL-2.1-or-later')
+url='https://mpv.io/'
+depends=('alsa-lib' 'desktop-file-utils' 'ffmpeg' 'glibc' 'hicolor-icon-theme'
+         'lcms2' 'libarchive' 'libass' 'libdrm' 'libegl' 'libgl' 'libglvnd' 
+         'libjpeg-turbo' 'libplacebo' 'libva' 'libxkbcommon' 'libxss' 
+         'luajit' 'mesa' 'libpipewire' 'wayland' 'zlib')
+makedepends=('git' 'meson' 'python-docutils' 'ladspa' 'wayland-protocols'
+             'ffnvcodec-headers')
+optdepends=('yt-dlp: for video-sharing websites playback')
+conflicts=('libmpv.so' 'mpv')
+provides=('libmpv.so' 'mpv')
+options=('!emptydirs')
+source=("$pkgname::git+https://github.com/mpv-player/mpv.git#tag=v${pkgver}"
+        "dynamically_generate_desktop_file_protocols.patch")
+sha256sums=('51e787dbff240d69227f306685fc962daae215c755689b9de4ef0432ddf4443b'
+            '88acf97cbc8e0fe745f09bd0bd7f65e0437adcb549dadf3588fd0724d01298e9')
+
+build() {
+  local _meson_options=(
+    --auto-features auto
+    -Dcaca=disabled
+    -Dcdda=disabled
+    -Dcuda-hwaccel=enabled
+    -Dcuda-interop=enabled
+    -Ddvbin=disabled
+    -Ddvdnav=disabled
+    -Dgl-x11=disabled
+    -Djavascript=disabled
+    -Dlibarchive=enabled
+    -Dlibbluray=disabled
+    -Dlibmpv=true
+    -Dlua=luajit
+    -Dopenal=disabled
+    -Dpulse=disabled
+    -Drubberband=disabled
+    -Dsdl2-audio=disabled
+    -Dsdl2-gamepad=disabled
+    -Dsdl2-video=disabled
+    -Duchardet=disabled
+    -Dvapoursynth=disabled
+    -Dvdpau=disabled
+    -Dvulkan=disabled
+    -Dx11=disabled
+    -Dxv=disabled
+  )
+
+  arch-meson "${pkgname}" build "${_meson_options[@]}"
+
+  meson compile -C build
+}
+
+check() {
+  meson test -C build
+}
+
+package() {
+  depends+=('libasound.so' 'libavcodec.so' 'libavdevice.so' 'libavfilter.so'
+            'libavformat.so' 'libavutil.so' 'libswresample.so' 'libswscale.so'
+            'liblcms2.so' 'libarchive.so' 'libass.so' 'libjpeg.so' 'libplacebo.so'
+            'libva.so' 'libva-drm.so' 'libva-wayland.so' 'libxkbcommon.so')
+
+  meson install -C build --destdir "${pkgdir}"
+
+  # delete private entries only required for static linking 
+  sed -i -e '/Requires.private/d' -e '/Libs.private/d' "${pkgdir}"/usr/lib/pkgconfig/mpv.pc
+
+  install -m0644 "${pkgname}"/DOCS/{encoding.rst,tech-overview.txt} \
+    "${pkgdir}"/usr/share/doc/mpv
+
+  install -m0644 "${pkgname}"/TOOLS/{umpv,mpv_identify.sh,stats-conv.py,idet.sh,lua/*} \
+    -D -t "${pkgdir}"/usr/share/mpv/scripts
+}
