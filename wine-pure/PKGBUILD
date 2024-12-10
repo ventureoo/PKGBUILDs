@@ -6,8 +6,8 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure-git
-pkgver=10.0rc1.r0.g4161e62e478
-pkgrel=2
+pkgver=10.0rc1.r7.g2dfd5125f67
+pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -18,7 +18,6 @@ source=(
   explorer-prefer-wayland-over-x11-by-default.patch
   msvcrt_nativebuiltin.patch
   6663.patch
-  6978.patch
 )
 
 sha512sums=(
@@ -31,7 +30,6 @@ sha512sums=(
   'd32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea'
   '8d4fca16472648e68e9e29e0d406384d8a0e48863c69e511e548b664353a930af83e3ddedf34aab6931b29ca47ee8340980c2c9c84196b0fce0b2f64e0b1cfd9'
   'b6b369fd1307d3adf805d5c9abd0bca787d7d59dc4c433371049cacf8f08c58e740c0345a174d8a211c45c8301498c986d5a637abd713a752d6de3b49be81b9a'
-  'c53200271fc1d6081d5fbaace91e32210437c5b5f33689f2e3130e0f541940f0de6f85da71b3859cd4a88bd22f87566a93d3427b6a346621fa3e675bc072e873'
 )
 
 pkgdesc="A compatibility layer for running Windows programs"
@@ -121,9 +119,6 @@ prepare() {
   # Requires patches for Mesa Zink driver:
   # https://gitlab.freedesktop.org/Guy1524/mesa/-/commits/placed_allocation
   patch -Np1 -i "${srcdir}/6663.patch"
-
-  # Fixes: https://bugs.winehq.org/show_bug.cgi?id=57506
-  patch -Np1 -i "${srcdir}/6978.patch"
 }
 
 build() {

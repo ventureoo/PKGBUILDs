@@ -76,7 +76,6 @@ pkgbase = wine-staging-ntsync-pure-git
 	source = explorer-prefer-wayland-over-x11-by-default.patch
 	source = msvcrt_nativebuiltin.patch
 	source = 6663.patch
-	source = 6978.patch
 	sha512sums = SKIP
 	sha512sums = SKIP
 	sha512sums = 6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb
@@ -86,6 +85,5 @@ pkgbase = wine-staging-ntsync-pure-git
 	sha512sums = d32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea
 	sha512sums = 8d4fca16472648e68e9e29e0d406384d8a0e48863c69e511e548b664353a930af83e3ddedf34aab6931b29ca47ee8340980c2c9c84196b0fce0b2f64e0b1cfd9
 	sha512sums = b6b369fd1307d3adf805d5c9abd0bca787d7d59dc4c433371049cacf8f08c58e740c0345a174d8a211c45c8301498c986d5a637abd713a752d6de3b49be81b9a
-	sha512sums = c53200271fc1d6081d5fbaace91e32210437c5b5f33689f2e3130e0f541940f0de6f85da71b3859cd4a88bd22f87566a93d3427b6a346621fa3e675bc072e873
 
 pkgname = wine-staging-ntsync-pure-git
