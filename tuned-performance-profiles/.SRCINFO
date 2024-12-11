@@ -1,6 +1,6 @@
 pkgbase = tuned-performance-profiles
 	pkgdesc = My profiles for tuned
-	pkgver = 1
+	pkgver = 2
 	pkgrel = 1
 	arch = any
 	makedepends = coreutils
@@ -8,7 +8,7 @@ pkgbase = tuned-performance-profiles
 	depends = tuned
 	source = interactive-performance.conf
 	source = eevdf-tunable.sh
-	sha256sums = 20c5bef725061119ec8f513824ca0b154ace1fecf9f13f21af5c64126481f3a2
+	sha256sums = a8b61943280c5232cd42cd22c7fc6639b2754449b560a5efdc2e12b6cb1d1e26
 	sha256sums = 698d351c4d536a7d1b7c805f1b0386f0c01ff32c421f7ec3711b53efa607e35f
 
 pkgname = tuned-performance-profiles
