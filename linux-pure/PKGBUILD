@@ -1,0 +1,222 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+## Arch Linux maintainer:
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+
+_configure=${_configure:-}
+_skip_modprobed_db=${_skip_modprobed_db:-}
+
+pkgbase=linux-pure
+pkgname=(linux-pure linux-pure-headers)
+pkgver=6.12.4.pure
+pkgrel=1
+pkgdesc='My personal kernel build as a testing ground'
+url='https://github.com/archlinux/linux'
+arch=(x86_64)
+license=(GPL-2.0-only)
+makedepends=(
+  bc
+  cpio
+  gettext
+  libelf
+  pahole
+  perl
+  python
+  tar
+  xz
+)
+options=(!strip !debug)
+_srcname=linux-${pkgver%.*}
+_archtag="${pkgver/pure/arch1}"
+_srctag=v${_archtag%.*}-${_archtag##*.}
+source=(
+  https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.xz
+  $url/releases/download/$_srctag/linux-$_srctag.patch.zst
+  config
+  modules.db
+  0001-ntsync.patch
+  "0002-bore.patch::https://raw.githubusercontent.com/firelzrd/bore-scheduler/refs/heads/main/patches/stable/linux-6.12-bore/0001-linux6.12.y-bore5.7.13.patch"
+  0003-Restore-CONFIG_OPTIMIZE_FOR_PERFORMANCE_O3
+)
+sha256sums=('6f35f821433d8421be7167990747c7c4a0c451958fb96883446301af13d71152'
+            '8d84f0e5f013c6c80cd2a2fe26da8e0c1170edc058f6f378e1261541781c12b9'
+            'a6a234cd982d21f0d7daa3ba921293e450abd87ff5d7474d4a153b3f34cfabc5'
+            'd148fc94586e0924e98b4976bd86a2e8b7d885ba862156ad9738a448f50c78b0'
+            'cd013d8f1f0326e6ba85c7b395257e18aedeac6343868fd5534465761b5a6545'
+            '6260988b79b02518d235e4a1a2b56176d8cb6e891ff77387d69c384270613770'
+            '2ac85c63b1c7279e3a3af130e7e4f2aea164df179b76f1d8270c00f064efb1c6')
+
+export KBUILD_BUILD_HOST=archlinux
+export KBUILD_BUILD_USER=$pkgbase
+export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
+
+prepare() {
+  cd "$_srcname"
+
+  echo "Setting version..."
+  echo "-$pkgrel" > localversion.10-pkgrel
+  echo "${pkgbase#linux}" > localversion.20-pkgname
+
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    src="${src%.zst}"
+    [[ $src = *.patch ]] || continue
+    echo "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+
+  echo "Setting config..."
+
+  cp ../config .config
+
+  # Basic config tuning
+  scripts/config -d HZ_300 -e HZ_1000 --set-val HZ 1000
+  scripts/config -e SCHED_BORE --set-val MIN_BASE_SLICE_NS 2000000
+  scripts/config -e NTSYNC
+  scripts/config -d CC_OPTIMIZE_FOR_PERFORMANCE -e CC_OPTIMIZE_FOR_PERFORMANCE_O3
+
+  [[ -z "$_skip_modprobed_db" ]] && make LSMOD="${srcdir}/modules.db" localmodconfig
+
+  make prepare
+  yes "" | make config >/dev/null
+  diff -u ../config .config || :
+
+  [[ -n "$_configure" ]] && make nconfig
+
+  make -s kernelrelease > version
+  echo "Prepared $pkgbase version $(<version)"
+
+}
+
+build() {
+  cd "$_srcname"
+  make all
+  make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
+}
+
+package_linux-pure() {
+  pkgdesc="The $pkgdesc kernel and modules"
+  depends=(
+    coreutils
+    initramfs
+    kmod
+  )
+  optdepends=(
+    'linux-firmware: firmware images needed for some devices'
+    'scx-scheds: to use sched-ext schedulers'
+    'wireless-regdb: to set the correct wireless channels of your country'
+  )
+  provides=(
+    KSMBD-MODULE
+    VIRTUALBOX-GUEST-MODULES
+    WIREGUARD-MODULE
+  )
+  replaces=(
+    virtualbox-guest-modules-arch
+    wireguard-arch
+  )
+
+  cd $_srcname
+  local modulesdir="$pkgdir/usr/lib/modules/$(<version)"
+
+  echo "Installing boot image..."
+  # systemd expects to find the kernel here to allow hibernation
+  # https://github.com/systemd/systemd/commit/edda44605f06a41fb86b7ab8128dcf99161d2344
+  install -Dm644 "$(make -s image_name)" "$modulesdir/vmlinuz"
+
+  # Used by mkinitcpio to name the kernel
+  echo "$pkgbase" | install -Dm644 /dev/stdin "$modulesdir/pkgbase"
+
+  echo "Installing modules..."
+  make INSTALL_MOD_PATH="$pkgdir/usr" \
+    DEPMOD=/doesnt/exist modules_install  # Suppress depmod
+
+  # remove build link
+  rm "$modulesdir"/build
+}
+
+package_linux-pure-headers() {
+  pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel"
+  depends=(pahole)
+
+  cd "$_srcname"
+  local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
+
+  echo "Installing build files..."
+  install -Dt "$builddir" -m644 .config Makefile Module.symvers System.map \
+    localversion.* version vmlinux tools/bpf/bpftool/vmlinux.h
+  install -Dt "$builddir/kernel" -m644 kernel/Makefile
+  install -Dt "$builddir/arch/x86" -m644 arch/x86/Makefile
+  cp -t "$builddir" -a scripts
+  ln -srt "$builddir" "$builddir/scripts/gdb/vmlinux-gdb.py"
+
+  # required when STACK_VALIDATION is enabled
+  install -Dt "$builddir/tools/objtool" tools/objtool/objtool
+
+  # required when DEBUG_INFO_BTF_MODULES is enabled
+  install -Dt "$builddir/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids
+
+  echo "Installing headers..."
+  cp -t "$builddir" -a include
+  cp -t "$builddir/arch/x86" -a arch/x86/include
+  install -Dt "$builddir/arch/x86/kernel" -m644 arch/x86/kernel/asm-offsets.s
+
+  install -Dt "$builddir/drivers/md" -m644 drivers/md/*.h
+  install -Dt "$builddir/net/mac80211" -m644 net/mac80211/*.h
+
+  # https://bugs.archlinux.org/task/13146
+  install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
+
+  # https://bugs.archlinux.org/task/20402
+  install -Dt "$builddir/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
+  install -Dt "$builddir/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
+  install -Dt "$builddir/drivers/media/tuners" -m644 drivers/media/tuners/*.h
+
+  # https://bugs.archlinux.org/task/71392
+  install -Dt "$builddir/drivers/iio/common/hid-sensors" -m644 drivers/iio/common/hid-sensors/*.h
+
+  echo "Installing KConfig files..."
+  find . -name 'Kconfig*' -exec install -Dm644 {} "$builddir/{}" \;
+
+  echo "Removing unneeded architectures..."
+  local arch
+  for arch in "$builddir"/arch/*/; do
+    [[ $arch = */x86/ ]] && continue
+    echo "Removing $(basename "$arch")"
+    rm -r "$arch"
+  done
+
+  echo "Removing documentation..."
+  rm -r "$builddir/Documentation"
+
+  echo "Removing broken symlinks..."
+  find -L "$builddir" -type l -printf 'Removing %P\n' -delete
+
+  echo "Removing loose objects..."
+  find "$builddir" -type f -name '*.o' -printf 'Removing %P\n' -delete
+
+  echo "Stripping build tools..."
+  local file
+  while read -rd '' file; do
+    case "$(file -Sib "$file")" in
+      application/x-sharedlib\;*)      # Libraries (.so)
+        strip -v $STRIP_SHARED "$file" ;;
+      application/x-archive\;*)        # Libraries (.a)
+        strip -v $STRIP_STATIC "$file" ;;
+      application/x-executable\;*)     # Binaries
+        strip -v $STRIP_BINARIES "$file" ;;
+      application/x-pie-executable\;*) # Relocatable binaries
+        strip -v $STRIP_SHARED "$file" ;;
+    esac
+  done < <(find "$builddir" -type f -perm -u+x ! -name vmlinux -print0)
+
+  echo "Stripping vmlinux..."
+  strip -v $STRIP_STATIC "$builddir/vmlinux"
+
+  echo "Adding symlink..."
+  mkdir -p "$pkgdir/usr/src"
+  ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
+}
+
+# vim:set ts=8 sts=2 sw=2 et:
