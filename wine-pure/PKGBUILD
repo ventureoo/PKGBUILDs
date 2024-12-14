@@ -6,26 +6,25 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure-git
-pkgver=10.0rc1.r7.g2dfd5125f67
+pkgver=10.0rc2.r0.g5bfbeb677f4
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
   30-win32-aliases.conf
   wine-binfmt.conf
-  ntsync-v5-9.22-mainline.patch
+  ntsync-v7-10.0-rc1-mainline.patch
   wineserver-enable-link-time-optimization.patch
   explorer-prefer-wayland-over-x11-by-default.patch
   msvcrt_nativebuiltin.patch
   6663.patch
 )
-
 sha512sums=(
   'SKIP'
   'SKIP'
   '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
   'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285'
-  'bb10e4ada4be6e89a7664ba213d9ae4be8a242f78048515d6753c0716cec6455f84456e49cf8ad9fa37ec473097fccacd06608ae5dd51447cce1a5edda8f2da8'
+  '6b3c8bbf6c43edd46807c11841926d2e5c1f52fdb02cca5ed399c04e60cb82ef58c9b1ac994aa934c58c5328085004bbf233f06568ab48cb90a91f92ad54af25'
   'f47afccd51f010a282cab07f343479fba6f14ed8c654c8ff7bbc5c808c0d15be967f35d555f496b5f9bc281aa34f78bb9fd2c93a6e1241682cf3ad201dfe88f3'
   'd32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea'
   '8d4fca16472648e68e9e29e0d406384d8a0e48863c69e511e548b664353a930af83e3ddedf34aab6931b29ca47ee8340980c2c9c84196b0fce0b2f64e0b1cfd9'
@@ -97,14 +96,14 @@ prepare() {
   cd wine
 
   # apply wine-staging patchset (no Esync to prevent conflicts with NTSync)
-  ../wine-staging/staging/patchinstall.py --backend=git-apply --all \
+  ../wine-staging/staging/patchinstall.py --backend=git-apply  --no-autoconf --all \
     -W eventfd_synchronization \
     -W server-Signal_Thread \
     -W server-PeekMessage \
     -W ntdll-Syscall_Emulation
 
-  # NTSync for Wine 9.22
-  patch -Np1 -i "${srcdir}/ntsync-v5-9.22-mainline.patch"
+  # NTSync for Wine 10.0-rc1
+  patch -Np1 -i "${srcdir}/ntsync-v7-10.0-rc1-mainline.patch"
 
   # LTO for Wineserver
   patch -Np1 -i "${srcdir}/wineserver-enable-link-time-optimization.patch"
