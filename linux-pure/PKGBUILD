@@ -8,7 +8,7 @@ _skip_modprobed_db=${_skip_modprobed_db:-}
 pkgbase=linux-pure
 pkgname=(linux-pure linux-pure-headers)
 pkgver=6.12.4.pure
-pkgrel=2
+pkgrel=3
 pkgdesc='My personal kernel build as a testing ground'
 url='https://github.com/archlinux/linux'
 arch=(x86_64)
@@ -36,6 +36,7 @@ source=(
   0001-ntsync.patch
   "0002-bore.patch::https://raw.githubusercontent.com/firelzrd/bore-scheduler/refs/heads/main/patches/stable/linux-6.12-bore/0001-linux6.12.y-bore5.7.13.patch"
   0003-Restore-CONFIG_OPTIMIZE_FOR_PERFORMANCE_O3
+  "0004-cpu-select.patch::https://raw.githubusercontent.com/graysky2/kernel_compiler_patch/refs/heads/master/more-ISA-levels-and-uarches-for-kernel-6.1.79%2B.patch"
 )
 sha256sums=('6f35f821433d8421be7167990747c7c4a0c451958fb96883446301af13d71152'
             '8d84f0e5f013c6c80cd2a2fe26da8e0c1170edc058f6f378e1261541781c12b9'
@@ -43,7 +44,8 @@ sha256sums=('6f35f821433d8421be7167990747c7c4a0c451958fb96883446301af13d71152'
             'd148fc94586e0924e98b4976bd86a2e8b7d885ba862156ad9738a448f50c78b0'
             'cd013d8f1f0326e6ba85c7b395257e18aedeac6343868fd5534465761b5a6545'
             '6260988b79b02518d235e4a1a2b56176d8cb6e891ff77387d69c384270613770'
-            '2ac85c63b1c7279e3a3af130e7e4f2aea164df179b76f1d8270c00f064efb1c6')
+            '2ac85c63b1c7279e3a3af130e7e4f2aea164df179b76f1d8270c00f064efb1c6'
+            '48e12a587e3a93e73ca2bba9f3b418d70c0a56592581d2705384a07243c70d61')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
@@ -76,7 +78,14 @@ prepare() {
   scripts/config -e NTSYNC
   scripts/config -d CC_OPTIMIZE_FOR_PERFORMANCE -e CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
-  [[ -z "$_skip_modprobed_db" ]] && make LSMOD="${srcdir}/modules.db" localmodconfig
+  if grep -q AMD /proc/cpuinfo; then
+    scripts/config -e MNATIVE_AMD
+  else
+    scripts/config -e MNATIVE_INTEL
+  fi
+
+  [[ -z "$_skip_modprobed_db" ]] && \
+    make LSMOD="${srcdir}/modules.db" localmodconfig
 
   make prepare
   yes "" | make config >/dev/null
