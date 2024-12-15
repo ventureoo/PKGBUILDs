@@ -1,7 +1,7 @@
 # Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
 pkgname=tuned-performance-profiles
 pkgdesc="My profiles for tuned"
-pkgver=3
+pkgver=4
 pkgrel=1
 arch=('any')
 makedepends=('coreutils')
@@ -11,7 +11,7 @@ source=(
     "eevdf-tunable.sh"
 )
 sha256sums=(
-    '09fbe83daf5267de7877d1a09b9c7dd5d23869422554dc0b5ad8ecc66ec18cf9'
+    'be87ec1619a6e84e2faea6c1c8cc5b690e81a62851ece56ae489c7874418f0f6'
     '698d351c4d536a7d1b7c805f1b0386f0c01ff32c421f7ec3711b53efa607e35f'
 )
 
