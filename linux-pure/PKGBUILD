@@ -8,7 +8,7 @@ _skip_modprobed_db=${_skip_modprobed_db:-}
 pkgbase=linux-pure
 pkgname=(linux-pure linux-pure-headers)
 pkgver=6.12.4.pure
-pkgrel=1
+pkgrel=2
 pkgdesc='My personal kernel build as a testing ground'
 url='https://github.com/archlinux/linux'
 arch=(x86_64)
@@ -129,7 +129,7 @@ package_linux-pure() {
   echo "$pkgbase" | install -Dm644 /dev/stdin "$modulesdir/pkgbase"
 
   echo "Installing modules..."
-  make INSTALL_MOD_PATH="$pkgdir/usr" \
+  ZSTD_CLEVEL=19 make INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 \
     DEPMOD=/doesnt/exist modules_install  # Suppress depmod
 
   # remove build link
