@@ -7,8 +7,8 @@ _skip_modprobed_db=${_skip_modprobed_db:-}
 
 pkgbase=linux-pure
 pkgname=(linux-pure linux-pure-headers)
-pkgver=6.12.4.pure
-pkgrel=3
+pkgver=6.12.5.pure
+pkgrel=1
 pkgdesc='My personal kernel build as a testing ground'
 url='https://github.com/archlinux/linux'
 arch=(x86_64)
@@ -26,26 +26,28 @@ makedepends=(
 )
 options=(!strip !debug)
 _srcname=linux-${pkgver%.*}
-_archtag="${pkgver/pure/arch1}"
-_srctag=v${_archtag%.*}-${_archtag##*.}
 source=(
   https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.xz
-  $url/releases/download/$_srctag/linux-$_srctag.patch.zst
   config
   modules.db
   0001-ntsync.patch
-  "0002-bore.patch::https://raw.githubusercontent.com/firelzrd/bore-scheduler/refs/heads/main/patches/stable/linux-6.12-bore/0001-linux6.12.y-bore5.7.13.patch"
-  0003-Restore-CONFIG_OPTIMIZE_FOR_PERFORMANCE_O3
-  "0004-cpu-select.patch::https://raw.githubusercontent.com/graysky2/kernel_compiler_patch/refs/heads/master/more-ISA-levels-and-uarches-for-kernel-6.1.79%2B.patch"
+  0002-bore.patch
+  0003-Restore-CONFIG_OPTIMIZE_FOR_PERFORMANCE_O3.patch
+  0004-cpu-select.patch
+  0005-Add-sysctl-and-CONFIG-to-disallow-unprivileged-CLONE_NEWUSER.patch
+  0006-Default-to-maximum-amount-of-ASLR-bits.patch
+  0007-skip-simpledrm-if-nvidia-drm.modeset=1-is-set.patch
 )
-sha256sums=('6f35f821433d8421be7167990747c7c4a0c451958fb96883446301af13d71152'
-            '8d84f0e5f013c6c80cd2a2fe26da8e0c1170edc058f6f378e1261541781c12b9'
+sha256sums=('39207fce1ce42838e085261bae0af5ce4a0843aa777cfc0f5c49bc7729602bcd'
             'a6a234cd982d21f0d7daa3ba921293e450abd87ff5d7474d4a153b3f34cfabc5'
             'd148fc94586e0924e98b4976bd86a2e8b7d885ba862156ad9738a448f50c78b0'
             'cd013d8f1f0326e6ba85c7b395257e18aedeac6343868fd5534465761b5a6545'
             '6260988b79b02518d235e4a1a2b56176d8cb6e891ff77387d69c384270613770'
             '2ac85c63b1c7279e3a3af130e7e4f2aea164df179b76f1d8270c00f064efb1c6'
-            '48e12a587e3a93e73ca2bba9f3b418d70c0a56592581d2705384a07243c70d61')
+            '48e12a587e3a93e73ca2bba9f3b418d70c0a56592581d2705384a07243c70d61'
+            '0460b771badb209dd4a2db6310083031707d41c5ce682dabed63b5077e2768f9'
+            '97509ff14bc98e8c8a93ae7412717bd0637b64b7fe4c3fa782e857a9a75c692f'
+            '601705db7a8ce1f3a9183d4273ee9c5cef88685a6a63e47b3127dbfafd7e0e97')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
