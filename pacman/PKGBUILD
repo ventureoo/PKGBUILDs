@@ -4,7 +4,7 @@
 # Maintainer: Morten Linderud <foxboron@archlinux.org>
 
 pkgname=pacman
-pkgver=7.0.0.r17.g054d46f
+pkgver=7.0.0.r25.ga4e4eac
 pkgrel=1
 pkgdesc="A library-based package manager with dependency support"
 arch=('x86_64')
@@ -43,7 +43,7 @@ provides=('libalpm.so')
 backup=(etc/pacman.conf
         etc/makepkg.conf
         etc/makepkg.conf.d/rust.conf)
-source=("git+https://gitlab.archlinux.org/ventureo/pacman.git#branch=testing"
+source=("git+https://gitlab.archlinux.org/pacman/pacman.git#branch=allan/parallel-strip"
         revertme-makepkg-remove-libdepends-and-libprovides.patch::https://gitlab.archlinux.org/pacman/pacman/-/commit/354a300cd26bb1c7e6551473596be5ecced921de.patch
         pacman.conf
         makepkg.conf
