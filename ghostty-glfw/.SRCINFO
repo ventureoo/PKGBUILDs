@@ -1,0 +1,29 @@
+pkgbase = ghostty-glfw
+	pkgdesc = Fast, native, feature-rich terminal emulator pushing modern features
+	pkgver = 1.0.0
+	pkgrel = 2
+	url = https://github.com/ghostty-org/ghostty
+	arch = x86_64
+	license = MIT
+	makedepends = git
+	makedepends = zig
+	depends = bzip2
+	depends = fontconfig
+	depends = libfontconfig.so
+	depends = freetype2
+	depends = libfreetype.so
+	depends = gcc-libs
+	depends = glibc
+	depends = glfw
+	depends = harfbuzz
+	depends = libharfbuzz.so
+	depends = libpng
+	depends = oniguruma
+	depends = pixman
+	depends = zlib
+	conflicts = ghostty
+	replaces = ghostty
+	source = ghostty-glfw::git+https://github.com/ghostty-org/ghostty#tag=v1.0.0
+	sha256sums = d4788ab75b2d410cda3f7e96122183249b0aaf5be6228b33f1d5da3748ab1446
+
+pkgname = ghostty-glfw

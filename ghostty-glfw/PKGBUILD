@@ -1,0 +1,54 @@
+# Maintainer: Caleb Maclennan <caleb@alerque.com>
+
+pkgname=ghostty-glfw
+pkgrel=2
+pkgver=1.0.0
+pkgdesc='Fast, native, feature-rich terminal emulator pushing modern features'
+arch=(x86_64)
+url="https://github.com/ghostty-org/ghostty"
+license=(MIT)
+conflicts=(ghostty)
+replaces=(ghostty)
+depends=(
+  bzip2
+  fontconfig libfontconfig.so
+  freetype2 libfreetype.so
+  gcc-libs # ld-linux-x86-64.so
+  glibc # libc.so libm.so
+  glfw
+  harfbuzz libharfbuzz.so
+  libpng
+  oniguruma # libonig.so
+  pixman
+  zlib
+)
+makedepends=(
+  git
+  zig
+)
+source=("$pkgname::git+https://github.com/ghostty-org/ghostty#tag=v${pkgver}")
+sha256sums=('d4788ab75b2d410cda3f7e96122183249b0aaf5be6228b33f1d5da3748ab1446')
+
+prepare() {
+	cd "$pkgname"
+	ZIG_GLOBAL_CACHE_DIR="$srcdir/zig-global-cache/" ./nix/build-support/fetch-zig-cache.sh
+}
+
+build() {
+  cd "$pkgname"
+  zig build \
+    --summary all \
+    --prefix "$PWD/build/usr" \
+    -Doptimize=ReleaseFast \
+    -Dcpu=baseline \
+    -Dpie=true \
+    -Demit-docs=false \
+    -Dapp-runtime=glfw
+}
+
+package() {
+  cd "$pkgname"
+  cp -a build/* "$pkgdir/"
+  install -Dm0644 -t "$pkgdir/usr/share/licenses/$pkgname/" LICENSE
+}
+
