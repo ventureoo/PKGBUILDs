@@ -8,7 +8,7 @@
 
 pkgname=mesa-pure
 pkgver=24.3.2
-pkgrel=1
+pkgrel=2
 epoch=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -31,8 +31,6 @@ makedepends=(
     'cmake'
     'valgrind'
     'libpng'
-    'llvm'
-    'llvm-libs'
     'python-packaging'
     'python-pyaml'
 )
@@ -115,6 +113,8 @@ prepare() {
 
 build() {
   local meson_options=(
+    -D llvm=disabled
+    -D amd-use-llvm=false
     -D android-libbacktrace=disabled
     -D b_ndebug=true
     -D gallium-drivers=radeonsi,zink
