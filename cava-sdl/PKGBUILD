@@ -1,0 +1,30 @@
+# Maintainer: Nissar Chababy <funilrys at outlook dot com>
+# Ex-Maintainer: Celestial Walrus <aur@celestial.cf>
+
+pkgname=cava-sdl
+pkgver=0.10.3
+pkgrel=1
+pkgdesc='Console-based Audio Visualizer for Alsa'
+arch=('any')
+url='https://github.com/karlstav/cava'
+license=('MIT')
+depends=('fftw' 'alsa-lib' 'ncurses' 'iniparser' 'sndio' 'portaudio' 'sdl2')
+repalces=(cava)
+provides=(cava)
+conflicts=(cava)
+optdepends=('pulseaudio' 'pipewire')
+makedepends=('sndio' 'portaudio' 'libpulse' 'm4' 'automake' 'autoconf' 'libpipewire')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/karlstav/cava/releases/download/0.10.3/cava-${pkgver}.tar.gz")
+sha512sums=('15fa550da266d3d4b917da0e6b5611bd7b82e5d30d15e3d728b0e3d5a92387787156e3e32f632f68b9c5e217a023bc2b3ca4ffd48ac6e03be1519ec2b504b13a')
+
+build() {
+  cd cava-${pkgver}
+  ./configure --prefix=/usr --enable-sdl-output=true
+  make
+}
+
+package() {
+  cd cava-${pkgver}
+  install -Dm755 cava "$pkgdir/usr/bin/cava"
+  install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/"${pkgname}"/LICENSE
+}
