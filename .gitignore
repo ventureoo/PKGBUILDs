@@ -1,7 +1,6 @@
 *.pkg.tar.zst
 *.tar.xz
 *.log
-*.tar.xz
 **/FETCH_HEAD
 wine-pure/wine
 wine-pure/wine-staging
