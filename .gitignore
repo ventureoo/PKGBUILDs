@@ -1,5 +1,13 @@
 *.pkg.tar.zst
+*.tar.xz
 *.log
 *.tar.xz
 **/FETCH_HEAD
-
+wine-pure/wine
+wine-pure/wine-staging
+mpv-pure/mpv
+dxvk-pure-git/mingw-directx-headers
+dxvk-pure-git/Vulkan-Headers
+dxvk-pure-git/SPIRV-Headers
+dxvk-pure-git/dxvk
+pacman/pacman
