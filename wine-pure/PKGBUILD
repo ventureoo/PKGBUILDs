@@ -7,7 +7,7 @@
 
 pkgname=wine-staging-ntsync-pure-git
 pkgver=10.0rc3.r23.g0fbaa325d49
-pkgrel=1
+pkgrel=2
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -17,6 +17,7 @@ source=(
   wineserver-enable-link-time-optimization.patch
   msvcrt_nativebuiltin.patch
   6663.patch
+  7064.patch
 )
 sha512sums=(
   'SKIP'
@@ -27,6 +28,7 @@ sha512sums=(
   'f47afccd51f010a282cab07f343479fba6f14ed8c654c8ff7bbc5c808c0d15be967f35d555f496b5f9bc281aa34f78bb9fd2c93a6e1241682cf3ad201dfe88f3'
   '8d4fca16472648e68e9e29e0d406384d8a0e48863c69e511e548b664353a930af83e3ddedf34aab6931b29ca47ee8340980c2c9c84196b0fce0b2f64e0b1cfd9'
   'b6b369fd1307d3adf805d5c9abd0bca787d7d59dc4c433371049cacf8f08c58e740c0345a174d8a211c45c8301498c986d5a637abd713a752d6de3b49be81b9a'
+  '03fe5c70d61028f49120e34eeae464889c4592f6fd9ae90928ae31cfbe69593c3aa4b697ed6bdf13592a2bb88ec23e3c1c7c880d7424936b2907a0643d11b73b'
 )
 
 
@@ -114,6 +116,10 @@ prepare() {
   # Requires patches for Mesa Zink driver:
   # https://gitlab.freedesktop.org/Guy1524/mesa/-/commits/placed_allocation
   patch -Np1 -i "${srcdir}/6663.patch"
+
+  # Fixes crashes in many games in new WoW64 mode
+  # https://bugs.winehq.org/show_bug.cgi?id=57444
+  patch -Np1 -i "${srcdir}/7064.patch"
 }
 
 build() {
