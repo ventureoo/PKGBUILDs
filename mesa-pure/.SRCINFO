@@ -1,7 +1,7 @@
 pkgbase = mesa-pure
 	pkgdesc = A purely personal Mesa build
 	pkgver = 24.3.2
-	pkgrel = 2
+	pkgrel = 3
 	epoch = 1
 	url = https://www.mesa3d.org/
 	arch = x86_64
@@ -61,7 +61,6 @@ pkgbase = mesa-pure
 	conflicts = libva-mesa-driver
 	conflicts = mesa-libgl
 	conflicts = mesa
-	options = !lto
 	source = https://mesa.freedesktop.org/archive/mesa-24.3.2.tar.xz
 	source = d58064d68c7b436ed9c62b020a91ffe646ee60d1.patch
 	source = 3df25e76a5e83a42b4db9527ac6ca3cc14c47ae6.patch

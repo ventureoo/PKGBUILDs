@@ -8,7 +8,7 @@
 
 pkgname=mesa-pure
 pkgver=24.3.2
-pkgrel=2
+pkgrel=3
 epoch=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -77,13 +77,6 @@ conflicts=(
     'mesa-libgl'
     'mesa'
 )
-options=(
-  # GCC 14 LTO causes segfault in LLVM under si_llvm_optimize_module
-  # https://gitlab.freedesktop.org/mesa/mesa/-/issues/11140
-  #
-  # In general, upstream considers LTO to be broken until explicit notice.
-  !lto
-)
 source=(
   "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
   d58064d68c7b436ed9c62b020a91ffe646ee60d1.patch
@@ -113,6 +106,11 @@ prepare() {
 
 build() {
   local meson_options=(
+    -D b_lto=true
+    -D c_args="-O3 -march=native"
+    -D c_link_args="-O1"
+    -D cpp_args="-O3 -march=native"
+    -D cpp_link_args="-O1"
     -D llvm=disabled
     -D amd-use-llvm=false
     -D android-libbacktrace=disabled
