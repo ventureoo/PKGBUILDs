@@ -7,8 +7,8 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=24.3.2
-pkgrel=3
+pkgver=24.3.3
+pkgrel=1
 epoch=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
