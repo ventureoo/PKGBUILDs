@@ -1,0 +1,50 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+# Arch Linux's maintainers:
+# Maintainer: Anatol Pomozov <anatol dot pomozov at gmail>
+# Contributor: Mariusz Libera <mariusz.libera@gmail.com>
+# Contributor: John Williams <jwilliams4200 liamg reverse&remove moc>
+
+pkgname=fio-pure
+pkgver=3.38
+pkgrel=1
+pkgdesc='Scriptable I/O tool for storage benchmarks and drive testing'
+arch=(x86_64)
+url='https://github.com/axboe/fio'
+license=(GPL2)
+provides=(fio)
+conflicts=(fio)
+depends=(bash libaio)
+source=(https://github.com/axboe/fio/archive/fio-$pkgver.zip)
+sha256sums=('1650077b323826df7eb563e102f79e201e19b5d7f0522199697d5b9d5a47352d')
+
+prepare() {
+  cd fio-fio-$pkgver
+  sed -e 's|#!/usr/bin/python2.7$|#!/usr/bin/python|' -i tools/{fio_jsonplus_clat2csv,fiologparser.py,hist/fiologparser_hist.py,hist/half-bins.py,plot/fio2gnuplot}
+}
+
+build() {
+  cd fio-fio-$pkgver
+  ./configure --disable-native \
+      --disable-libnfs \
+      --disable-gfapi \
+      --disable-numa \
+      --disable-rdma \
+      --disable-http \
+      --extra-cflags="$CFLAGS"
+  make
+}
+
+package() {
+  cd fio-fio-$pkgver
+  make DESTDIR="$pkgdir" prefix=/usr mandir=/usr/share/man install
+
+  # documentation
+  install -dm755 "$pkgdir/usr/share/doc/$pkgname"
+  install -m644 HOWTO.rst README.rst REPORTING-BUGS SERVER-TODO "$pkgdir/usr/share/doc/$pkgname"
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+  install -Dm644 MORAL-LICENSE "$pkgdir/usr/share/licenses/$pkgname/MORAL-LICENSE"
+
+  # examples
+  install -dm755 "$pkgdir/usr/share/doc/$pkgname/examples"
+  install -m644 examples/* "$pkgdir/usr/share/doc/$pkgname/examples"
+}

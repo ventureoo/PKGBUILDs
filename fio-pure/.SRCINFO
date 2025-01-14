@@ -1,0 +1,15 @@
+pkgbase = fio-pure
+	pkgdesc = Scriptable I/O tool for storage benchmarks and drive testing
+	pkgver = 3.38
+	pkgrel = 1
+	url = https://github.com/axboe/fio
+	arch = x86_64
+	license = GPL2
+	depends = bash
+	depends = libaio
+	provides = fio
+	conflicts = fio
+	source = https://github.com/axboe/fio/archive/fio-3.38.zip
+	sha256sums = 1650077b323826df7eb563e102f79e201e19b5d7f0522199697d5b9d5a47352d
+
+pkgname = fio-pure
