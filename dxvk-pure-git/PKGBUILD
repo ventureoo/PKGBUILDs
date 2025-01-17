@@ -3,7 +3,7 @@
 # Maintainer: Adrià Cereto i Massagué <ssorgatem at gmail.com>
 
 pkgname=dxvk-pure-git
-pkgver=2.5.1.r28.gb1ad4314
+pkgver=2.5.3.r31.gc52a68a5b
 pkgrel=1
 pkgdesc="A Vulkan-based compatibility layer for Direct3D 9/10/11 which allows running 3D applications on Linux using Wine. Windows DLL version)"
 arch=('x86_64')
@@ -12,7 +12,7 @@ license=('zlib/libpng')
 depends=('vulkan-icd-loader')
 provides=('dxvk' 'd9vk' "dxvk=$pkgver")
 conflicts=('d9vk'  "dxvk" 'dxvk-bin')
-makedepends=('ninja' 'meson>=0.43' 'glslang' 'mingw-w64-gcc-pure' 'git')
+makedepends=('ninja' 'meson>=0.43' 'glslang' 'mingw-w64-gcc' 'git')
 options=(!strip !buildflags staticlibs)
 source=(
     "git+https://github.com/doitsujin/dxvk.git"
@@ -44,15 +44,21 @@ prepare() {
     # Patch to passthrough compiler flags (thanks @loathingkernel)
     patch -p1 -i "$srcdir"/dxvk-extraopts.patch
 
-    local cross_cflags="-march=native -mtune=native -mprefer-avx128 -mno-align-vector-insn -fwrapv -fno-strict-aliasing -pipe"
-    local cross_cxxflags="$cross_cflags -std=c++17"
-    local cross_ldflags="-Wl,-O1,--sort-common,--as-needed -Wl,--file-alignment,4096"
+    export CFLAGS="-march=native -mtune=native -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
+    export CXXFLAGS="-march=native -mtune=native -mfpmath=sse -fwrapv -fno-strict-aliasing -std=c++17 -pipe"
+    export LDFLAGS="-Wl,-O1,--sort-common,--as-needed -Wl,--file-alignment,4096"
+
+    local cross_cflags="$CFLAGS -mcmodel=small"
+    local cross_cxxflags="$CXXFLAGS -mcmodel=small"
+    local cross_ldflags="$LDFLAGS"
 
     sed -i build-win64.txt \
         -e "s|@CARGS@|\'${cross_cflags// /\',\'}\'|g" \
         -e "s|@CXXARGS@|\'${cross_cxxflags// /\',\'}\'|g" \
         -e "s|@LDARGS@|\'${cross_ldflags// /\',\'}\'|g"
 
+    local cross_cflags="$CFLAGS -mstackrealign -mpreferred-stack-boundary=2"
+    local cross_cxxflags="$CXXFLAGS -mstackrealign -mpreferred-stack-boundary=2"
     sed -i build-win32.txt \
         -e "s|@CARGS@|\'${cross_cflags// /\',\'}\'|g" \
         -e "s|@CXXARGS@|\'${cross_cxxflags// /\',\'}\'|g" \
