@@ -8,7 +8,7 @@
 
 pkgname=mesa-pure
 pkgver=24.3.3
-pkgrel=2
+pkgrel=3
 epoch=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -90,7 +90,7 @@ prepare() {
   # Include package release in version string so Chromium invalidates
   # its GPU cache; otherwise it can cause pages to render incorrectly.
   # https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/2020604
-  echo "$pkgver-arch$epoch.$pkgrel" >VERSION
+  echo "$pkgver-pure$epoch.$pkgrel" >VERSION
 }
 
 build() {
