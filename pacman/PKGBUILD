@@ -4,7 +4,7 @@
 # Maintainer: Morten Linderud <foxboron@archlinux.org>
 
 pkgname=pacman
-pkgver=7.0.0.r25.ga4e4eac
+pkgver=7.0.0.r35.ge767cf9
 pkgrel=1
 pkgdesc="A library-based package manager with dependency support"
 arch=('x86_64')
@@ -43,13 +43,15 @@ provides=('libalpm.so')
 backup=(etc/pacman.conf
         etc/makepkg.conf
         etc/makepkg.conf.d/rust.conf)
-source=("git+https://gitlab.archlinux.org/pacman/pacman.git#branch=allan/parallel-strip"
+source=("git+https://gitlab.archlinux.org/pacman/pacman.git"
+        "git+https://gitlab.archlinux.org/pacman/libmakepkg-dropins.git"
         revertme-makepkg-remove-libdepends-and-libprovides.patch::https://gitlab.archlinux.org/pacman/pacman/-/commit/354a300cd26bb1c7e6551473596be5ecced921de.patch
         pacman.conf
         makepkg.conf
         alpm.sysusers
         rust.conf)
 sha256sums=('SKIP'
+            'SKIP'
             'b3bce9d662e189e8e49013b818f255d08494a57e13fc264625f852f087d3def2'
             '0e84952e4b8eacbb38c018608d152ddd6f98e205c4c6c7d3cdca854d4b7d4179'
             'd99c1f9608362fff9ab3a2ca0a3096a317927b42a6725bc86599da6849c9c67c'
@@ -122,6 +124,11 @@ package() {
   for unit in dirmngr gpg-agent gpg-agent-{browser,extra,ssh} keyboxd; do
     ln -s "../${unit}@.socket" "$wantsdir/${unit}@etc-pacman.d-gnupg.socket"
   done
+
+  # Makepkg dropins
+  install -m755 "${srcdir}/libmakepkg-dropins/tidy/zipkmod.sh" "$pkgdir/usr/share/makepkg/tidy/zipkmod.sh"
+  install -m755 "${srcdir}/libmakepkg-dropins/tidy/ruby.sh" "$pkgdir/usr/share/makepkg/tidy/ruby.sh"
+  install -m755 "${srcdir}/libmakepkg-dropins/reproducible/python.sh.in" "$pkgdir/usr/share/makepkg/reproducible/python.sh"
 }
 
 # vim: set ts=2 sw=2 et:
