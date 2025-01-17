@@ -7,7 +7,7 @@
 
 pkgbase=linux-pure
 pkgname=(linux-pure linux-pure-headers)
-pkgver=6.12.7.pure
+pkgver=6.12.9.pure
 pkgrel=1
 pkgdesc='My personal kernel build as a testing ground'
 url='https://github.com/archlinux/linux'
@@ -39,7 +39,7 @@ source=(
   0007-skip-simpledrm-if-nvidia-drm.modeset=1-is-set.patch
 )
 sha256sums=(
-  'f785fb648a0e0b66a943bb3228a4b6ed62c90b985cd1ebf69da5d38e589da0cf'
+  '87be0360df0931b340d2bac35161a548070fbc3a8c352c49e21e96666c26aeb4'
   'a6a234cd982d21f0d7daa3ba921293e450abd87ff5d7474d4a153b3f34cfabc5'
   'd148fc94586e0924e98b4976bd86a2e8b7d885ba862156ad9738a448f50c78b0'
   'cd013d8f1f0326e6ba85c7b395257e18aedeac6343868fd5534465761b5a6545'

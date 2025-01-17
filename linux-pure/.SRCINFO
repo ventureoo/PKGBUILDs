@@ -1,6 +1,6 @@
 pkgbase = linux-pure
 	pkgdesc = My personal kernel build as a testing ground
-	pkgver = 6.12.7.pure
+	pkgver = 6.12.9.pure
 	pkgrel = 1
 	url = https://github.com/archlinux/linux
 	arch = x86_64
@@ -16,7 +16,7 @@ pkgbase = linux-pure
 	makedepends = xz
 	options = !strip
 	options = !debug
-	source = https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.12.7.tar.xz
+	source = https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.12.9.tar.xz
 	source = config
 	source = modules.db
 	source = 0001-ntsync.patch
@@ -26,7 +26,7 @@ pkgbase = linux-pure
 	source = 0005-Add-sysctl-and-CONFIG-to-disallow-unprivileged-CLONE_NEWUSER.patch
 	source = 0006-Default-to-maximum-amount-of-ASLR-bits.patch
 	source = 0007-skip-simpledrm-if-nvidia-drm.modeset=1-is-set.patch
-	sha256sums = f785fb648a0e0b66a943bb3228a4b6ed62c90b985cd1ebf69da5d38e589da0cf
+	sha256sums = 87be0360df0931b340d2bac35161a548070fbc3a8c352c49e21e96666c26aeb4
 	sha256sums = a6a234cd982d21f0d7daa3ba921293e450abd87ff5d7474d4a153b3f34cfabc5
 	sha256sums = d148fc94586e0924e98b4976bd86a2e8b7d885ba862156ad9738a448f50c78b0
 	sha256sums = cd013d8f1f0326e6ba85c7b395257e18aedeac6343868fd5534465761b5a6545
