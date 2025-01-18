@@ -2,12 +2,12 @@
 ## Arch Linux maintainer:
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
-: ${_configure:=}
-: ${_skip_modprobed_db:=}
+: "${_configure:=}"
+: "${_skip_modprobed_db:=}"
 
 pkgbase=linux-pure
 pkgname=(linux-pure linux-pure-headers)
-pkgver=6.12.9.pure
+pkgver=6.12.10.pure1
 pkgrel=1
 pkgdesc='My personal kernel build as a testing ground'
 url='https://github.com/archlinux/linux'
@@ -26,29 +26,23 @@ makedepends=(
 )
 options=(!strip !debug)
 _srcname=linux-${pkgver%.*}
+_srctag=v${pkgver%.*}-${pkgver##*.}
+_srctag="${_srctag/pure/arch}"
 source=(
-  https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.xz
+  "https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.xz"
+  "$url/releases/download/$_srctag/linux-$_srctag.patch.zst"
   config
   modules.db
   0001-ntsync.patch
   0002-bore.patch
-  0003-Restore-CONFIG_OPTIMIZE_FOR_PERFORMANCE_O3.patch
-  0004-cpu-select.patch
-  0005-Add-sysctl-and-CONFIG-to-disallow-unprivileged-CLONE_NEWUSER.patch
-  0006-Default-to-maximum-amount-of-ASLR-bits.patch
-  0007-skip-simpledrm-if-nvidia-drm.modeset=1-is-set.patch
 )
 sha256sums=(
-  '87be0360df0931b340d2bac35161a548070fbc3a8c352c49e21e96666c26aeb4'
+  '4a516e5ed748537a73cb42ec47fbbeb6df8b1298e8892c29c0e91de79095b297'
+  '4b8c223bba9b89337b7085b24810b9b6027d95d931b2daedd43e2c5a50477f60'
   'a6a234cd982d21f0d7daa3ba921293e450abd87ff5d7474d4a153b3f34cfabc5'
   'd148fc94586e0924e98b4976bd86a2e8b7d885ba862156ad9738a448f50c78b0'
   'cd013d8f1f0326e6ba85c7b395257e18aedeac6343868fd5534465761b5a6545'
   'a41817aebcc85b378809c223bb11a705cb03251e6e9f9b5027f8506787a417d2'
-  '2ac85c63b1c7279e3a3af130e7e4f2aea164df179b76f1d8270c00f064efb1c6'
-  '48e12a587e3a93e73ca2bba9f3b418d70c0a56592581d2705384a07243c70d61'
-  '0460b771badb209dd4a2db6310083031707d41c5ce682dabed63b5077e2768f9'
-  '97509ff14bc98e8c8a93ae7412717bd0637b64b7fe4c3fa782e857a9a75c692f'
-  '601705db7a8ce1f3a9183d4273ee9c5cef88685a6a63e47b3127dbfafd7e0e97'
 )
 
 export KBUILD_BUILD_HOST=archlinux
@@ -72,6 +66,9 @@ prepare() {
     patch -Np1 < "../$src"
   done
 
+  # Fix extra version from Arch Linux patch
+  sed -i 's/EXTRAVERSION = .*/EXTRAVERSION = /' Makefile
+
   echo "Setting config..."
 
   cp ../config .config
@@ -80,13 +77,6 @@ prepare() {
   scripts/config -d HZ_300 -e HZ_1000 --set-val HZ 1000
   scripts/config -e SCHED_BORE --set-val MIN_BASE_SLICE_NS 2000000
   scripts/config -e NTSYNC
-  scripts/config -d CC_OPTIMIZE_FOR_PERFORMANCE -e CC_OPTIMIZE_FOR_PERFORMANCE_O3
-
-  if grep -q AMD /proc/cpuinfo; then
-    scripts/config -e MNATIVE_AMD
-  else
-    scripts/config -e MNATIVE_INTEL
-  fi
 
   [[ -z "$_skip_modprobed_db" ]] && \
     make LSMOD="${srcdir}/modules.db" localmodconfig
@@ -99,11 +89,15 @@ prepare() {
 
   make -s kernelrelease > version
   echo "Prepared $pkgbase version $(<version)"
-
 }
 
 build() {
   cd "$_srcname"
+
+  # Native compilation + O3 flag
+  export KCFLAGS="-O3 -march=native -mtune=native"
+  export KRUSTFLAGS="-Copt-level=3 -Ctarget-cpu=native"
+
   make all
   make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 }
