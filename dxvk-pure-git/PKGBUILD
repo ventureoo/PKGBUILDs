@@ -3,8 +3,8 @@
 # Maintainer: Adrià Cereto i Massagué <ssorgatem at gmail.com>
 
 pkgname=dxvk-pure-git
-pkgver=2.5.3.r31.gc52a68a5b
-pkgrel=3
+pkgver=2.5.3.r34.ga3ba8fb4d
+pkgrel=1
 pkgdesc="A Vulkan-based compatibility layer for Direct3D 9/10/11 which allows running 3D applications on Linux using Wine. Windows DLL version)"
 arch=('x86_64')
 url="https://github.com/doitsujin/dxvk"
@@ -44,7 +44,7 @@ prepare() {
     # Patch to passthrough compiler flags (thanks @loathingkernel)
     patch -p1 -i "$srcdir"/dxvk-extraopts.patch
 
-    export CFLAGS="-march=native -mtune=native -mprefer-avx128 -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
+    export CFLAGS="-march=native -mtune=native -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
     export CXXFLAGS="$CFLAGS -std=c++17"
     export LDFLAGS="-Wl,-O1,--sort-common,--as-needed -Wl,--file-alignment,4096"
 
