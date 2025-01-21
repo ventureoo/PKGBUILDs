@@ -3,7 +3,7 @@
 # Maintainer: Adrià Cereto i Massagué <ssorgatem at gmail.com>
 
 pkgname=dxvk-pure-git
-pkgver=2.5.3.r34.ga3ba8fb4d
+pkgver=2.5.3.r35.g84ccad352
 pkgrel=1
 pkgdesc="A Vulkan-based compatibility layer for Direct3D 9/10/11 which allows running 3D applications on Linux using Wine. Windows DLL version)"
 arch=('x86_64')
@@ -57,8 +57,8 @@ prepare() {
         -e "s|@CXXARGS@|\'${cross_cxxflags// /\',\'}\'|g" \
         -e "s|@LDARGS@|\'${cross_ldflags// /\',\'}\'|g"
 
-    local cross_cflags="$CFLAGS -mstackrealign -mpreferred-stack-boundary=2"
-    local cross_cxxflags="$CXXFLAGS -mstackrealign -mpreferred-stack-boundary=2"
+    local cross_cflags="$CFLAGS"
+    local cross_cxxflags="$CXXFLAGS"
     sed -i build-win32.txt \
         -e "s|@CARGS@|\'${cross_cflags// /\',\'}\'|g" \
         -e "s|@CXXARGS@|\'${cross_cxxflags// /\',\'}\'|g" \
