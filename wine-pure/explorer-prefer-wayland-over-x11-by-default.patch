@@ -1,0 +1,26 @@
+From 9ad3e7bbfbc635c6146d0eee664fca868dfde5d8 Mon Sep 17 00:00:00 2001
+From: Vasiliy Stelmachenok <ventureo@cachyos.org>
+Date: Sun, 24 Nov 2024 13:39:52 +0300
+Subject: [PATCH 2/2] explorer: Prefer Wayland over X11 by default
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
+---
+ programs/explorer/desktop.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/programs/explorer/desktop.c b/programs/explorer/desktop.c
+index e526b468b7d..060104427ce 100644
+--- a/programs/explorer/desktop.c
++++ b/programs/explorer/desktop.c
+@@ -39,7 +39,7 @@ WINE_DEFAULT_DEBUG_CHANNEL(explorer);
+ #define DESKTOP_CLASS_ATOM ((LPCWSTR)MAKEINTATOM(32769))
+ #define DESKTOP_ALL_ACCESS 0x01ff
+ 
+-static const WCHAR default_driver[] = L"mac,x11,wayland";
++static const WCHAR default_driver[] = L"mac,wayland,x11";
+ 
+ static BOOL using_root = TRUE;
+ 
+-- 
+2.47.0
+
