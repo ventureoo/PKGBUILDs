@@ -7,7 +7,7 @@
 
 pkgname=wine-staging-ntsync-pure-git
 pkgver=10.0.r127.g1f23d893483
-pkgrel=2
+pkgrel=3
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -18,6 +18,7 @@ source=(
   msvcrt_nativebuiltin.patch
   7064.patch
   explorer-prefer-wayland-over-x11-by-default.patch
+  winex11.drv-Recognize-the-keyboard-in-a-locale-indep.patch
 )
 sha512sums=(
   'SKIP'
@@ -29,6 +30,7 @@ sha512sums=(
   '8d4fca16472648e68e9e29e0d406384d8a0e48863c69e511e548b664353a930af83e3ddedf34aab6931b29ca47ee8340980c2c9c84196b0fce0b2f64e0b1cfd9'
   '03fe5c70d61028f49120e34eeae464889c4592f6fd9ae90928ae31cfbe69593c3aa4b697ed6bdf13592a2bb88ec23e3c1c7c880d7424936b2907a0643d11b73b'
   'd32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea'
+  'fe23f9e5a108338d38ad7cda033d62d5d8bdb6f35f1c1f4206ee21dbe8f964119ab7d233346db9c43e56fa52cda6ded685aeba783a9945e0a5e3ea7c22004402'
 )
 
 
@@ -119,6 +121,10 @@ prepare() {
   # Fixes crashes in many games in new WoW64 mode
   # https://bugs.winehq.org/show_bug.cgi?id=57444
   patch -Np1 -i "${srcdir}/7064.patch"
+
+  # Make keyboard shortcuts independent of layout
+  # https://bugs.winehq.org/show_bug.cgi?id=30984
+  patch -Np1 -i "${srcdir}/winex11.drv-Recognize-the-keyboard-in-a-locale-indep.patch"
 }
 
 build() {
