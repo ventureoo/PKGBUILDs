@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure-git
-pkgver=10.0rc5.r15.g49a0e297fff
+pkgver=10.0.r127.g1f23d893483
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -17,6 +17,7 @@ source=(
   wineserver-enable-link-time-optimization.patch
   msvcrt_nativebuiltin.patch
   7064.patch
+  explorer-prefer-wayland-over-x11-by-default.patch
 )
 sha512sums=(
   'SKIP'
@@ -27,6 +28,7 @@ sha512sums=(
   'f47afccd51f010a282cab07f343479fba6f14ed8c654c8ff7bbc5c808c0d15be967f35d555f496b5f9bc281aa34f78bb9fd2c93a6e1241682cf3ad201dfe88f3'
   '8d4fca16472648e68e9e29e0d406384d8a0e48863c69e511e548b664353a930af83e3ddedf34aab6931b29ca47ee8340980c2c9c84196b0fce0b2f64e0b1cfd9'
   '03fe5c70d61028f49120e34eeae464889c4592f6fd9ae90928ae31cfbe69593c3aa4b697ed6bdf13592a2bb88ec23e3c1c7c880d7424936b2907a0643d11b73b'
+  'd32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea'
 )
 
 
@@ -106,6 +108,9 @@ prepare() {
 
   # LTO for Wineserver
   patch -Np1 -i "${srcdir}/wineserver-enable-link-time-optimization.patch"
+
+  # Prefer Wayland over X11 by default
+  patch -Np1 -i "${srcdir}/explorer-prefer-wayland-over-x11-by-default.patch"
 
   # Use native Visual C++ DLLs
   patch -Np1 -i "${srcdir}/msvcrt_nativebuiltin.patch"
