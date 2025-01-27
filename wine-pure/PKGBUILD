@@ -7,7 +7,7 @@
 
 pkgname=wine-staging-ntsync-pure-git
 pkgver=10.0.r127.g1f23d893483
-pkgrel=3
+pkgrel=4
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -19,6 +19,7 @@ source=(
   7064.patch
   explorer-prefer-wayland-over-x11-by-default.patch
   winex11.drv-Recognize-the-keyboard-in-a-locale-indep.patch
+  HACK-winex11.drv-Let-the-WM-focus-our-windows-by-def.patch
 )
 sha512sums=(
   'SKIP'
@@ -31,6 +32,7 @@ sha512sums=(
   '03fe5c70d61028f49120e34eeae464889c4592f6fd9ae90928ae31cfbe69593c3aa4b697ed6bdf13592a2bb88ec23e3c1c7c880d7424936b2907a0643d11b73b'
   'd32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea'
   'fe23f9e5a108338d38ad7cda033d62d5d8bdb6f35f1c1f4206ee21dbe8f964119ab7d233346db9c43e56fa52cda6ded685aeba783a9945e0a5e3ea7c22004402'
+  'cae7a3eaaff8b9e937268b05934fa9a64947649948de951a9ea933774783ab5ec970b2c5ccabcc2b5415fa58c490b422cddda0a25ddb538963c56e861e6aa975'
 )
 
 
@@ -125,6 +127,9 @@ prepare() {
   # Make keyboard shortcuts independent of layout
   # https://bugs.winehq.org/show_bug.cgi?id=30984
   patch -Np1 -i "${srcdir}/winex11.drv-Recognize-the-keyboard-in-a-locale-indep.patch"
+
+  # Fixes losing input focus after Alt-Tab in Unity games
+  patch -Np1 -i "${srcdir}/HACK-winex11.drv-Let-the-WM-focus-our-windows-by-def.patch"
 }
 
 build() {
