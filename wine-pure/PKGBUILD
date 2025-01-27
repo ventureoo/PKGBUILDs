@@ -7,7 +7,7 @@
 
 pkgname=wine-staging-ntsync-pure-git
 pkgver=10.0.r127.g1f23d893483
-pkgrel=1
+pkgrel=2
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -63,6 +63,7 @@ makedepends=(autoconf bison perl flex mingw-w64-gcc git
   sdl2
   vulkan-headers
   vulkan-icd-loader
+  ntsync-header
 )
 optdepends=(
   alsa-lib
