@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 685c9bd68c5..38b22e1fb0f 100755
+index 24793936c2a..77ca6deb865 100755
 --- a/configure
 +++ b/configure
-@@ -7737,6 +7737,12 @@ if test "x$ac_cv_header_linux_major_h" = xyes
+@@ -7738,6 +7738,12 @@ if test "x$ac_cv_header_linux_major_h" = xyes
  then :
    printf "%s\n" "#define HAVE_LINUX_MAJOR_H 1" >>confdefs.h
  
@@ -16,7 +16,7 @@ index 685c9bd68c5..38b22e1fb0f 100755
  ac_fn_c_check_header_compile "$LINENO" "linux/param.h" "ac_cv_header_linux_param_h" "$ac_includes_default"
  if test "x$ac_cv_header_linux_param_h" = xyes
 diff --git a/configure.ac b/configure.ac
-index dc53d788c05..c06fb32ab37 100644
+index b6e6511fb98..a8f8db406a5 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -383,6 +383,7 @@ AC_CHECK_HEADERS(\
@@ -229,7 +229,7 @@ index 0b24c96ea84..02d524b62ca 100644
      {
          req->handle = wine_server_obj_handle( handle );
 diff --git a/dlls/ntdll/unix/sync.c b/dlls/ntdll/unix/sync.c
-index d486b50001d..c3203debc0b 100644
+index 0ee16b360b3..bea3f381e33 100644
 --- a/dlls/ntdll/unix/sync.c
 +++ b/dlls/ntdll/unix/sync.c
 @@ -30,9 +30,11 @@
@@ -1454,7 +1454,7 @@ index d486b50001d..c3203debc0b 100644
      else                               status = STATUS_TIMEOUT;
      if (status != WAIT_OBJECT_0) return status;
  
-@@ -2111,7 +3110,7 @@ NTSTATUS WINAPI NtRemoveIoCompletionEx( HANDLE handle, FILE_IO_COMPLETION_INFORM
+@@ -2113,7 +3112,7 @@ NTSTATUS WINAPI NtRemoveIoCompletionEx( HANDLE handle, FILE_IO_COMPLETION_INFORM
          assert( status == STATUS_USER_APC );
          goto done;
      }
@@ -1464,7 +1464,7 @@ index d486b50001d..c3203debc0b 100644
      if (status != WAIT_OBJECT_0) goto done;
  
 diff --git a/dlls/ntdll/unix/thread.c b/dlls/ntdll/unix/thread.c
-index cec6b3cb106..74b4eb9673a 100644
+index b64a7dd40af..a66ae7dbe89 100644
 --- a/dlls/ntdll/unix/thread.c
 +++ b/dlls/ntdll/unix/thread.c
 @@ -1801,7 +1801,7 @@ NTSTATUS get_thread_context( HANDLE handle, void *context, BOOL *self, USHORT ma
@@ -1572,7 +1572,7 @@ index 351adf33376..a8f07582a28 100644
  #undef HAVE_LINUX_PARAM_H
  
 diff --git a/include/wine/server_protocol.h b/include/wine/server_protocol.h
-index 947948d2c17..71aa46b940b 100644
+index 8a9f99942e6..9abc2366de4 100644
 --- a/include/wine/server_protocol.h
 +++ b/include/wine/server_protocol.h
 @@ -5909,6 +5909,86 @@ struct set_keyboard_repeat_reply
@@ -2655,7 +2655,7 @@ index 514e4002c6a..70a6fcfef22 100644
  extern void default_poll_event( struct fd *fd, int event );
  extern void fd_cancel_async( struct fd *fd, struct async *async );
 diff --git a/server/handle.c b/server/handle.c
-index e65831b3b22..29b43789372 100644
+index c43b19c1160..436674a69d3 100644
 --- a/server/handle.c
 +++ b/server/handle.c
 @@ -138,6 +138,7 @@ static const struct object_ops handle_table_ops =
@@ -2667,7 +2667,7 @@ index e65831b3b22..29b43789372 100644
      handle_table_destroy             /* destroy */
  };
 diff --git a/server/hook.c b/server/hook.c
-index c2d2823cd61..c45900549fc 100644
+index ffe7206369e..5faa63e8e10 100644
 --- a/server/hook.c
 +++ b/server/hook.c
 @@ -93,6 +93,7 @@ static const struct object_ops hook_table_ops =
@@ -3557,10 +3557,10 @@ index 96814ab7cf8..667e2506672 100644
  
  /* process functions */
 diff --git a/server/protocol.def b/server/protocol.def
-index 5fae1c48fed..60625e4944d 100644
+index 203c5244a48..e1f85f4bf44 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
-@@ -4100,3 +4100,50 @@ struct handle_info
+@@ -4099,3 +4099,50 @@ struct handle_info
  @REPLY
      int enable;                /* previous state of auto-repeat enable */
  @END
@@ -3612,7 +3612,7 @@ index 5fae1c48fed..60625e4944d 100644
 +    obj_handle_t handle;          /* handle to the event */
 +@END
 diff --git a/server/queue.c b/server/queue.c
-index cb01cbed7e1..8af9a911de9 100644
+index d11e683f5fd..da681c9e172 100644
 --- a/server/queue.c
 +++ b/server/queue.c
 @@ -133,6 +133,8 @@ struct msg_queue
@@ -3724,7 +3724,7 @@ index cb01cbed7e1..8af9a911de9 100644
  }
  
  static void thread_input_dump( struct object *obj, int verbose )
-@@ -3121,7 +3151,15 @@ DECL_HANDLER(set_queue_mask)
+@@ -3120,7 +3150,15 @@ DECL_HANDLER(set_queue_mask)
                  }
                  SHARED_WRITE_END;
              }
@@ -3741,7 +3741,7 @@ index cb01cbed7e1..8af9a911de9 100644
          }
      }
  }
-@@ -3143,6 +3181,9 @@ DECL_HANDLER(get_queue_status)
+@@ -3142,6 +3180,9 @@ DECL_HANDLER(get_queue_status)
              shared->changed_bits &= ~req->clear_bits;
          }
          SHARED_WRITE_END;
@@ -3751,7 +3751,7 @@ index cb01cbed7e1..8af9a911de9 100644
      }
      else reply->wake_bits = reply->changed_bits = 0;
  }
-@@ -3340,6 +3381,9 @@ DECL_HANDLER(get_message)
+@@ -3339,6 +3380,9 @@ DECL_HANDLER(get_message)
      }
      SHARED_WRITE_END;
  
@@ -3761,7 +3761,7 @@ index cb01cbed7e1..8af9a911de9 100644
      /* then check for posted messages */
      if ((filter & QS_POSTMESSAGE) &&
          get_posted_message( queue, get_win, req->get_first, req->get_last, req->flags, reply ))
-@@ -3399,6 +3443,7 @@ DECL_HANDLER(get_message)
+@@ -3398,6 +3442,7 @@ DECL_HANDLER(get_message)
      }
      SHARED_WRITE_END;
  
@@ -3769,7 +3769,7 @@ index cb01cbed7e1..8af9a911de9 100644
      set_error( STATUS_PENDING );  /* FIXME */
  }
  
-@@ -4190,3 +4235,42 @@ DECL_HANDLER(set_keyboard_repeat)
+@@ -4191,3 +4236,42 @@ DECL_HANDLER(set_keyboard_repeat)
  
      release_object( desktop );
  }
@@ -3837,7 +3837,7 @@ index 2254315b79e..24a4f779e68 100644
      master_socket_destroy          /* destroy */
  };
 diff --git a/server/request_handlers.h b/server/request_handlers.h
-index 8ea794da2e5..232f3a697f1 100644
+index 88b56d90e0a..94054ce3915 100644
 --- a/server/request_handlers.h
 +++ b/server/request_handlers.h
 @@ -300,6 +300,11 @@ DECL_HANDLER(suspend_process);
@@ -3864,7 +3864,7 @@ index 8ea794da2e5..232f3a697f1 100644
  };
  
  C_ASSERT( sizeof(abstime_t) == 8 );
-@@ -2281,3 +2291,18 @@ C_ASSERT( offsetof(struct set_keyboard_repeat_request, period) == 20 );
+@@ -2280,3 +2290,18 @@ C_ASSERT( offsetof(struct set_keyboard_repeat_request, period) == 20 );
  C_ASSERT( sizeof(struct set_keyboard_repeat_request) == 24 );
  C_ASSERT( offsetof(struct set_keyboard_repeat_reply, enable) == 8 );
  C_ASSERT( sizeof(struct set_keyboard_repeat_reply) == 16 );
@@ -3884,10 +3884,10 @@ index 8ea794da2e5..232f3a697f1 100644
 +C_ASSERT( offsetof(struct get_inproc_alert_event_reply, handle) == 8 );
 +C_ASSERT( sizeof(struct get_inproc_alert_event_reply) == 16 );
 diff --git a/server/request_trace.h b/server/request_trace.h
-index 362f8026cdd..09809bebddb 100644
+index ad6ce4ab474..beb58ffebed 100644
 --- a/server/request_trace.h
 +++ b/server/request_trace.h
-@@ -3364,6 +3364,45 @@ static void dump_set_keyboard_repeat_reply( const struct set_keyboard_repeat_rep
+@@ -3363,6 +3363,45 @@ static void dump_set_keyboard_repeat_reply( const struct set_keyboard_repeat_rep
      fprintf( stderr, " enable=%d", req->enable );
  }
  
@@ -3933,7 +3933,7 @@ index 362f8026cdd..09809bebddb 100644
  typedef void (*dump_func)( const void *req );
  
  static const dump_func req_dumpers[REQ_NB_REQUESTS] =
-@@ -3661,6 +3700,11 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
+@@ -3660,6 +3699,11 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
      (dump_func)dump_resume_process_request,
      (dump_func)dump_get_next_thread_request,
      (dump_func)dump_set_keyboard_repeat_request,
@@ -3945,7 +3945,7 @@ index 362f8026cdd..09809bebddb 100644
  };
  
  static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
-@@ -3958,6 +4002,11 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
+@@ -3957,6 +4001,11 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
      NULL,
      (dump_func)dump_get_next_thread_reply,
      (dump_func)dump_set_keyboard_repeat_reply,
@@ -3957,7 +3957,7 @@ index 362f8026cdd..09809bebddb 100644
  };
  
  static const char * const req_names[REQ_NB_REQUESTS] =
-@@ -4255,6 +4304,11 @@ static const char * const req_names[REQ_NB_REQUESTS] =
+@@ -4254,6 +4303,11 @@ static const char * const req_names[REQ_NB_REQUESTS] =
      "resume_process",
      "get_next_thread",
      "set_keyboard_repeat",
@@ -4343,7 +4343,7 @@ index 7e20c670a16..844ad2814f4 100644
      token_destroy              /* destroy */
  };
 diff --git a/server/window.c b/server/window.c
-index a510eafbf78..81193ad9a97 100644
+index 9d6ce4ba169..91961a10a22 100644
 --- a/server/window.c
 +++ b/server/window.c
 @@ -119,6 +119,7 @@ static const struct object_ops window_ops =
@@ -4374,3 +4374,6 @@ index b3746090ccf..4b8a4972971 100644
      desktop_close_handle,         /* close_handle */
      desktop_destroy               /* destroy */
  };
+-- 
+2.48.1
+
