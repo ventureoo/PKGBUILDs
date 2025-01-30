@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure-git
-pkgver=10.0.r205.g492004732b8
+pkgver=10.0.r230.g9dbd872a714
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -20,6 +20,7 @@ source=(
   explorer-prefer-wayland-over-x11-by-default.patch
   winex11.drv-Recognize-the-keyboard-in-a-locale-indep.patch
   HACK-winex11.drv-Let-the-WM-focus-our-windows-by-def.patch
+  Avoid-winemenubuilder-to-startup-explorer.exe.patch
 )
 sha512sums=(
   'SKIP'
@@ -33,6 +34,7 @@ sha512sums=(
   'd32d06216d05bdcd6b00b26820f3ba141f58e7874bb51ed2958a7b0f4dd05da612ae0e8d792e7134fae92f2a6cc05f77077e1443a221cda242a836747a7e22ea'
   'fe23f9e5a108338d38ad7cda033d62d5d8bdb6f35f1c1f4206ee21dbe8f964119ab7d233346db9c43e56fa52cda6ded685aeba783a9945e0a5e3ea7c22004402'
   'cae7a3eaaff8b9e937268b05934fa9a64947649948de951a9ea933774783ab5ec970b2c5ccabcc2b5415fa58c490b422cddda0a25ddb538963c56e861e6aa975'
+  '8192f79ee24f0e1bd7852ddea1f34e77b1395fa4396a8da2f02bff562ae5038cf9ed24cad599b8847839d7c6f175c7b56fa45806754921d897e1f51e1bcdf03f'
 )
 
 
@@ -130,6 +132,9 @@ prepare() {
 
   # Fixes losing input focus after Alt-Tab in Unity games
   patch -Np1 -i "${srcdir}/HACK-winex11.drv-Let-the-WM-focus-our-windows-by-def.patch"
+
+  # Fixes "The explorer process failed to start" issue
+  patch -Np1 -i "${srcdir}/Avoid-winemenubuilder-to-startup-explorer.exe.patch"
 }
 
 build() {
