@@ -1,0 +1,65 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+# AUR maintainer:
+# Maintainer: Darvin Delgado <dnmodder at gmail dot com>
+
+_pkgname=MangoHud
+pkgname=mangohud-pure-git
+pkgver=0.8.0.r0.g86d2010
+pkgrel=1
+pkgdesc="A Vulkan overlay layer for monitoring FPS, temperatures, CPU/GPU load and more"
+url='https://github.com/flightlessmango/MangoHud'
+license=('MIT')
+arch=('x86_64')
+makedepends=(
+    'appstream'
+    'cmocka'
+    'dbus'
+    'git'
+    'glslang'
+    'python-mako'
+    'meson'
+    'nlohmann-json'
+    'vulkan-headers'
+)
+depends=(
+    'gcc-libs'
+    'glew'
+    'glfw'
+    'glibc'
+    'hicolor-icon-theme'
+    'libglvnd'
+    'libxkbcommon'
+    'sh'
+    'wayland'
+)
+optdepends=(
+    'dbus: mangohudctl'
+    'vulkan-icd-loader: Vulkan support'
+)
+provides=('mangohud')
+replaces=('mangohud')
+conflicts=('mangohud' 'mangohud-common-git')
+source=("$_pkgname::git+$url")
+sha512sums=('SKIP')
+
+pkgver() {
+    cd $_pkgname
+    git describe --tags --long --abbrev=7 | sed 's/^v//;s/-rc[0-9]\+-/-/;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+    arch-meson "$_pkgname" build \
+        -Dmangoapp=false \
+        -Dmangohudctl=false \
+        -Dmangoplot=disabled \
+        -Dwith_x11=disabled \
+        -Dwith_xnvctrl=disabled \
+        --wrap-mode=default
+
+    meson compile -C build
+}
+
+package() {
+    meson install -C build --destdir "$pkgdir"
+    install -Dm 0644 "$_pkgname/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+}
