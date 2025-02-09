@@ -1,18 +1,19 @@
-From baca310f0c45c6d71f14cf6a100b60ed040abdb7 Mon Sep 17 00:00:00 2001
+From 597d94e1508b3c743767de4d2e6511647e9ab676 Mon Sep 17 00:00:00 2001
 From: Andrew Eikum <aeikum@codeweavers.com>
-Date: Thu, 29 Mar 2018 11:09:53 -0500
-Subject: [PATCH] HACK: wine.inf: Add native,builtin overrides for msvcrt DLLs
+Date: Fri, 7 Feb 2025 22:22:59 +0300
+Subject: [PATCH 1/5] HACK: wine.inf: Add native,builtin overrides for msvcrt
+ DLLs
 
-Signed-off-by: Vasiliy Stelmachenok <ventureo@yandex.ru>
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
- loader/wine.inf.in | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ loader/wine.inf.in | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
 diff --git a/loader/wine.inf.in b/loader/wine.inf.in
-index e3426b7ec95..23c8c604eba 100644
+index cedcf16fba7..c45a58bb775 100644
 --- a/loader/wine.inf.in
 +++ b/loader/wine.inf.in
-@@ -2619,6 +2619,33 @@ HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-Shanghai-EnableGame",0x1
+@@ -2621,6 +2621,37 @@ HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-Shanghai-EnableGame",0x1
  HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-Solitaire-EnableGame",0x10001,0x00000001
  HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-SpiderSolitaire-EnableGame",0x10001,0x00000001
  HKLM,Software\Wine\LicenseInformation,"Shell-PremiumInBoxGames-Chess-EnableGame",0x10001,0x00000001
@@ -39,13 +40,17 @@ index e3426b7ec95..23c8c604eba 100644
 +HKCU,Software\Wine\DllOverrides,"atl140",0x2,"native,builtin"
 +HKCU,Software\Wine\DllOverrides,"concrt140",0x2,"native,builtin"
 +HKCU,Software\Wine\DllOverrides,"msvcp140",0x2,"native,builtin"
++HKCU,Software\Wine\DllOverrides,"msvcp140_1",0x2,"native,builtin"
++HKCU,Software\Wine\DllOverrides,"msvcp140_codecvt_ids",0x2,"native,builtin"
++HKCU,Software\Wine\DllOverrides,"msvcp140_2",0x2,"native,builtin"
 +HKCU,Software\Wine\DllOverrides,"msvcr140",0x2,"native,builtin"
 +HKCU,Software\Wine\DllOverrides,"ucrtbase",0x2,"native,builtin"
 +HKCU,Software\Wine\DllOverrides,"vcomp140",0x2,"native,builtin"
 +HKCU,Software\Wine\DllOverrides,"vcruntime140",0x2,"native,builtin"
++HKCU,Software\Wine\DllOverrides,"vcruntime140_1",0x2,"native,builtin"
  
  [ColorFiles]
  srgb color space profile.icm,"@%11%\mscms.dll,-1"
 -- 
-2.47.1
+2.48.1
 

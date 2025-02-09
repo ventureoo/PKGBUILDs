@@ -1,24 +1,51 @@
-From bfbe01336d02f9b0a56b4aab9017a7cec50e8366 Mon Sep 17 00:00:00 2001
-From: William Horvath <william@horvath.blog>
-Date: Sun, 22 Dec 2024 04:22:32 -0800
-Subject: [PATCH] ntdll: Check for invalid GS base in the 64-bit segv_handler
- on WoW64.
-
-Adapted from check_invalid_gs in signal_i386.c. PE-side code can
-manipulate %gs and cause wine_syscall_dispatcher to immediately fault,
-as the syscall_frame is relative to it. Catch this early, and fix up
-up the thread's GS base register with one that matches NtCurrentTeb().
-
-Alice: Madness Returns (2011) is one example of game that does this,
-among a few others currently known.
-
-Wine-Bug: https://bugs.winehq.org/show_bug.cgi?id=57444
----
- dlls/ntdll/unix/signal_x86_64.c | 101 ++++++++++++++++++++++++++++++++
- 1 file changed, 101 insertions(+)
-
+diff --git a/dlls/ntdll/tests/exception.c b/dlls/ntdll/tests/exception.c
+index 9b5ca2ca5086c27344152eef0f296e71a57cbac3..13ef9b693bf862dd60daa3738bc37a15cac27660 100644
+--- a/dlls/ntdll/tests/exception.c
++++ b/dlls/ntdll/tests/exception.c
+@@ -2673,24 +2673,21 @@ static const struct exception
+         /* It is observed that fs/gs base is reset
+            on some CPUs when setting the segment value
+            even to 0 (regardless of CPU spec
+-           saying otherwise) and it is not currently
+-           handled in Wine.
++           saying otherwise) and the fs base case
++           is not currently handled in Wine.
+            Disable this part to avoid crashing the test. */
+         0x8e, 0xe0, /* mov %eax,%fs */
+-        0x8e, 0xe8, /* mov %eax,%gs */
+ #else
+         0x90, 0x90, /* nop */
+-        0x90, 0x90, /* nop */
+ #endif
++        0x8e, 0xe8, /* mov %eax,%gs */
+         0xfa,       /* cli */
+         0x58,       /* pop %rax */
+-#if 0
+         0x8e, 0xe8, /* mov %eax,%gs */
+         0x58,       /* pop %rax */
++#if 0
+         0x8e, 0xe0, /* mov %eax,%fs */
+ #else
+-        0x58,       /* pop %rax */
+-        0x90, 0x90, /* nop */
+         0x90, 0x90, /* nop */
+ #endif
+         0x58,       /* pop %rax */
+@@ -2711,6 +2708,12 @@ static const struct exception
+     { { 0xb8, 0x01, 0x00, 0x00, 0x00,          /* mov $0x01, %eax */
+         0xcd, 0x2d, 0xfa, 0xc3 },              /* int $0x2d; cli; ret */
+       8, 0, STATUS_SUCCESS, 0 },
++    { { 0x66, 0x0f, 0xa8,                      /* push %gs */
++        0x66, 0x0f, 0xa9,                      /* pop  %gs */
++        0x65, 0x48, 0x8b, 0x04, 0x25,          /* movq %gs:0x30,%rax (NtCurrentTeb) */
++        0x30, 0x00, 0x00, 0x00,
++        0xc3 },                                /* ret */
++      8, 0, STATUS_SUCCESS, 0 },
+ };
+ 
+ static int got_exception;
 diff --git a/dlls/ntdll/unix/signal_x86_64.c b/dlls/ntdll/unix/signal_x86_64.c
-index caa85249896..fa2e1f8ba8e 100644
+index caa85249896fb9580f1f50dd62b6c0b7a84ee89f..46c70adc83be8112befc7e39cad5ce8b4511cb29 100644
 --- a/dlls/ntdll/unix/signal_x86_64.c
 +++ b/dlls/ntdll/unix/signal_x86_64.c
 @@ -1967,6 +1967,102 @@ static BOOL handle_syscall_trap( ucontext_t *sigcontext, siginfo_t *siginfo )
@@ -128,7 +155,7 @@ index caa85249896..fa2e1f8ba8e 100644
              /* send EXCEPTION_EXECUTE_FAULT only if data execution prevention is enabled */
              if (!(flags & MEM_EXECUTE_OPTION_DISABLE)) rec.ExceptionInformation[0] = EXCEPTION_READ_FAULT;
          }
-+        if (is_wow64() && CS_sig(ucontext) == cs64_sel && check_invalid_gsbase( ucontext, &context.c ))
++        if (CS_sig(ucontext) == cs64_sel && check_invalid_gsbase( ucontext, &context.c ))
 +        {
 +            leave_handler( ucontext );
 +            return;
@@ -136,6 +163,3 @@ index caa85249896..fa2e1f8ba8e 100644
          break;
      case TRAP_x86_ALIGNFLT:  /* Alignment check exception */
          if (EFL_sig(ucontext) & 0x00040000)
--- 
-GitLab
-

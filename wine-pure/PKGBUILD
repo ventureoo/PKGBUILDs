@@ -6,35 +6,46 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure-git
-pkgver=10.0.r230.g9dbd872a714
-pkgrel=2
+pkgver=10.1.r0.ga1dddd902f2
+pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
   30-win32-aliases.conf
   wine-binfmt.conf
-  ntsync-v7-10.0-rc1-staging.patch
-  wineserver-enable-link-time-optimization.patch
-  msvcrt_nativebuiltin.patch
+  ntsync-10.1-staging.patch
   7064.patch
   winex11.drv-Recognize-the-keyboard-in-a-locale-indep.patch
   HACK-winex11.drv-Let-the-WM-focus-our-windows-by-def.patch
+  0001-HACK-wine.inf-Add-native-builtin-overrides-for-msvcr.patch
+  0002-wine.inf-Set-a-valid-Win10-ProductId.patch
+  0003-wineboot-On-prefix-upgrade-update-win10-build-number.patch
+  0004-wineboot-Generate-better-DigitalProductId.patch
+  0005-wineboot-Load-root-certificates-on-prefix-update.patch
   Avoid-winemenubuilder-to-startup-explorer.exe.patch
+  0001-clang-fixup-lto.patch
+  0002-makedep-add-per-source-cflags-and-per-program-ldflag.patch
+  0003-configure-Enforce-4-byte-stack-alignment-on-clang-fo.patch
 )
 sha512sums=(
   'SKIP'
   'SKIP'
   '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
   'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285'
-  'cc344c6cb09741f089bd1e92d0f1cf230dfdda22bd656541782d93aabdedb0812b19fb0f459b4edffad91197d2305e927d28243bb0398dd2142c3a6451b9dc41'
-  'f47afccd51f010a282cab07f343479fba6f14ed8c654c8ff7bbc5c808c0d15be967f35d555f496b5f9bc281aa34f78bb9fd2c93a6e1241682cf3ad201dfe88f3'
-  '8d4fca16472648e68e9e29e0d406384d8a0e48863c69e511e548b664353a930af83e3ddedf34aab6931b29ca47ee8340980c2c9c84196b0fce0b2f64e0b1cfd9'
-  '03fe5c70d61028f49120e34eeae464889c4592f6fd9ae90928ae31cfbe69593c3aa4b697ed6bdf13592a2bb88ec23e3c1c7c880d7424936b2907a0643d11b73b'
+  '2ce437b0a547f09ff026f5a5be1f6124a57b3d7d70cc6d6bac2487c1bcd64a6f93d2da4821522c9ea9d6e41902079f68da48dc915371b0dc1e0338688d18bcb0'
+  '5924de3d5f43fcf9ded9edba38efe4625490e06a44db322af7311e264a56aa9e9fd5fa2133427dff77590656637be0276f8a808f88e127c0dcd8e2c576f54fe4'
   'fe23f9e5a108338d38ad7cda033d62d5d8bdb6f35f1c1f4206ee21dbe8f964119ab7d233346db9c43e56fa52cda6ded685aeba783a9945e0a5e3ea7c22004402'
   'cae7a3eaaff8b9e937268b05934fa9a64947649948de951a9ea933774783ab5ec970b2c5ccabcc2b5415fa58c490b422cddda0a25ddb538963c56e861e6aa975'
+  '470d13c84bac8a7f5b2a64e68b7f0d17affa4e8ab6243a2dee11ab542dd223213baedc463b1fbe166f8289413c1d9f5277880ed2a2cf9c22f7640d41834d63b0'
+  'e475131ba409fe02827b60ac5fb40d286841d932133ceae0ed3e52be06bc0be3dc899e332274dec3b22e829f08a02b6e48218c9b7d2025d9b21f1b8ca1f64ee8'
+  '8f89da5707dc11985e0212bb76056f9718be2bd405f02e1794bdf62bf410ee5d0bafbac80e95ae7a548288ff6034436ef9cba91bf87ffccd920e565661f9bf71'
+  'cdb99445f86fe82192b8f47da36b129586ca3c788177c22fbb7108239eb37a868b5c363f6b88b4ea3e8b2db4b3a0f58df21c565e5aafe43e7214a862d77a8028'
+  'cc22a55db17c32ce5961d5317a01cf8a75d021adfbd576de660de897e1f312eafaa88431d9df57e3a984e5f03a9e1efdcf6c090a4efe29051d9ac4ee81353a9b'
   '8192f79ee24f0e1bd7852ddea1f34e77b1395fa4396a8da2f02bff562ae5038cf9ed24cad599b8847839d7c6f175c7b56fa45806754921d897e1f51e1bcdf03f'
+  '8694685c4b4e8559b98286a11e39b662edc6c0ff1fa0446abd828af84f31d26fc6b8d18c00e3e3d273dcdad373dd6af8f01eeaa0d3de14ef28512494c756bdc4'
+  '605f6f527fc0b25768a3fa7bd921506269c2e70edb17289042eac4f34a410da26bfc4e61d0ae6356258d5fc10be25b8baab9dcabbd7bed034e94560882be457f'
+  '67d2e1e08d7f3bab2cd8d39d9bafd2451ab813fd4696ace70e3a310dd4d249112f3a88dedb7a2bcc0f4b85131a41cd1f20a6f21384ef92ec02ec66f07fd46a93'
 )
-
 
 pkgdesc="A compatibility layer for running Windows programs"
 url="https://www.winehq.org"
@@ -55,7 +66,10 @@ depends=(
   ffmpeg
   unixodbc
 )
-makedepends=(autoconf bison perl flex mingw-w64-gcc git
+makedepends=(
+  git
+  llvm
+  clang
   alsa-lib
   gnutls
   gst-plugins-base-libs
@@ -103,19 +117,19 @@ prepare() {
 
   # apply wine-staging patchset (no Esync to prevent conflicts with NTSync)
   ../wine-staging/staging/patchinstall.py --backend=git-apply --all \
-    -W eventfd_synchronization \
     -W server-Signal_Thread \
-    -W server-PeekMessage \
+    -W eventfd_synchronization \
     -W ntdll-Syscall_Emulation
 
-  # NTSync for Wine 10.0-rc1
-  patch -Np1 -i "${srcdir}/ntsync-v7-10.0-rc1-staging.patch"
+  # NTSync for Wine 10.1
+  patch -Np1 -i "${srcdir}/ntsync-10.1-staging.patch"
 
-  # LTO for Wineserver
-  patch -Np1 -i "${srcdir}/wineserver-enable-link-time-optimization.patch"
-
-  # Use native Visual C++ DLLs
-  patch -Np1 -i "${srcdir}/msvcrt_nativebuiltin.patch"
+  # Use native Visual C++ DLLs, fix Windows product version
+  patch -Np1 -i "${srcdir}/0001-HACK-wine.inf-Add-native-builtin-overrides-for-msvcr.patch"
+  patch -Np1 -i "${srcdir}/0002-wine.inf-Set-a-valid-Win10-ProductId.patch"
+  patch -Np1 -i "${srcdir}/0003-wineboot-On-prefix-upgrade-update-win10-build-number.patch"
+  patch -Np1 -i "${srcdir}/0004-wineboot-Generate-better-DigitalProductId.patch"
+  patch -Np1 -i "${srcdir}/0005-wineboot-Load-root-certificates-on-prefix-update.patch"
 
   # Fixes crashes in many games in new WoW64 mode
   # https://bugs.winehq.org/show_bug.cgi?id=57444
@@ -130,16 +144,32 @@ prepare() {
 
   # Fixes "The explorer process failed to start" issue
   patch -Np1 -i "${srcdir}/Avoid-winemenubuilder-to-startup-explorer.exe.patch"
+
+  # Clang fixes
+  patch -Np1 -i "${srcdir}/0001-clang-fixup-lto.patch"
+  patch -Np1 -i "${srcdir}/0002-makedep-add-per-source-cflags-and-per-program-ldflag.patch"
+  patch -Np1 -i "${srcdir}/0003-configure-Enforce-4-byte-stack-alignment-on-clang-fo.patch"
+
+  ./dlls/winevulkan/make_vulkan
+  ./tools/make_requests
+  ./tools/make_specfiles
+  autoreconf -f
 }
 
 build() {
-  # Doesn't compile without remove these flags as of 4.10
-  export CFLAGS="$CFLAGS -ffat-lto-objects"
+  export CC="clang"
+  export CXX="clang++"
 
-  # Apply flags for cross-compilation
-  export CROSSCFLAGS="-O3 -pipe -g -march=native"
-  export CROSSCXXFLAGS="-O3 -pipe -g -march=native"
-  export CROSSLDFLAGS="-Wl,-O1"
+  # Apply flags for cross-compilation (from Proton)
+  export CFLAGS="-O3 -march=native -mtune=native -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
+  export CROSSCFLAGS="$CFLAGS"
+  export CROSSCXXFLAGS="$CROSSCFLAGS"
+  export CROSSLDFLAGS="-Wl,/FILEALIGN:4096,/OPT:REF,/OPT:ICF"
+  export LDFLAGS="-Wl,-O1,--sort-common,--as-needed -flto=thin -fuse-ld=lld"
+
+  # Per component CFLAGS and LDFlAGS (requires makedep patch)
+  export preloader_CFLAGS=" -fno-lto -Wl,--no-relax"
+  export wine_preloader_LDFLAGS=" -fno-lto -Wl,--no-relax"
 
   echo "Building Wine..."
   cd "$pkgname-build"
@@ -151,6 +181,7 @@ build() {
     --with-wayland \
     --with-gstreamer \
     --with-ffmpeg \
+    --without-oss \
     --without-sane \
     --without-v4l2 \
     --without-cups \
@@ -159,6 +190,7 @@ build() {
     --without-pcsclite \
     --without-xxf86vm \
     --without-pcap \
+    --with-mingw=clang \
     --enable-archs=x86_64,i386
 
   make
@@ -171,8 +203,8 @@ package() {
     dlldir="$pkgdir/usr/lib/wine" install
 
   # Strip Windows binaries
-  i686-w64-mingw32-strip --strip-debug "$pkgdir"/usr/lib/wine/i386-windows/*.dll
-  x86_64-w64-mingw32-strip --strip-debug "$pkgdir"/usr/lib/wine/x86_64-windows/*.dll
+  llvm-strip --strip-unneeded "$pkgdir"/usr/lib/wine/i386-windows/*.{dll,exe}
+  llvm-strip --strip-unneeded "$pkgdir"/usr/lib/wine/x86_64-windows/*.{dll,exe}
 
   # Font aliasing settings for Win32 applications
   install -d "$pkgdir"/usr/share/fontconfig/conf.{avail,default}
