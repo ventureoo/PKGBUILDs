@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure-git
-pkgver=10.1.r0.ga1dddd902f2
+pkgver=10.1.r47.g902dcd6e47e
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -23,9 +23,8 @@ source=(
   0004-wineboot-Generate-better-DigitalProductId.patch
   0005-wineboot-Load-root-certificates-on-prefix-update.patch
   Avoid-winemenubuilder-to-startup-explorer.exe.patch
-  0001-clang-fixup-lto.patch
-  0002-makedep-add-per-source-cflags-and-per-program-ldflag.patch
-  0003-configure-Enforce-4-byte-stack-alignment-on-clang-fo.patch
+  "https://archive.archlinux.org/packages/b/binutils/binutils-2.43_1%2Br186%2Bg61f8adadd6db-1-x86_64.pkg.tar.zst"
+  "http://techer.pascal.free.fr/Red-Rose_MinGW-w64-Toolchain/Red-Rose-MinGW-w64-Posix-Urct-v12.0.0.r458.g03d8a40f5-Gcc-11.5.0.tar.xz"
 )
 sha512sums=(
   'SKIP'
@@ -42,9 +41,8 @@ sha512sums=(
   'cdb99445f86fe82192b8f47da36b129586ca3c788177c22fbb7108239eb37a868b5c363f6b88b4ea3e8b2db4b3a0f58df21c565e5aafe43e7214a862d77a8028'
   'cc22a55db17c32ce5961d5317a01cf8a75d021adfbd576de660de897e1f312eafaa88431d9df57e3a984e5f03a9e1efdcf6c090a4efe29051d9ac4ee81353a9b'
   '8192f79ee24f0e1bd7852ddea1f34e77b1395fa4396a8da2f02bff562ae5038cf9ed24cad599b8847839d7c6f175c7b56fa45806754921d897e1f51e1bcdf03f'
-  '8694685c4b4e8559b98286a11e39b662edc6c0ff1fa0446abd828af84f31d26fc6b8d18c00e3e3d273dcdad373dd6af8f01eeaa0d3de14ef28512494c756bdc4'
-  '605f6f527fc0b25768a3fa7bd921506269c2e70edb17289042eac4f34a410da26bfc4e61d0ae6356258d5fc10be25b8baab9dcabbd7bed034e94560882be457f'
-  '67d2e1e08d7f3bab2cd8d39d9bafd2451ab813fd4696ace70e3a310dd4d249112f3a88dedb7a2bcc0f4b85131a41cd1f20a6f21384ef92ec02ec66f07fd46a93'
+  '8203e1b7346d3151503989f6d5ab410683f6871ce0cc390e55fa9e951019cfca25c8ddfb2debd3e645132523273bb7dbce5324101e5418ec6d35e5768da22f2a'
+  'c92e8d4c5811ad82d457a5618f902c2f7e951aa4e3e1cbd640be243ac4d1810e26ea7a933cb2b4b28cda715c04a7f6453060e1b13dd6bf953b69e6ea5ec75c93'
 )
 
 pkgdesc="A compatibility layer for running Windows programs"
@@ -68,8 +66,6 @@ depends=(
 )
 makedepends=(
   git
-  llvm
-  clang
   alsa-lib
   gnutls
   gst-plugins-base-libs
@@ -119,7 +115,8 @@ prepare() {
   ../wine-staging/staging/patchinstall.py --backend=git-apply --all \
     -W server-Signal_Thread \
     -W eventfd_synchronization \
-    -W ntdll-Syscall_Emulation
+    -W ntdll-Hide_Wine_Exports \
+    -W server-Realtime_Priority
 
   # NTSync for Wine 10.1
   patch -Np1 -i "${srcdir}/ntsync-10.1-staging.patch"
@@ -145,11 +142,6 @@ prepare() {
   # Fixes "The explorer process failed to start" issue
   patch -Np1 -i "${srcdir}/Avoid-winemenubuilder-to-startup-explorer.exe.patch"
 
-  # Clang fixes
-  patch -Np1 -i "${srcdir}/0001-clang-fixup-lto.patch"
-  patch -Np1 -i "${srcdir}/0002-makedep-add-per-source-cflags-and-per-program-ldflag.patch"
-  patch -Np1 -i "${srcdir}/0003-configure-Enforce-4-byte-stack-alignment-on-clang-fo.patch"
-
   ./dlls/winevulkan/make_vulkan
   ./tools/make_requests
   ./tools/make_specfiles
@@ -157,19 +149,15 @@ prepare() {
 }
 
 build() {
-  export CC="clang"
-  export CXX="clang++"
+  # Use custom MinGW toolchain, downgrade binutils due to issues
+  export PATH="${srcdir}/usr/bin:${srcdir}/opt/Red-Rose-MinGW-w64-Posix-Urct-v12.0.0.r458.g03d8a40f5-Gcc-11.5.0/bin:${PATH}"
 
   # Apply flags for cross-compilation (from Proton)
   export CFLAGS="-O3 -march=native -mtune=native -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
   export CROSSCFLAGS="$CFLAGS"
   export CROSSCXXFLAGS="$CROSSCFLAGS"
-  export CROSSLDFLAGS="-Wl,/FILEALIGN:4096,/OPT:REF,/OPT:ICF"
-  export LDFLAGS="-Wl,-O1,--sort-common,--as-needed -flto=thin -fuse-ld=lld"
-
-  # Per component CFLAGS and LDFlAGS (requires makedep patch)
-  export preloader_CFLAGS=" -fno-lto -Wl,--no-relax"
-  export wine_preloader_LDFLAGS=" -fno-lto -Wl,--no-relax"
+  export CROSSLDFLAGS="-Wl,-O1"
+  export LDFLAGS="-Wl,-O1,--sort-common,--as-needed"
 
   echo "Building Wine..."
   cd "$pkgname-build"
@@ -190,7 +178,6 @@ build() {
     --without-pcsclite \
     --without-xxf86vm \
     --without-pcap \
-    --with-mingw=clang \
     --enable-archs=x86_64,i386
 
   make
@@ -203,8 +190,8 @@ package() {
     dlldir="$pkgdir/usr/lib/wine" install
 
   # Strip Windows binaries
-  llvm-strip --strip-unneeded "$pkgdir"/usr/lib/wine/i386-windows/*.{dll,exe}
-  llvm-strip --strip-unneeded "$pkgdir"/usr/lib/wine/x86_64-windows/*.{dll,exe}
+  i686-w64-mingw32-strip --strip-debug "$pkgdir"/usr/lib/wine/i386-windows/*.dll
+  x86_64-w64-mingw32-strip --strip-debug "$pkgdir"/usr/lib/wine/x86_64-windows/*.dll
 
   # Font aliasing settings for Win32 applications
   install -d "$pkgdir"/usr/share/fontconfig/conf.{avail,default}
