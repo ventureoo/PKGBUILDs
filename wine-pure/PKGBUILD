@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure-git
-pkgver=10.1.r47.g902dcd6e47e
+pkgver=10.1.r62.g17915f73026
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -14,6 +14,7 @@ source=(
   30-win32-aliases.conf
   wine-binfmt.conf
   ntsync-10.1-staging.patch
+  include-use-ntsync.h-v7-module-header-as-an-in-tree-header.patch
   7064.patch
   winex11.drv-Recognize-the-keyboard-in-a-locale-indep.patch
   HACK-winex11.drv-Let-the-WM-focus-our-windows-by-def.patch
@@ -31,7 +32,8 @@ sha512sums=(
   'SKIP'
   '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
   'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285'
-  '2ce437b0a547f09ff026f5a5be1f6124a57b3d7d70cc6d6bac2487c1bcd64a6f93d2da4821522c9ea9d6e41902079f68da48dc915371b0dc1e0338688d18bcb0'
+  '4050ab115db0d2047dd503332abac09a10f022071d7069022ab906ae15cf342048827fb252e988a136211db0a56ce01b6945c4489be1ad52b8e726721b7104d9'
+  '421348c1969c443de69ae3d0aa48803799339b82bfea4cd3647bdaf0b1b12c75ae34e178accdf44f49ac65a8b734e8340fb388ef0d62bb8fe41269924ea71e5f'
   '5924de3d5f43fcf9ded9edba38efe4625490e06a44db322af7311e264a56aa9e9fd5fa2133427dff77590656637be0276f8a808f88e127c0dcd8e2c576f54fe4'
   'fe23f9e5a108338d38ad7cda033d62d5d8bdb6f35f1c1f4206ee21dbe8f964119ab7d233346db9c43e56fa52cda6ded685aeba783a9945e0a5e3ea7c22004402'
   'cae7a3eaaff8b9e937268b05934fa9a64947649948de951a9ea933774783ab5ec970b2c5ccabcc2b5415fa58c490b422cddda0a25ddb538963c56e861e6aa975'
@@ -77,7 +79,6 @@ makedepends=(
   sdl2
   vulkan-headers
   vulkan-icd-loader
-  ntsync-header
 )
 optdepends=(
   alsa-lib
@@ -120,6 +121,7 @@ prepare() {
 
   # NTSync for Wine 10.1
   patch -Np1 -i "${srcdir}/ntsync-10.1-staging.patch"
+  patch -Np1 -i "${srcdir}/include-use-ntsync.h-v7-module-header-as-an-in-tree-header.patch"
 
   # Use native Visual C++ DLLs, fix Windows product version
   patch -Np1 -i "${srcdir}/0001-HACK-wine.inf-Add-native-builtin-overrides-for-msvcr.patch"
@@ -198,6 +200,10 @@ package() {
   install -m644 "$srcdir/30-win32-aliases.conf" "$pkgdir/usr/share/fontconfig/conf.avail"
   ln -s ../conf.avail/30-win32-aliases.conf "$pkgdir/usr/share/fontconfig/conf.default/30-win32-aliases.conf"
   install -Dm 644 "$srcdir/wine-binfmt.conf" "$pkgdir/usr/lib/binfmt.d/wine.conf"
+
+  # NTSync additions
+  echo "ntsync" | install -Dm644 /dev/stdin "$pkgdir/usr/lib/modules-load.d/wine-pure.conf"
+  echo 'KERNEL=="ntsync", MODE="0644"' | install -Dm644 /dev/stdin "$pkgdir/usr/lib/udev/rules.d/50-wine-pure.rules"
 }
 
 # vim:set ts=8 sts=2 sw=2 et:
