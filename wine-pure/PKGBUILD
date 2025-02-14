@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure-git
-pkgver=10.1.r62.g17915f73026
+pkgver=10.1.r92.g66ee9588b78
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -24,7 +24,6 @@ source=(
   0004-wineboot-Generate-better-DigitalProductId.patch
   0005-wineboot-Load-root-certificates-on-prefix-update.patch
   Avoid-winemenubuilder-to-startup-explorer.exe.patch
-  "https://archive.archlinux.org/packages/b/binutils/binutils-2.43_1%2Br186%2Bg61f8adadd6db-1-x86_64.pkg.tar.zst"
   "http://techer.pascal.free.fr/Red-Rose_MinGW-w64-Toolchain/Red-Rose-MinGW-w64-Posix-Urct-v12.0.0.r458.g03d8a40f5-Gcc-11.5.0.tar.xz"
 )
 sha512sums=(
@@ -43,7 +42,6 @@ sha512sums=(
   'cdb99445f86fe82192b8f47da36b129586ca3c788177c22fbb7108239eb37a868b5c363f6b88b4ea3e8b2db4b3a0f58df21c565e5aafe43e7214a862d77a8028'
   'cc22a55db17c32ce5961d5317a01cf8a75d021adfbd576de660de897e1f312eafaa88431d9df57e3a984e5f03a9e1efdcf6c090a4efe29051d9ac4ee81353a9b'
   '8192f79ee24f0e1bd7852ddea1f34e77b1395fa4396a8da2f02bff562ae5038cf9ed24cad599b8847839d7c6f175c7b56fa45806754921d897e1f51e1bcdf03f'
-  '8203e1b7346d3151503989f6d5ab410683f6871ce0cc390e55fa9e951019cfca25c8ddfb2debd3e645132523273bb7dbce5324101e5418ec6d35e5768da22f2a'
   'c92e8d4c5811ad82d457a5618f902c2f7e951aa4e3e1cbd640be243ac4d1810e26ea7a933cb2b4b28cda715c04a7f6453060e1b13dd6bf953b69e6ea5ec75c93'
 )
 
@@ -152,7 +150,7 @@ prepare() {
 
 build() {
   # Use custom MinGW toolchain, downgrade binutils due to issues
-  export PATH="${srcdir}/usr/bin:${srcdir}/opt/Red-Rose-MinGW-w64-Posix-Urct-v12.0.0.r458.g03d8a40f5-Gcc-11.5.0/bin:${PATH}"
+  export PATH="${srcdir}/opt/Red-Rose-MinGW-w64-Posix-Urct-v12.0.0.r458.g03d8a40f5-Gcc-11.5.0/bin:${PATH}"
 
   # Apply flags for cross-compilation (from Proton)
   export CFLAGS="-O3 -march=native -mtune=native -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
