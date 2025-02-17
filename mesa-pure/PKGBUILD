@@ -103,7 +103,7 @@ build() {
     -D b_lto=true
     -D c_args="-O3 -march=$march"
     -D c_link_args="-O1"
-    -D cpp_args="-O3 -march=$match"
+    -D cpp_args="-O3 -march=$march"
     -D cpp_link_args="-O1"
     -D llvm=disabled
     -D amd-use-llvm=false
