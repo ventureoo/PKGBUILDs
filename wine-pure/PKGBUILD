@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging-ntsync-pure-git
-pkgver=10.1.r125.g4de56399442
+pkgver=10.1.r156.g59720e7d1b8
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -150,8 +150,14 @@ build() {
   # Use custom MinGW toolchain, downgrade binutils due to issues
   export PATH="${srcdir}/opt/Red-Rose-MinGW-w64-Posix-Urct-v12.0.0.r458.g03d8a40f5-Gcc-11.5.0/bin:${PATH}"
 
+  local -a split=($CFLAGS)
+  local -A flags
+  for opt in "${split[@]}"; do flags["${opt%%=*}"]="${opt##*=}"; done
+  local march="${flags["-march"]:-"x86-64-v3"}"
+  local mtune="${flags["-mtune"]:-"haswell"}"
+
   # Apply flags for cross-compilation (from Proton)
-  export CFLAGS="-O3 -march=native -mtune=native -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
+  export CFLAGS="-O3 -march=$march -mtune=$mtune -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
   export CROSSCFLAGS="$CFLAGS"
   export CROSSCXXFLAGS="$CROSSCFLAGS"
   export CROSSLDFLAGS="-Wl,-O1"
