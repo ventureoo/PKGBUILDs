@@ -23,15 +23,15 @@ source=(
   0004-wineboot-Generate-better-DigitalProductId.patch
   0005-wineboot-Load-root-certificates-on-prefix-update.patch
   Avoid-winemenubuilder-to-startup-explorer.exe.patch
+  include-use-ntsync.h-v7-module-header-as-an-in-tree-header.patch
   "http://techer.pascal.free.fr/Red-Rose_MinGW-w64-Toolchain/Red-Rose-MinGW-w64-Posix-Urct-v12.0.0.r458.g03d8a40f5-Gcc-11.5.0.tar.xz"
-  0001-Revert-server-Check-for-zero-access-in-alloc_handle.patch
 )
 sha512sums=(
   'SKIP'
   'SKIP'
   '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
   'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285'
-  '4050ab115db0d2047dd503332abac09a10f022071d7069022ab906ae15cf342048827fb252e988a136211db0a56ce01b6945c4489be1ad52b8e726721b7104d9'
+  'd58b9230119074bac3452e1ba8fd24fc45787b608b1ba9a053a6288ed3f9000543fc263f5bbefdac5f5d859a2b1a61d5f6450b7ab1f70353a10e061fa9e35fce'
   '5924de3d5f43fcf9ded9edba38efe4625490e06a44db322af7311e264a56aa9e9fd5fa2133427dff77590656637be0276f8a808f88e127c0dcd8e2c576f54fe4'
   'fe23f9e5a108338d38ad7cda033d62d5d8bdb6f35f1c1f4206ee21dbe8f964119ab7d233346db9c43e56fa52cda6ded685aeba783a9945e0a5e3ea7c22004402'
   'cae7a3eaaff8b9e937268b05934fa9a64947649948de951a9ea933774783ab5ec970b2c5ccabcc2b5415fa58c490b422cddda0a25ddb538963c56e861e6aa975'
@@ -41,8 +41,8 @@ sha512sums=(
   'cdb99445f86fe82192b8f47da36b129586ca3c788177c22fbb7108239eb37a868b5c363f6b88b4ea3e8b2db4b3a0f58df21c565e5aafe43e7214a862d77a8028'
   'cc22a55db17c32ce5961d5317a01cf8a75d021adfbd576de660de897e1f312eafaa88431d9df57e3a984e5f03a9e1efdcf6c090a4efe29051d9ac4ee81353a9b'
   '8192f79ee24f0e1bd7852ddea1f34e77b1395fa4396a8da2f02bff562ae5038cf9ed24cad599b8847839d7c6f175c7b56fa45806754921d897e1f51e1bcdf03f'
+  '421348c1969c443de69ae3d0aa48803799339b82bfea4cd3647bdaf0b1b12c75ae34e178accdf44f49ac65a8b734e8340fb388ef0d62bb8fe41269924ea71e5f'
   'c92e8d4c5811ad82d457a5618f902c2f7e951aa4e3e1cbd640be243ac4d1810e26ea7a933cb2b4b28cda715c04a7f6453060e1b13dd6bf953b69e6ea5ec75c93'
-  'f2815bf289642ef111a415d127432d41bba6a4a06fd4d5719ba9664e3d107d82072c7dc571f7a072287db1b8f3bb074946f387a319139ff69283b7ffe69dccb6'
 )
 
 pkgdesc="A compatibility layer for running Windows programs"
@@ -77,7 +77,6 @@ makedepends=(
   sdl2
   vulkan-headers
   vulkan-icd-loader
-  ntsync-header
 )
 optdepends=(
   alsa-lib
@@ -118,7 +117,7 @@ prepare() {
 
   # NTSync for Wine 10.1
   patch -Np1 -i "${srcdir}/ntsync-10.1-staging.patch"
-  patch -Np1 -i "${srcdir}/0001-Revert-server-Check-for-zero-access-in-alloc_handle.patch"
+  patch -Np1 -i "${srcdir}/include-use-ntsync.h-v7-module-header-as-an-in-tree-header.patch"
 
   # Use native Visual C++ DLLs, fix Windows product version
   patch -Np1 -i "${srcdir}/0001-HACK-wine.inf-Add-native-builtin-overrides-for-msvcr.patch"
