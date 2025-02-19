@@ -97,6 +97,9 @@ jobs:
           sed -i 's/-march=x86-64/-march=x86-64-v3/g' /etc/makepkg.conf
           sed -i 's/-mtune=generic/-mtune=haswell/g' /etc/makepkg.conf
 
+          # Setup packager name
+          sed -i 's/#PACKAGER=".*"/PACKAGER="Vasiliy Stelmachenok <ventureo@yandex.ru>/g' /etc/makepkg.conf
+
       - name: Build package
         run: |
           cd "${{ matrix.package }}"
@@ -171,9 +174,7 @@ jobs:
         run: |
           rm -f ./x86_64/pure/pure.files ./x86_64/pure/pure.db ./x86_64/pure/pure.db.sig ./x86_64/pure/pure.files.sig
           cp -v ./x86_64/pure/pure.files.tar.zst ./x86_64/pure/pure.files
-          cp -v ./x86_64/pure/pure.files.tar.zst.sig ./x86_64/pure/pure.files.sig
           cp -v ./x86_64/pure/pure.db.tar.zst ./x86_64/pure/pure.db
-          cp -v ./x86_64/pure/pure.db.tar.zst.sig ./x86_64/pure/pure.db.sig
 
       - name: Sign repository database
         env:
@@ -186,6 +187,12 @@ jobs:
             echo -n "$GPG_SIGNING_PASSWORD" | gpg --pinentry-mode loopback --batch --detach-sign --yes --passphrase-fd 0 --no-armor "$file"
           done
           cd ../..
+
+      - name: Remove symlinks to repository signature
+        run: |
+          rm -f ./x86_64/pure/pure.db.sig ./x86_64/pure/pure.files.sig
+          cp -v ./x86_64/pure/pure.db.tar.zst.sig ./x86_64/pure/pure.db.sig
+          cp -v ./x86_64/pure/pure.files.tar.zst.sig ./x86_64/pure/pure.files.sig
 
       - name: Update repository state
         run: |
