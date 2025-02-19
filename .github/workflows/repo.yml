@@ -1,0 +1,193 @@
+name: Rebuild repository
+
+on:
+  push:
+    paths:
+      - '**/PKGBUILD'
+      - '.github/workflows/**'
+
+jobs:
+  check-state:
+    name: Check repository state
+    runs-on: ubuntu-latest
+    outputs:
+      state: ${{ steps.state.outputs.repo_state }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'ventureoo/repo'
+          ref: 'repo'
+      - name: Check state
+        id: state
+        run: |
+          if [ -e ./state ]; then
+            echo "repo_state=$(cat state 2>/dev/null)" >> "$GITHUB_OUTPUT"
+          else
+            echo "repo_state=undefined" >> "$GITHUB_OUTPUT"
+          fi
+
+  get-changed-packages:
+    name: Get changed packages
+    runs-on: ubuntu-latest
+    needs: check-state
+    outputs:
+      changed: ${{ steps.changed-packages.outputs.changed }}
+      removed: ${{ steps.changed-packages.outputs.removed }}
+    steps:
+      - name: Clone PKGBUILDs
+        uses: actions/checkout@v4
+
+      - name: Find changed packages
+        id: changed-packages
+        run: |
+          declare -r commit="${{needs.check-state.outputs.state}}"
+
+          function jsonify() {
+            json=""
+            size="${#MAPFILE[@]}"
+            for ((i=0; i < size; i++)); do
+              ((i == 0)) && json+="{\"$1\": ["
+              json+="\"$(dirname "${MAPFILE[$i]}")\""
+              ((i == size - 1)) && json+="]}" || json+=", "
+            done
+            echo "$json"
+          }
+
+          if [ "$commit" = "undefined" ]; then
+            readarray -t <<< "$(printf "%s\n" */PKGBUILD)"
+            echo "changed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
+          else
+            readarray -t <<< "$(git diff --diff-filter=d --name-only "$commit" HEAD ".*/PKGBUILD")"
+            echo "changed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
+            readarray -t <<< "$(git diff --diff-filter=D --name-only "$commit" HEAD ".*/PKGBUILD")"
+            echo "removed=$(jsonify "all")" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    if: needs.get-changed-packages.outputs.changed != ''
+    needs: get-changed-packages
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{fromJSON(needs.get-changed-packages.outputs.changed)}}
+    steps:
+      - name: Clone PKGBUILDs
+        uses: actions/checkout@v4
+
+      - name: Setup build environment
+        run: |
+          pacman-key --init
+          pacman -Syu --noconfirm
+          useradd builder -m
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          chmod -R a+rw .
+
+          # Use all threads for building
+          sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc) -l$(nproc)"/g' /etc/makepkg.conf
+
+          # Disable creating debug packages
+          sed -i 's/OPTIONS=(.*)/OPTIONS=(strip docs !libtool !staticlibs emptydirs zipman purge lto)/g' /etc/makepkg.conf
+
+          # Build packages for x86-64-v3 only
+          sed -i 's/-march=x86-64/-march=x86-64-v3/g' /etc/makepkg.conf
+          sed -i 's/-mtune=generic/-mtune=haswell/g' /etc/makepkg.conf
+
+      - name: Build package
+        run: |
+          cd "${{ matrix.package }}"
+          sudo -H -E -u builder makepkg --syncdeps --noconfirm
+
+      - name: Signing package
+        if: github.ref == 'refs/heads/main'
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
+        run: |
+          cd "${{ matrix.package }}"
+          echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
+          echo -n "$GPG_SIGNING_PASSWORD" | gpg --pinentry-mode loopback --batch --yes --passphrase-fd 0 --detach-sign --no-armor *.pkg.tar.zst
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.package }}
+          path: ${{ matrix.package }}/*.pkg.tar.zst*
+
+  deploy:
+    name: Deploy packages
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    if: (needs.build.result == 'success' || needs.get-changed-packages.outputs.removed != '') && github.ref == 'refs/heads/main'
+    needs: [build, get-changed-packages]
+    steps:
+      - name: Download unsigned packages
+        if: needs.build.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artifacts
+          merge-multiple: true
+
+      - name: Setup git
+        run: |
+          pacman-key --init
+          pacman -Syu --noconfirm git git-lfs
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'ventureoo/repo'
+          ref: 'repo'
+          fetch-depth: 0
+          lfs: true
+          token: ${{ secrets.GH_REPO_TOKEN }}
+
+      - name: Replace existing packages
+        if: needs.build.result == 'success'
+        run: |
+          mkdir -p ./x86_64/pure
+          cp -v /tmp/artifacts/*.pkg.tar.zst{,.sig} ./x86_64/pure
+
+      - name: Update repository database
+        if: needs.build.result == 'success'
+        run: |
+          repo-add -R --nocolor ./x86_64/pure/pure.db.tar.zst ./x86_64/pure/*.pkg.tar.zst
+
+      - name: Purge removed packages
+        if: needs.get-changed-packages.outputs.removed != ''
+        run: |
+          declare -a packages=(${{ join(fromJSON(needs.get-changed-packages.outputs.removed).all, ' ') }})
+          for pkg in ${packages[@]}; do
+            rm -rf ./x86_64/pure/"$pkg"*.pkg.tar.zst{,.sig}
+          done
+          repo-remove --nocolor ./x86_64/pure/pure.db.tar.zst ${packages[@]}
+
+      - name: Sign repository database
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
+        run: |
+          echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
+          cd ./x86_64/pure
+          echo -n "$GPG_SIGNING_PASSWORD" | gpg --pinentry-mode loopback --batch --detach-sign --yes --passphrase-fd 0 --no-armor *.{db,files}.tar.zst
+          cd ../..
+
+      - name: Update repository state
+        run: |
+          echo ${{ github.sha }} > state
+
+      - name: Push repository update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git lfs track "*.tar.zst*"
+          git add .
+          git status
+          git commit -m "Sync repo state with PKGBUILDs"
+          git push origin HEAD:repo
+
+
