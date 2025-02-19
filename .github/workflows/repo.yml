@@ -21,7 +21,8 @@ jobs:
       - name: Check state
         id: state
         run: |
-          if [ -e ./state ]; then
+          # TEMP
+          if false; then
             echo "repo_state=$(cat state 2>/dev/null)" >> "$GITHUB_OUTPUT"
           else
             echo "repo_state=undefined" >> "$GITHUB_OUTPUT"
@@ -165,6 +166,12 @@ jobs:
             rm -rf ./x86_64/pure/"$pkg"*.pkg.tar.zst{,.sig}
           done
           repo-remove --nocolor ./x86_64/pure/pure.db.tar.zst ${packages[@]}
+
+      - name: Replace symlinks to repository database
+        run: |
+          rm -f ./x86_64/pure/pure.files ./x86_64/pure/pure.db
+          cp -v ./x86_64/pure/pure.files.tar.zst ./x86_64/pure/pure.files
+          cp -v ./x86_64/pure/pure.db.tar.zst ./x86_64/pure/pure.db
 
       - name: Sign repository database
         env:
