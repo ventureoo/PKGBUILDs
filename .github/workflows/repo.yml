@@ -169,9 +169,11 @@ jobs:
 
       - name: Replace symlinks to repository database
         run: |
-          rm -f ./x86_64/pure/pure.files ./x86_64/pure/pure.db
+          rm -f ./x86_64/pure/pure.files ./x86_64/pure/pure.db ./x86_64/pure/pure.db.sig ./x86_64/pure/pure.files.sig
           cp -v ./x86_64/pure/pure.files.tar.zst ./x86_64/pure/pure.files
+          cp -v ./x86_64/pure/pure.files.tar.zst.sig ./x86_64/pure/pure.files.sig
           cp -v ./x86_64/pure/pure.db.tar.zst ./x86_64/pure/pure.db
+          cp -v ./x86_64/pure/pure.db.tar.zst.sig ./x86_64/pure/pure.db.sig
 
       - name: Sign repository database
         env:
@@ -180,7 +182,9 @@ jobs:
         run: |
           echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
           cd ./x86_64/pure
-          echo -n "$GPG_SIGNING_PASSWORD" | gpg --pinentry-mode loopback --batch --detach-sign --yes --passphrase-fd 0 --no-armor *.{db,files}.tar.zst
+          for file in pure.db pure.db.tar.zst pure.files pure.files.tar.zst; do
+            echo -n "$GPG_SIGNING_PASSWORD" | gpg --pinentry-mode loopback --batch --detach-sign --yes --passphrase-fd 0 --no-armor "$file"
+          done
           cd ../..
 
       - name: Update repository state
