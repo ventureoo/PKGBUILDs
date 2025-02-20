@@ -159,7 +159,7 @@ jobs:
     runs-on: ubuntu-latest
     container: archlinux:base-devel
     if: (needs.build.result == 'success' || needs.get-changed-packages.outputs.removed != '') && github.ref == 'refs/heads/main'
-    needs: [build, get-changed-packages, check-state]
+    needs: [build, get-changed-packages]
     steps:
       - name: Download packages
         if: needs.build.result == 'success'
@@ -169,10 +169,8 @@ jobs:
           merge-multiple: true
       
       - name: Download repository database
-        uses: robinraju/release-downloader@v1
-        if: needs.check-state.outputs.repo_state != 'undefined'
-        with:
-          fileName: 'pure.db.tar.zst'
+        run: |
+          curl -O https://github.com/ventureoo/PKGBUILDs/releases/download/pure/pure.db.tar.zst &>/dev/null || true
 
       - name: Update repository database
         if: needs.build.result == 'success'
