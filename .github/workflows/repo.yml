@@ -85,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     container: archlinux:base-devel
     if: needs.get-changed-packages.outputs.changed != ''
-    needs: get-changed-packages
+    needs: [check-state, get-changed-packages]
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -132,6 +132,7 @@ jobs:
 
       - uses: mknejp/delete-release-assets@v1
         name: Remove old package version
+        if: needs.check-state.outputs.repo_state != 'undefined'
         with:
           token: ${{ secrets.GH_REPO_TOKEN }}
           tag: pure
