@@ -16,9 +16,9 @@ jobs:
       - name: Check state
         id: state
         run: |
-          # TEMP
-          if false; then
-            echo "repo_state=$(cat state 2>/dev/null)" >> "$GITHUB_OUTPUT"
+          state="$(curl -sL "https://github.com/ventureoo/PKGBUILDs/releases/download/pure/state")"
+          if [ "$state" != "Not Found" ]; then
+            echo "repo_state=$state" >> "$GITHUB_OUTPUT"
           else
             echo "repo_state=undefined" >> "$GITHUB_OUTPUT"
           fi
@@ -59,26 +59,6 @@ jobs:
             readarray -t <<< "$(git diff --diff-filter=D --name-only "$commit" HEAD ".*/PKGBUILD")"
             echo "removed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
           fi
-
-  purge:
-    name: Remove ${{ matrix.package }}
-    runs-on: ubuntu-latest
-    container: archlinux:base-devel
-    if: needs.get-changed-packages.outputs.removed != ''
-    needs: get-changed-packages
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix: ${{fromJSON(needs.get-changed-packages.outputs.removed)}}
-    steps:
-      - uses: mknejp/delete-release-assets@v1
-        name: Remove package
-        with:
-          token: ${{ secrets.GH_REPO_TOKEN }}
-          tag: pure
-          assets: ${{ matrix.package }}*.pkg.tar.zst*
-          fail-if-no-assets: false
-          fail-if-no-release: false
 
   build:
     name: Build ${{ matrix.package }}
@@ -221,3 +201,35 @@ jobs:
           file: pure.db*
           file_glob: true
           overwrite: true
+
+      - name: Update repository state
+        run: |
+          echo ${{ github.sha }} > state
+
+      - name: Upload repository state
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          file: state
+          overwrite: true
+
+  purge:
+    name: Remove ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    if: needs.get-changed-packages.outputs.removed != '' && needs.deploy.result == 'success'
+    needs: [deploy, get-changed-packages]
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{fromJSON(needs.get-changed-packages.outputs.removed)}}
+    steps:
+      - uses: mknejp/delete-release-assets@v1
+        name: Remove package
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          assets: ${{ matrix.package }}*.pkg.tar.zst*
+          fail-if-no-assets: false
+          fail-if-no-release: false
