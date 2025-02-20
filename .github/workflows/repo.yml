@@ -158,8 +158,8 @@ jobs:
     name: Deploy packages
     runs-on: ubuntu-latest
     container: archlinux:base-devel
-    if: (needs.build.result == 'success' || needs.purge.result == 'success') && github.ref == 'refs/heads/main'
-    needs: [build, purge, get-changed-packages, check-state]
+    if: (needs.build.result == 'success' || needs.get-changed-packages.outputs.removed != '') && github.ref == 'refs/heads/main'
+    needs: [build, get-changed-packages, check-state]
     steps:
       - name: Download packages
         if: needs.build.result == 'success'
