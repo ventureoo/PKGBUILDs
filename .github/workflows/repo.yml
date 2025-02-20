@@ -13,11 +13,6 @@ jobs:
     outputs:
       state: ${{ steps.state.outputs.repo_state }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          repository: 'ventureoo/repo'
-          ref: 'repo'
       - name: Check state
         id: state
         run: |
@@ -62,8 +57,28 @@ jobs:
             readarray -t <<< "$(git diff --diff-filter=d --name-only "$commit" HEAD ".*/PKGBUILD")"
             echo "changed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
             readarray -t <<< "$(git diff --diff-filter=D --name-only "$commit" HEAD ".*/PKGBUILD")"
-            echo "removed=$(jsonify "all")" >> "$GITHUB_OUTPUT"
+            echo "removed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
           fi
+
+  purge:
+    name: Remove ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    if: needs.get-changed-packages.outputs.removed != ''
+    needs: get-changed-packages
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{fromJSON(needs.get-changed-packages.outputs.removed)}}
+    steps:
+      - uses: mknejp/delete-release-assets@v1
+        name: Remove package
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          assets: ${{ matrix.package }}*.pkg.tar.zst*
+          fail-if-no-assets: false
+          fail-if-no-release: true
 
   build:
     name: Build ${{ matrix.package }}
@@ -115,7 +130,25 @@ jobs:
           echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
           echo -n "$GPG_SIGNING_PASSWORD" | gpg --pinentry-mode loopback --batch --yes --passphrase-fd 0 --detach-sign --no-armor *.pkg.tar.zst
 
-      - name: Upload package
+      - uses: mknejp/delete-release-assets@v1
+        name: Remove old package version
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          assets: ${{ matrix.package }}*.pkg.tar.zst*
+          fail-if-no-assets: false
+          fail-if-no-release: true
+
+      - name: Upload package to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GH_REPO_TOKEN }}
+          file: ${{ matrix.package }}/*.pkg.tar.zst*
+          tag: pure
+          file_glob: true
+          overwrite: true
+
+      - name: Upload package to artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.package }}
@@ -126,55 +159,36 @@ jobs:
     runs-on: ubuntu-latest
     container: archlinux:base-devel
     if: (needs.build.result == 'success' || needs.get-changed-packages.outputs.removed != '') && github.ref == 'refs/heads/main'
-    needs: [build, get-changed-packages]
+    needs: [build, purge, get-changed-packages, check-state]
     steps:
-      - name: Download unsigned packages
+      - name: Download packages
         if: needs.build.result == 'success'
         uses: actions/download-artifact@v4
         with:
           path: /tmp/artifacts
           merge-multiple: true
-
-      - name: Setup git
-        run: |
-          pacman-key --init
-          pacman -Syu --noconfirm git git-lfs
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      
+      - name: Download repository database
+        uses: robinraju/release-downloader@v1
+        if: needs.check-state.outputs.repo_state != 'undefined'
         with:
-          repository: 'ventureoo/repo'
-          ref: 'repo'
-          fetch-depth: 0
-          lfs: true
-          token: ${{ secrets.GH_REPO_TOKEN }}
-
-      - name: Replace existing packages
-        if: needs.build.result == 'success'
-        run: |
-          mkdir -p ./x86_64/pure
-          cp -v /tmp/artifacts/*.pkg.tar.zst{,.sig} ./x86_64/pure
+          fileName: 'pure.db.tar.zst'
 
       - name: Update repository database
         if: needs.build.result == 'success'
         run: |
-          repo-add -R --nocolor ./x86_64/pure/pure.db.tar.zst ./x86_64/pure/*.pkg.tar.zst
+          repo-add -R --nocolor pure.db.tar.zst /tmp/artifacts/*.pkg.tar.zst
 
       - name: Purge removed packages
         if: needs.get-changed-packages.outputs.removed != ''
         run: |
-          declare -a packages=(${{ join(fromJSON(needs.get-changed-packages.outputs.removed).all, ' ') }})
-          for pkg in ${packages[@]}; do
-            rm -rf ./x86_64/pure/"$pkg"*.pkg.tar.zst{,.sig}
-          done
-          repo-remove --nocolor ./x86_64/pure/pure.db.tar.zst ${packages[@]}
+          repo-remove --nocolor pure.db.tar.zst ${{ join(fromJSON(needs.get-changed-packages.outputs.removed).package, ' ') }}
 
       - name: Replace symlinks to repository database
         run: |
-          rm -f ./x86_64/pure/pure.files ./x86_64/pure/pure.db ./x86_64/pure/pure.db.sig ./x86_64/pure/pure.files.sig
-          cp -v ./x86_64/pure/pure.files.tar.zst ./x86_64/pure/pure.files
-          cp -v ./x86_64/pure/pure.db.tar.zst ./x86_64/pure/pure.db
+          rm -f pure.files pure.db pure.db.sig pure.files.sig
+          cp -v pure.files.tar.zst pure.files
+          cp -v pure.db.tar.zst pure.db
 
       - name: Sign repository database
         env:
@@ -182,30 +196,30 @@ jobs:
           GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
         run: |
           echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
-          cd ./x86_64/pure
           for file in pure.db pure.db.tar.zst pure.files pure.files.tar.zst; do
             echo -n "$GPG_SIGNING_PASSWORD" | gpg --pinentry-mode loopback --batch --detach-sign --yes --passphrase-fd 0 --no-armor "$file"
           done
-          cd ../..
 
       - name: Remove symlinks to repository signature
         run: |
-          rm -f ./x86_64/pure/pure.db.sig ./x86_64/pure/pure.files.sig
-          cp -v ./x86_64/pure/pure.db.tar.zst.sig ./x86_64/pure/pure.db.sig
-          cp -v ./x86_64/pure/pure.files.tar.zst.sig ./x86_64/pure/pure.files.sig
+          rm -f pure.db.sig .pure.files.sig
+          cp -v pure.db.tar.zst.sig pure.db.sig
+          cp -v pure.files.tar.zst.sig pure.files.sig
 
-      - name: Update repository state
-        run: |
-          echo ${{ github.sha }} > state
+      - name: Upload repository files database to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          file: pure.files*
+          file_glob: true
+          overwrite: true
 
-      - name: Push repository update
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git lfs track "*.tar.zst*"
-          git add .
-          git status
-          git commit -m "Sync repo state with PKGBUILDs"
-          git push origin HEAD:repo
-
-
+      - name: Upload repository package database to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          file: pure.db*
+          file_glob: true
+          overwrite: true
