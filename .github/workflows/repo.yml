@@ -59,10 +59,10 @@ jobs:
           }
 
           if [ "$commit" = "undefined" ]; then
-            echo "changed=$(jsonify "package" "$(printf "%s\n" */PKGBUILD)")"
+            echo "changed=$(jsonify "package" "$(printf "%s\n" */PKGBUILD)")" >> "$GITHUB_OUTPUT"
           else
-            echo "changed=$(jsonify "package" "$(git diff --diff-filter=d --name-only "$commit" HEAD "*/PKGBUILD")")"
-            echo "removed=$(jsonify "package" "$(git diff --diff-filter=D --name-only "$commit" HEAD "*/PKGBUILD")")"
+            echo "changed=$(jsonify "package" "$(git diff --diff-filter=d --name-only "$commit" HEAD "*/PKGBUILD")")" >> "$GITHUB_OUTPUT"
+            echo "removed=$(jsonify "package" "$(git diff --diff-filter=D --name-only "$commit" HEAD "*/PKGBUILD")")" >> "$GITHUB_OUTPUT"
           fi
 
   build:
