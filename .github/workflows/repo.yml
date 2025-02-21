@@ -164,9 +164,12 @@ jobs:
           path: /tmp/artifacts
           merge-multiple: true
       
-      - name: Download repository database
-        run: |
-          curl -O https://github.com/ventureoo/PKGBUILDs/releases/download/pure/pure.db.tar.zst &>/dev/null || true
+      - name: Repository database
+        uses: robinraju/release-downloader@v1
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          fileName: pure.db.tar.zst
 
       - name: Update repository database
         if: needs.build.result == 'success'
