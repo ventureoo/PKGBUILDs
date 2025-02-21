@@ -81,8 +81,19 @@ jobs:
 
       - name: Setup build environment
         run: |
+          # Plug-in binary packages repository
+          cat << 'EOF' >> /etc/pacman.conf
+          [pure]
+          Server = https://github.com/ventureoo/PKGBUILDs/releases/download/$repo
+          EOF
+
+          # Import keys
           pacman-key --init
+          pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys 7E8BBA85FD77B760
+          pacman-key --lsign-key  7E8BBA85FD77B760
           pacman -Syu --noconfirm
+
+          # Setup builder user
           useradd builder -m
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           chmod -R a+rw .
