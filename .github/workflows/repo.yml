@@ -54,9 +54,9 @@ jobs:
             readarray -t <<< "$(printf "%s\n" */PKGBUILD)"
             echo "changed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
           else
-            readarray -t <<< "$(git diff --diff-filter=d --name-only "$commit" HEAD ".*/PKGBUILD")"
+            readarray -t <<< "$(git diff --diff-filter=d --name-only "$commit" HEAD "*/PKGBUILD")"
             echo "changed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
-            readarray -t <<< "$(git diff --diff-filter=D --name-only "$commit" HEAD ".*/PKGBUILD")"
+            readarray -t <<< "$(git diff --diff-filter=D --name-only "$commit" HEAD "*/PKGBUILD")"
             echo "removed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
           fi
 
