@@ -39,7 +39,7 @@ jobs:
       - name: Find changed packages
         id: changed-packages
         run: |
-          declare -r commit="$(curl -sL "https://github.com/ventureoo/PKGBUILDs/releases/download/pure/state")"
+          declare -r commit="${{needs.check-state.outputs.state}}"
 
           function jsonify() {
             local json=""
