@@ -39,27 +39,30 @@ jobs:
       - name: Find changed packages
         id: changed-packages
         run: |
-          declare -r commit="${{needs.check-state.outputs.state}}"
+          declare -r commit="$(curl -sL "https://github.com/ventureoo/PKGBUILDs/releases/download/pure/state")"
 
           function jsonify() {
-            json=""
-            size="${#MAPFILE[@]}"
-            for ((i=0; i < size; i++)); do
-              ((i == 0)) && json+="{\"$1\": ["
-              json+="\"$(dirname "${MAPFILE[$i]}")\""
-              ((i == size - 1)) && json+="]}" || json+=", "
-            done
+            local json=""
+            local input="$2"
+
+            if [ -n "$input" ]; then
+              mapfile -t <<< "$input"
+              local size="${#MAPFILE[@]}"
+              for ((i=0; i < size; i++)); do
+                ((i == 0)) && json+="{\"$1\": ["
+                json+="\"$(dirname "${MAPFILE[$i]}")\""
+                ((i == size - 1)) && json+="]}" || json+=", "
+              done
+            fi
+
             echo "$json"
           }
 
           if [ "$commit" = "undefined" ]; then
-            readarray -t <<< "$(printf "%s\n" */PKGBUILD)"
-            echo "changed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
+            echo "changed=$(jsonify "package" "$(printf "%s\n" */PKGBUILD)")"
           else
-            readarray -t <<< "$(git diff --diff-filter=d --name-only "$commit" HEAD "*/PKGBUILD")"
-            echo "changed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
-            readarray -t <<< "$(git diff --diff-filter=D --name-only "$commit" HEAD "*/PKGBUILD")"
-            echo "removed=$(jsonify "package")" >> "$GITHUB_OUTPUT"
+            echo "changed=$(jsonify "package" "$(git diff --diff-filter=d --name-only "$commit" HEAD "*/PKGBUILD")")"
+            echo "removed=$(jsonify "package" "$(git diff --diff-filter=D --name-only "$commit" HEAD "*/PKGBUILD")")"
           fi
 
   build:
