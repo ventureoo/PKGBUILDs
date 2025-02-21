@@ -1,7 +1,7 @@
 pkgbase = wine-staging-ntsync-pure-git
 	pkgdesc = A compatibility layer for running Windows programs
 	pkgver = 10.1.r252.g4bd044dd328
-	pkgrel = 1
+	pkgrel = 2
 	url = https://www.winehq.org
 	install = wine.install
 	arch = x86_64
@@ -18,7 +18,7 @@ pkgbase = wine-staging-ntsync-pure-git
 	makedepends = sdl2
 	makedepends = vulkan-headers
 	makedepends = vulkan-icd-loader
-	makedepends = mingw-w64-gcc-pure
+	makedepends = mingw-w64-gcc
 	makedepends = desktop-file-utils
 	makedepends = fontconfig
 	makedepends = freetype2

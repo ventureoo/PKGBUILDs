@@ -7,7 +7,7 @@
 
 pkgname=wine-staging-ntsync-pure-git
 pkgver=10.1.r252.g4bd044dd328
-pkgrel=1
+pkgrel=2
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -75,7 +75,7 @@ makedepends=(
   sdl2
   vulkan-headers
   vulkan-icd-loader
-  mingw-w64-gcc-pure
+  mingw-w64-gcc
 )
 optdepends=(
   alsa-lib
@@ -153,7 +153,7 @@ build() {
   local mtune="${flags["-mtune"]:-"haswell"}"
 
   # Apply flags for cross-compilation (from Proton)
-  export CFLAGS="-O3 -march=$march -mtune=$mtune -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
+  export CFLAGS="-O3 -march=$march -mtune=$mtune -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe -Wa,-muse-unaligned-vector-move"
   export CROSSCFLAGS="$CFLAGS"
   export CROSSCXXFLAGS="$CROSSCFLAGS"
   export CROSSLDFLAGS="-Wl,-O1"
