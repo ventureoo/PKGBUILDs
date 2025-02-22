@@ -1,0 +1,165 @@
+diff --git a/dlls/ntdll/tests/exception.c b/dlls/ntdll/tests/exception.c
+index 9b5ca2ca5086c27344152eef0f296e71a57cbac3..13ef9b693bf862dd60daa3738bc37a15cac27660 100644
+--- a/dlls/ntdll/tests/exception.c
++++ b/dlls/ntdll/tests/exception.c
+@@ -2673,24 +2673,21 @@ static const struct exception
+         /* It is observed that fs/gs base is reset
+            on some CPUs when setting the segment value
+            even to 0 (regardless of CPU spec
+-           saying otherwise) and it is not currently
+-           handled in Wine.
++           saying otherwise) and the fs base case
++           is not currently handled in Wine.
+            Disable this part to avoid crashing the test. */
+         0x8e, 0xe0, /* mov %eax,%fs */
+-        0x8e, 0xe8, /* mov %eax,%gs */
+ #else
+         0x90, 0x90, /* nop */
+-        0x90, 0x90, /* nop */
+ #endif
++        0x8e, 0xe8, /* mov %eax,%gs */
+         0xfa,       /* cli */
+         0x58,       /* pop %rax */
+-#if 0
+         0x8e, 0xe8, /* mov %eax,%gs */
+         0x58,       /* pop %rax */
++#if 0
+         0x8e, 0xe0, /* mov %eax,%fs */
+ #else
+-        0x58,       /* pop %rax */
+-        0x90, 0x90, /* nop */
+         0x90, 0x90, /* nop */
+ #endif
+         0x58,       /* pop %rax */
+@@ -2711,6 +2708,12 @@ static const struct exception
+     { { 0xb8, 0x01, 0x00, 0x00, 0x00,          /* mov $0x01, %eax */
+         0xcd, 0x2d, 0xfa, 0xc3 },              /* int $0x2d; cli; ret */
+       8, 0, STATUS_SUCCESS, 0 },
++    { { 0x66, 0x0f, 0xa8,                      /* push %gs */
++        0x66, 0x0f, 0xa9,                      /* pop  %gs */
++        0x65, 0x48, 0x8b, 0x04, 0x25,          /* movq %gs:0x30,%rax (NtCurrentTeb) */
++        0x30, 0x00, 0x00, 0x00,
++        0xc3 },                                /* ret */
++      8, 0, STATUS_SUCCESS, 0 },
+ };
+ 
+ static int got_exception;
+diff --git a/dlls/ntdll/unix/signal_x86_64.c b/dlls/ntdll/unix/signal_x86_64.c
+index caa85249896fb9580f1f50dd62b6c0b7a84ee89f..46c70adc83be8112befc7e39cad5ce8b4511cb29 100644
+--- a/dlls/ntdll/unix/signal_x86_64.c
++++ b/dlls/ntdll/unix/signal_x86_64.c
+@@ -1967,6 +1967,102 @@ static BOOL handle_syscall_trap( ucontext_t *sigcontext, siginfo_t *siginfo )
+ }
+ 
+ 
++/***********************************************************************
++ *           check_invalid_gsbase
++ *
++ * Check for fault caused by invalid %gs value (some copy protection schemes mess with it).
++ */
++static inline BOOL check_invalid_gsbase( ucontext_t *sigcontext, CONTEXT *context )
++{
++    unsigned int prefix_count = 0;
++    const BYTE *instr = (const BYTE *)context->Rip;
++    TEB *teb = NtCurrentTeb();
++    ULONG_PTR cur_gsbase = 0;
++
++#ifdef __linux__
++    if (syscall_flags & SYSCALL_HAVE_WRFSGSBASE)
++        __asm__ volatile ("rdgsbase %0" : "=r" (cur_gsbase));
++    else
++        arch_prctl( ARCH_GET_GS, &cur_gsbase );
++#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
++    amd64_get_gsbase( &cur_gsbase );
++#elif defined(__NetBSD__)
++    sysarch( X86_64_GET_GSBASE, &cur_gsbase );
++#elif defined(__APPLE__)
++    cur_gsbase = (ULONG_PTR)teb->ThreadLocalStoragePointer;
++#else
++# error Please define getting %gs for your architecture
++#endif
++
++    if (cur_gsbase == (ULONG_PTR)teb) return FALSE;
++
++    for (;;)
++    {
++        switch(*instr)
++        {
++        /* instruction prefixes */
++        case 0x2e:  /* %cs: */
++        case 0x36:  /* %ss: */
++        case 0x3e:  /* %ds: */
++        case 0x26:  /* %es: */
++        case 0x40:  /* rex */
++        case 0x41:  /* rex */
++        case 0x42:  /* rex */
++        case 0x43:  /* rex */
++        case 0x44:  /* rex */
++        case 0x45:  /* rex */
++        case 0x46:  /* rex */
++        case 0x47:  /* rex */
++        case 0x48:  /* rex */
++        case 0x49:  /* rex */
++        case 0x4a:  /* rex */
++        case 0x4b:  /* rex */
++        case 0x4c:  /* rex */
++        case 0x4d:  /* rex */
++        case 0x4e:  /* rex */
++        case 0x4f:  /* rex */
++        case 0x64:  /* %fs: */
++        case 0x66:  /* opcode size */
++        case 0x67:  /* addr size */
++        case 0xf0:  /* lock */
++        case 0xf2:  /* repne */
++        case 0xf3:  /* repe */
++            if (++prefix_count >= 15) return FALSE;
++            instr++;
++            continue;
++        case 0x65:  /* %gs: */
++            GS_sig(sigcontext) = ds64_sel;
++            break;
++        default:
++            return FALSE;
++        }
++        break;      /* %gs: */
++    }
++
++    TRACE( "gsbase %016lx teb %p at instr %p, fixing up\n", cur_gsbase, teb, instr );
++
++#ifdef __linux__
++    if (syscall_flags & SYSCALL_HAVE_WRFSGSBASE)
++        __asm__ volatile ("wrgsbase %0" :: "r" (teb));
++    else
++        arch_prctl( ARCH_SET_GS, teb );
++#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
++    amd64_set_gsbase( teb );
++#elif defined(__NetBSD__)
++    sysarch( X86_64_SET_GSBASE, &teb );
++#elif defined(__APPLE__)
++    __asm__ volatile ("movq %0,%%gs:%c1" :: "r" (teb->Tib.Self),
++                      "n" (FIELD_OFFSET(TEB, Tib.Self)));
++    __asm__ volatile ("movq %0,%%gs:%c1" :: "r" (teb->ThreadLocalStoragePointer),
++                      "n" (FIELD_OFFSET(TEB, ThreadLocalStoragePointer)));
++#else
++# error Please define setting %gs for your architecture
++#endif
++
++    return TRUE;
++}
++
++
+ /**********************************************************************
+  *		segv_handler
+  *
+@@ -2025,6 +2121,11 @@ static void segv_handler( int signal, siginfo_t *siginfo, void *sigcontext )
+             /* send EXCEPTION_EXECUTE_FAULT only if data execution prevention is enabled */
+             if (!(flags & MEM_EXECUTE_OPTION_DISABLE)) rec.ExceptionInformation[0] = EXCEPTION_READ_FAULT;
+         }
++        if (CS_sig(ucontext) == cs64_sel && check_invalid_gsbase( ucontext, &context.c ))
++        {
++            leave_handler( ucontext );
++            return;
++        }
+         break;
+     case TRAP_x86_ALIGNFLT:  /* Alignment check exception */
+         if (EFL_sig(ucontext) & 0x00040000)

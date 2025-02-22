@@ -1,0 +1,53 @@
+From 18cb9602044c9c1adcbec851b9f32812474a5b84 Mon Sep 17 00:00:00 2001
+From: Paul Gofman <pgofman@codeweavers.com>
+Date: Fri, 7 Feb 2025 22:29:49 +0300
+Subject: [PATCH 5/5] wineboot: Load root certificates on prefix update.
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
+---
+ programs/wineboot/Makefile.in | 2 +-
+ programs/wineboot/wineboot.c  | 9 +++++++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/programs/wineboot/Makefile.in b/programs/wineboot/Makefile.in
+index 0983420a91f..9eaa95c9ad5 100644
+--- a/programs/wineboot/Makefile.in
++++ b/programs/wineboot/Makefile.in
+@@ -1,6 +1,6 @@
+ MODULE    = wineboot.exe
+ IMPORTS   = uuid advapi32 ws2_32 kernelbase
+-DELAYIMPORTS = shell32 shlwapi version user32 gdi32 setupapi newdev wininet
++DELAYIMPORTS = shell32 shlwapi version user32 gdi32 setupapi newdev wininet crypt32
+ 
+ EXTRADLLFLAGS = -mconsole
+ 
+diff --git a/programs/wineboot/wineboot.c b/programs/wineboot/wineboot.c
+index b8ccc3bf116..404aeecced4 100644
+--- a/programs/wineboot/wineboot.c
++++ b/programs/wineboot/wineboot.c
+@@ -1692,6 +1692,14 @@ static void update_win_version(void)
+     }
+ }
+ 
++static void update_root_certs(void)
++{
++    HCERTSTORE store;
++    store = CertOpenStore( CERT_STORE_PROV_SYSTEM_REGISTRY_W, 0, 0, CERT_STORE_OPEN_EXISTING_FLAG
++                           | CERT_STORE_READONLY_FLAG | CERT_SYSTEM_STORE_LOCAL_MACHINE, L"Root");
++    CertCloseStore( store, 0 );
++}
++
+ /* execute rundll32 on the wine.inf file if necessary */
+ static void update_wineprefix( BOOL force )
+ {
+@@ -1751,6 +1759,7 @@ static void update_wineprefix( BOOL force )
+         install_root_pnp_devices();
+         update_user_profile();
+         update_win_version();
++        update_root_certs();
+ 
+         TRACE( "wine: configuration in %s has been updated.\n", debugstr_w(prettyprint_configdir()) );
+     }
+-- 
+2.48.1
+

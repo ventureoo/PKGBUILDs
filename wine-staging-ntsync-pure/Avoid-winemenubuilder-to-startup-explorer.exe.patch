@@ -1,0 +1,77 @@
+From 6d30651cc44c043ab26f36efd1cb496fcff2f59c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bernhard=20=C3=9Cbelacker?= <bernhardu@mailbox.org>
+Date: Sat, 12 Dec 2020 22:36:59 +0100
+Subject: Avoid winemenubuilder to startup explorer.exe.
+Reply-To: wine-devel <wine-devel@winehq.org>
+
+Because its session seems not interactive and fails later
+to create windows.
+
+0050:err:winediag:nodrv_CreateWindow Application tried to create a window, but no driver could be loaded.
+---
+ dlls/win32u/defwnd.c                       | 19 +++++++++++++++++++
+ programs/winemenubuilder/winemenubuilder.c | 11 +++++++++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/dlls/win32u/defwnd.c b/dlls/win32u/defwnd.c
+index 11111111111..11111111111 100644
+--- a/dlls/win32u/defwnd.c
++++ b/dlls/win32u/defwnd.c
+@@ -26,6 +26,7 @@
+ 
+ #include "ntgdi_private.h"
+ #include "ntuser_private.h"
++#include "ntstatus.h"
+ #include "wine/server.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(win);
+@@ -2962,6 +2963,24 @@ LRESULT desktop_window_proc( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam )
+                      guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7] );
+             NtAddAtom( bufferW, asciiz_to_unicode( bufferW, buffer ) - sizeof(WCHAR), &atom );
+             NtUserSetProp( hwnd, wine_display_device_guidW, ULongToHandle( atom ) );
++
++            {
++                char full_name[60];
++                WCHAR full_nameW[60];
++                UNICODE_STRING name_str;
++                OBJECT_ATTRIBUTES event_attr;
++                HANDLE event;
++
++                sprintf( full_name, "\\BaseNamedObjects\\Session\\%u\\__wine_desktop_created", NtCurrentTeb()->Peb->SessionId );
++                name_str.Buffer = full_nameW;
++                name_str.MaximumLength = asciiz_to_unicode( full_nameW, full_name );
++                name_str.Length = name_str.MaximumLength - sizeof(WCHAR);
++                InitializeObjectAttributes( &event_attr, &name_str, OBJ_OPENIF, NULL, NULL );
++                if (NtCreateEvent( &event, EVENT_ALL_ACCESS, &event_attr, NotificationEvent, FALSE ) != STATUS_SUCCESS)
++                    ERR("Creating event %s failed.\n", debugstr_w(full_nameW));
++                else if (NtSetEvent( event, NULL ) != STATUS_SUCCESS)
++                    ERR("Setting event %s failed.\n", debugstr_w(full_nameW));
++            }
+         }
+         return TRUE;
+     }
+diff --git a/programs/winemenubuilder/winemenubuilder.c b/programs/winemenubuilder/winemenubuilder.c
+index 11111111111..11111111111 100644
+--- a/programs/winemenubuilder/winemenubuilder.c
++++ b/programs/winemenubuilder/winemenubuilder.c
+@@ -2898,6 +2898,17 @@ int PASCAL wWinMain (HINSTANCE hInstance, HINSTANCE prev, LPWSTR cmdline, int sh
+     if (!init_xdg())
+         return 1;
+ 
++    {
++        const WCHAR event_name[] = L"__wine_desktop_created";
++        HANDLE event;
++        event = CreateEventW(NULL, TRUE, FALSE, event_name);
++        if (!event)
++            ERR("Creating event %s failed.\n", debugstr_w(event_name));
++        else if (WaitForSingleObject(event, INFINITE) == WAIT_FAILED)
++            ERR("Waiting on event %s failed.\n", debugstr_w(event_name));
++        CloseHandle(event);
++    }
++
+     hr = CoInitialize(NULL);
+     if (FAILED(hr))
+     {
+-- 
+2.40.0
+
