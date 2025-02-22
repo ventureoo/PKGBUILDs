@@ -1,8 +1,8 @@
-pkgbase = wine-staging-ntsync-pure-git
-	pkgdesc = A compatibility layer for running Windows programs
-	pkgver = 10.1.r252.g4bd044dd328
-	pkgrel = 2
-	url = https://www.winehq.org
+pkgbase = wine-pure-git
+	pkgdesc = Bleeding-edge Wine build (Staging, WoW64, NTSync, Wayland)
+	pkgver = 10.2.r0.g41abefccebf
+	pkgrel = 1
+	url = https://github.com/ventureoo/PKGBUILDs
 	install = wine.install
 	arch = x86_64
 	license = LGPL-2.1-or-later
@@ -94,4 +94,4 @@ pkgbase = wine-staging-ntsync-pure-git
 	sha512sums = 8192f79ee24f0e1bd7852ddea1f34e77b1395fa4396a8da2f02bff562ae5038cf9ed24cad599b8847839d7c6f175c7b56fa45806754921d897e1f51e1bcdf03f
 	sha512sums = 421348c1969c443de69ae3d0aa48803799339b82bfea4cd3647bdaf0b1b12c75ae34e178accdf44f49ac65a8b734e8340fb388ef0d62bb8fe41269924ea71e5f
 
-pkgname = wine-staging-ntsync-pure-git
+pkgname = wine-pure-git

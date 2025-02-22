@@ -5,9 +5,9 @@
 # Contributor: Eduardo Romero <eduardo@archlinux.org>
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
-pkgname=wine-staging-ntsync-pure-git
-pkgver=10.1.r252.g4bd044dd328
-pkgrel=2
+pkgname=wine-pure-git
+pkgver=10.2.r0.g41abefccebf
+pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -43,8 +43,8 @@ sha512sums=(
   '421348c1969c443de69ae3d0aa48803799339b82bfea4cd3647bdaf0b1b12c75ae34e178accdf44f49ac65a8b734e8340fb388ef0d62bb8fe41269924ea71e5f'
 )
 
-pkgdesc="A compatibility layer for running Windows programs"
-url="https://www.winehq.org"
+pkgdesc="Bleeding-edge Wine build (Staging, WoW64, NTSync, Wayland)"
+url="https://github.com/ventureoo/PKGBUILDs"
 arch=(x86_64)
 options=(staticlibs !lto)
 license=(LGPL-2.1-or-later)
@@ -163,6 +163,7 @@ build() {
   cd "$pkgname-build"
   ../wine/configure \
     --disable-tests \
+    --disable-win16 \
     --prefix=/usr \
     --libdir=/usr/lib \
     --with-x \
