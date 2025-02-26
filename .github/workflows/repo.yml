@@ -179,7 +179,7 @@ jobs:
       - name: Purge removed packages
         if: needs.get-changed-packages.outputs.removed != ''
         run: |
-          repo-remove --nocolor pure.db.tar.zst ${{ join(fromJSON(needs.get-changed-packages.outputs.removed).package, ' ') }}
+          repo-remove --nocolor pure.db.tar.zst ${{ join(fromJSON(needs.get-changed-packages.outputs.removed).package, ' ') }} || repo-remove --nocolor pure.db.tar.zst wine-staging-ntsync-pure-git
 
       - name: Replace symlinks to repository database
         run: |
