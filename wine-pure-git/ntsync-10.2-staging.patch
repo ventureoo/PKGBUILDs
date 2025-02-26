@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 3a1a9aaf894..dc444f0c538 100755
+index 0857cfb08cf..19c55dcfe3f 100755
 --- a/configure
 +++ b/configure
-@@ -7738,6 +7738,12 @@ if test "x$ac_cv_header_linux_major_h" = xyes
+@@ -7753,6 +7753,12 @@ if test "x$ac_cv_header_linux_major_h" = xyes
  then :
    printf "%s\n" "#define HAVE_LINUX_MAJOR_H 1" >>confdefs.h
  
@@ -16,10 +16,10 @@ index 3a1a9aaf894..dc444f0c538 100755
  ac_fn_c_check_header_compile "$LINENO" "linux/param.h" "ac_cv_header_linux_param_h" "$ac_includes_default"
  if test "x$ac_cv_header_linux_param_h" = xyes
 diff --git a/configure.ac b/configure.ac
-index 6465336a939..bcee17eb0ca 100644
+index 5b734040115..6841c085400 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -383,6 +383,7 @@ AC_CHECK_HEADERS(\
+@@ -389,6 +389,7 @@ AC_CHECK_HEADERS(\
  	linux/input.h \
  	linux/ioctl.h \
  	linux/major.h \
@@ -28,10 +28,10 @@ index 6465336a939..bcee17eb0ca 100644
  	linux/seccomp.h \
  	linux/serial.h \
 diff --git a/dlls/ntdll/unix/file.c b/dlls/ntdll/unix/file.c
-index 25a0f970e69..f7e419cb9ae 100644
+index 283cb172069..817d3a245cb 100644
 --- a/dlls/ntdll/unix/file.c
 +++ b/dlls/ntdll/unix/file.c
-@@ -7596,7 +7596,7 @@ NTSTATUS WINAPI NtLockFile( HANDLE file, HANDLE event, PIO_APC_ROUTINE apc, void
+@@ -7621,7 +7621,7 @@ NTSTATUS WINAPI NtLockFile( HANDLE file, HANDLE event, PIO_APC_ROUTINE apc, void
          }
          if (handle)
          {
@@ -41,7 +41,7 @@ index 25a0f970e69..f7e419cb9ae 100644
          }
          else  /* Unix lock conflict, sleep a bit and retry */
 diff --git a/dlls/ntdll/unix/process.c b/dlls/ntdll/unix/process.c
-index 0c8b4bb9c67..821e91d280f 100644
+index 533940280e6..ebddb7abd47 100644
 --- a/dlls/ntdll/unix/process.c
 +++ b/dlls/ntdll/unix/process.c
 @@ -920,7 +920,7 @@ NTSTATUS WINAPI NtCreateUserProcess( HANDLE *process_handle_ptr, HANDLE *thread_
@@ -54,7 +54,7 @@ index 0c8b4bb9c67..821e91d280f 100644
      {
          req->info = wine_server_obj_handle( process_info );
 diff --git a/dlls/ntdll/unix/server.c b/dlls/ntdll/unix/server.c
-index 0b24c96ea84..326fcfda86a 100644
+index f052da5a8b4..5542d82fc34 100644
 --- a/dlls/ntdll/unix/server.c
 +++ b/dlls/ntdll/unix/server.c
 @@ -123,7 +123,7 @@ sigset_t server_block_set;  /* signals to block during server calls */
@@ -142,7 +142,7 @@ index 0b24c96ea84..326fcfda86a 100644
      {
          req->handle = wine_server_obj_handle( handle );
 diff --git a/dlls/ntdll/unix/sync.c b/dlls/ntdll/unix/sync.c
-index 2b01aaf83b8..f98b8227105 100644
+index 2b01aaf83b8..f515865661d 100644
 --- a/dlls/ntdll/unix/sync.c
 +++ b/dlls/ntdll/unix/sync.c
 @@ -30,9 +30,11 @@
@@ -189,11 +189,11 @@ index 2b01aaf83b8..f98b8227105 100644
  /* return a monotonic time counter, in Win32 ticks */
  static inline ULONGLONG monotonic_counter(void)
  {
-@@ -301,6 +310,875 @@ static unsigned int validate_open_object_attributes( const OBJECT_ATTRIBUTES *at
+@@ -301,6 +310,879 @@ static unsigned int validate_open_object_attributes( const OBJECT_ATTRIBUTES *at
  }
  
  
-+#ifdef HAVE_LINUX_NTSYNC_H
++#ifdef NTSYNC_IOC_EVENT_READ
 +
 +static int get_linux_sync_device(void)
 +{
@@ -350,6 +350,10 @@ index 2b01aaf83b8..f98b8227105 100644
 +    struct inproc_sync_cache_entry *cache;
 +    sigset_t sigset;
 +    int refcount;
++
++    /* don't cache pseudo-handles; waiting on them is pointless anyway */
++    if ((ULONG)(ULONG_PTR)handle > 0xfffffffa)
++        return FALSE;
 +
 +    if (entry >= INPROC_SYNC_CACHE_ENTRIES)
 +    {
@@ -1065,7 +1069,7 @@ index 2b01aaf83b8..f98b8227105 100644
  /******************************************************************************
   *              NtCreateSemaphore (NTDLL.@)
   */
-@@ -311,6 +1189,9 @@ NTSTATUS WINAPI NtCreateSemaphore( HANDLE *handle, ACCESS_MASK access, const OBJ
+@@ -311,6 +1193,9 @@ NTSTATUS WINAPI NtCreateSemaphore( HANDLE *handle, ACCESS_MASK access, const OBJ
      data_size_t len;
      struct object_attributes *objattr;
  
@@ -1075,7 +1079,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if (max <= 0 || initial < 0 || initial > max) return STATUS_INVALID_PARAMETER;
      if ((ret = alloc_object_attributes( attr, &objattr, &len ))) return ret;
-@@ -338,6 +1219,8 @@ NTSTATUS WINAPI NtOpenSemaphore( HANDLE *handle, ACCESS_MASK access, const OBJEC
+@@ -338,6 +1223,8 @@ NTSTATUS WINAPI NtOpenSemaphore( HANDLE *handle, ACCESS_MASK access, const OBJEC
  {
      unsigned int ret;
  
@@ -1084,7 +1088,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if ((ret = validate_open_object_attributes( attr ))) return ret;
  
-@@ -375,6 +1258,12 @@ NTSTATUS WINAPI NtQuerySemaphore( HANDLE handle, SEMAPHORE_INFORMATION_CLASS cla
+@@ -375,6 +1262,12 @@ NTSTATUS WINAPI NtQuerySemaphore( HANDLE handle, SEMAPHORE_INFORMATION_CLASS cla
  
      if (len != sizeof(SEMAPHORE_BASIC_INFORMATION)) return STATUS_INFO_LENGTH_MISMATCH;
  
@@ -1097,7 +1101,7 @@ index 2b01aaf83b8..f98b8227105 100644
      SERVER_START_REQ( query_semaphore )
      {
          req->handle = wine_server_obj_handle( handle );
-@@ -397,6 +1286,11 @@ NTSTATUS WINAPI NtReleaseSemaphore( HANDLE handle, ULONG count, ULONG *previous
+@@ -397,6 +1290,11 @@ NTSTATUS WINAPI NtReleaseSemaphore( HANDLE handle, ULONG count, ULONG *previous
  {
      unsigned int ret;
  
@@ -1109,7 +1113,7 @@ index 2b01aaf83b8..f98b8227105 100644
      SERVER_START_REQ( release_semaphore )
      {
          req->handle = wine_server_obj_handle( handle );
-@@ -421,6 +1315,9 @@ NTSTATUS WINAPI NtCreateEvent( HANDLE *handle, ACCESS_MASK access, const OBJECT_
+@@ -421,6 +1319,9 @@ NTSTATUS WINAPI NtCreateEvent( HANDLE *handle, ACCESS_MASK access, const OBJECT_
      data_size_t len;
      struct object_attributes *objattr;
  
@@ -1119,7 +1123,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if (type != NotificationEvent && type != SynchronizationEvent) return STATUS_INVALID_PARAMETER;
      if ((ret = alloc_object_attributes( attr, &objattr, &len ))) return ret;
-@@ -448,6 +1345,8 @@ NTSTATUS WINAPI NtOpenEvent( HANDLE *handle, ACCESS_MASK access, const OBJECT_AT
+@@ -448,6 +1349,8 @@ NTSTATUS WINAPI NtOpenEvent( HANDLE *handle, ACCESS_MASK access, const OBJECT_AT
  {
      unsigned int ret;
  
@@ -1128,7 +1132,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if ((ret = validate_open_object_attributes( attr ))) return ret;
  
-@@ -473,6 +1372,11 @@ NTSTATUS WINAPI NtSetEvent( HANDLE handle, LONG *prev_state )
+@@ -473,6 +1376,11 @@ NTSTATUS WINAPI NtSetEvent( HANDLE handle, LONG *prev_state )
  {
      unsigned int ret;
  
@@ -1140,7 +1144,7 @@ index 2b01aaf83b8..f98b8227105 100644
      SERVER_START_REQ( event_op )
      {
          req->handle = wine_server_obj_handle( handle );
-@@ -492,6 +1396,11 @@ NTSTATUS WINAPI NtResetEvent( HANDLE handle, LONG *prev_state )
+@@ -492,6 +1400,11 @@ NTSTATUS WINAPI NtResetEvent( HANDLE handle, LONG *prev_state )
  {
      unsigned int ret;
  
@@ -1152,7 +1156,7 @@ index 2b01aaf83b8..f98b8227105 100644
      SERVER_START_REQ( event_op )
      {
          req->handle = wine_server_obj_handle( handle );
-@@ -521,6 +1430,11 @@ NTSTATUS WINAPI NtPulseEvent( HANDLE handle, LONG *prev_state )
+@@ -521,6 +1434,11 @@ NTSTATUS WINAPI NtPulseEvent( HANDLE handle, LONG *prev_state )
  {
      unsigned int ret;
  
@@ -1164,7 +1168,7 @@ index 2b01aaf83b8..f98b8227105 100644
      SERVER_START_REQ( event_op )
      {
          req->handle = wine_server_obj_handle( handle );
-@@ -552,6 +1466,12 @@ NTSTATUS WINAPI NtQueryEvent( HANDLE handle, EVENT_INFORMATION_CLASS class,
+@@ -552,6 +1470,12 @@ NTSTATUS WINAPI NtQueryEvent( HANDLE handle, EVENT_INFORMATION_CLASS class,
  
      if (len != sizeof(EVENT_BASIC_INFORMATION)) return STATUS_INFO_LENGTH_MISMATCH;
  
@@ -1177,7 +1181,7 @@ index 2b01aaf83b8..f98b8227105 100644
      SERVER_START_REQ( query_event )
      {
          req->handle = wine_server_obj_handle( handle );
-@@ -577,6 +1497,9 @@ NTSTATUS WINAPI NtCreateMutant( HANDLE *handle, ACCESS_MASK access, const OBJECT
+@@ -577,6 +1501,9 @@ NTSTATUS WINAPI NtCreateMutant( HANDLE *handle, ACCESS_MASK access, const OBJECT
      data_size_t len;
      struct object_attributes *objattr;
  
@@ -1187,7 +1191,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if ((ret = alloc_object_attributes( attr, &objattr, &len ))) return ret;
  
-@@ -602,6 +1525,8 @@ NTSTATUS WINAPI NtOpenMutant( HANDLE *handle, ACCESS_MASK access, const OBJECT_A
+@@ -602,6 +1529,8 @@ NTSTATUS WINAPI NtOpenMutant( HANDLE *handle, ACCESS_MASK access, const OBJECT_A
  {
      unsigned int ret;
  
@@ -1196,7 +1200,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if ((ret = validate_open_object_attributes( attr ))) return ret;
  
-@@ -627,6 +1552,11 @@ NTSTATUS WINAPI NtReleaseMutant( HANDLE handle, LONG *prev_count )
+@@ -627,6 +1556,11 @@ NTSTATUS WINAPI NtReleaseMutant( HANDLE handle, LONG *prev_count )
  {
      unsigned int ret;
  
@@ -1208,7 +1212,7 @@ index 2b01aaf83b8..f98b8227105 100644
      SERVER_START_REQ( release_mutex )
      {
          req->handle = wine_server_obj_handle( handle );
-@@ -657,6 +1587,12 @@ NTSTATUS WINAPI NtQueryMutant( HANDLE handle, MUTANT_INFORMATION_CLASS class,
+@@ -657,6 +1591,12 @@ NTSTATUS WINAPI NtQueryMutant( HANDLE handle, MUTANT_INFORMATION_CLASS class,
  
      if (len != sizeof(MUTANT_BASIC_INFORMATION)) return STATUS_INFO_LENGTH_MISMATCH;
  
@@ -1221,7 +1225,7 @@ index 2b01aaf83b8..f98b8227105 100644
      SERVER_START_REQ( query_mutex )
      {
          req->handle = wine_server_obj_handle( handle );
-@@ -1426,6 +2362,9 @@ NTSTATUS WINAPI NtCreateTimer( HANDLE *handle, ACCESS_MASK access, const OBJECT_
+@@ -1426,6 +2366,9 @@ NTSTATUS WINAPI NtCreateTimer( HANDLE *handle, ACCESS_MASK access, const OBJECT_
      data_size_t len;
      struct object_attributes *objattr;
  
@@ -1231,7 +1235,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if (type != NotificationTimer && type != SynchronizationTimer) return STATUS_INVALID_PARAMETER;
      if ((ret = alloc_object_attributes( attr, &objattr, &len ))) return ret;
-@@ -1453,6 +2392,8 @@ NTSTATUS WINAPI NtOpenTimer( HANDLE *handle, ACCESS_MASK access, const OBJECT_AT
+@@ -1453,6 +2396,8 @@ NTSTATUS WINAPI NtOpenTimer( HANDLE *handle, ACCESS_MASK access, const OBJECT_AT
  {
      unsigned int ret;
  
@@ -1240,7 +1244,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if ((ret = validate_open_object_attributes( attr ))) return ret;
  
-@@ -1506,6 +2447,8 @@ NTSTATUS WINAPI NtCancelTimer( HANDLE handle, BOOLEAN *state )
+@@ -1506,6 +2451,8 @@ NTSTATUS WINAPI NtCancelTimer( HANDLE handle, BOOLEAN *state )
  {
      unsigned int ret;
  
@@ -1249,7 +1253,7 @@ index 2b01aaf83b8..f98b8227105 100644
      SERVER_START_REQ( cancel_timer )
      {
          req->handle = wine_server_obj_handle( handle );
-@@ -1574,13 +2517,29 @@ NTSTATUS WINAPI NtWaitForMultipleObjects( DWORD count, const HANDLE *handles, BO
+@@ -1574,13 +2521,29 @@ NTSTATUS WINAPI NtWaitForMultipleObjects( DWORD count, const HANDLE *handles, BO
  {
      union select_op select_op;
      UINT i, flags = SELECT_INTERRUPTIBLE;
@@ -1280,7 +1284,7 @@ index 2b01aaf83b8..f98b8227105 100644
  }
  
  
-@@ -1601,9 +2560,15 @@ NTSTATUS WINAPI NtSignalAndWaitForSingleObject( HANDLE signal, HANDLE wait,
+@@ -1601,9 +2564,15 @@ NTSTATUS WINAPI NtSignalAndWaitForSingleObject( HANDLE signal, HANDLE wait,
  {
      union select_op select_op;
      UINT flags = SELECT_INTERRUPTIBLE;
@@ -1296,7 +1300,7 @@ index 2b01aaf83b8..f98b8227105 100644
      if (alertable) flags |= SELECT_ALERTABLE;
      select_op.signal_and_wait.op = SELECT_SIGNAL_AND_WAIT;
      select_op.signal_and_wait.wait = wine_server_obj_handle( wait );
-@@ -1846,6 +2811,9 @@ NTSTATUS WINAPI NtCreateKeyedEvent( HANDLE *handle, ACCESS_MASK access,
+@@ -1846,6 +2815,9 @@ NTSTATUS WINAPI NtCreateKeyedEvent( HANDLE *handle, ACCESS_MASK access,
      data_size_t len;
      struct object_attributes *objattr;
  
@@ -1306,7 +1310,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if ((ret = alloc_object_attributes( attr, &objattr, &len ))) return ret;
  
-@@ -1870,6 +2838,8 @@ NTSTATUS WINAPI NtOpenKeyedEvent( HANDLE *handle, ACCESS_MASK access, const OBJE
+@@ -1870,6 +2842,8 @@ NTSTATUS WINAPI NtOpenKeyedEvent( HANDLE *handle, ACCESS_MASK access, const OBJE
  {
      unsigned int ret;
  
@@ -1315,7 +1319,7 @@ index 2b01aaf83b8..f98b8227105 100644
      *handle = 0;
      if ((ret = validate_open_object_attributes( attr ))) return ret;
  
-@@ -1896,6 +2866,8 @@ NTSTATUS WINAPI NtWaitForKeyedEvent( HANDLE handle, const void *key,
+@@ -1896,6 +2870,8 @@ NTSTATUS WINAPI NtWaitForKeyedEvent( HANDLE handle, const void *key,
      union select_op select_op;
      UINT flags = SELECT_INTERRUPTIBLE;
  
@@ -1324,7 +1328,7 @@ index 2b01aaf83b8..f98b8227105 100644
      if (!handle) handle = keyed_event;
      if ((ULONG_PTR)key & 1) return STATUS_INVALID_PARAMETER_1;
      if (alertable) flags |= SELECT_ALERTABLE;
-@@ -1915,6 +2887,8 @@ NTSTATUS WINAPI NtReleaseKeyedEvent( HANDLE handle, const void *key,
+@@ -1915,6 +2891,8 @@ NTSTATUS WINAPI NtReleaseKeyedEvent( HANDLE handle, const void *key,
      union select_op select_op;
      UINT flags = SELECT_INTERRUPTIBLE;
  
@@ -1333,7 +1337,7 @@ index 2b01aaf83b8..f98b8227105 100644
      if (!handle) handle = keyed_event;
      if ((ULONG_PTR)key & 1) return STATUS_INVALID_PARAMETER_1;
      if (alertable) flags |= SELECT_ALERTABLE;
-@@ -2059,7 +3033,7 @@ NTSTATUS WINAPI NtRemoveIoCompletion( HANDLE handle, ULONG_PTR *key, ULONG_PTR *
+@@ -2059,7 +3037,7 @@ NTSTATUS WINAPI NtRemoveIoCompletion( HANDLE handle, ULONG_PTR *key, ULONG_PTR *
      }
      SERVER_END_REQ;
      if (status != STATUS_PENDING) return status;
@@ -1342,7 +1346,7 @@ index 2b01aaf83b8..f98b8227105 100644
      else                               status = STATUS_TIMEOUT;
      if (status != WAIT_OBJECT_0) return status;
  
-@@ -2123,7 +3097,7 @@ NTSTATUS WINAPI NtRemoveIoCompletionEx( HANDLE handle, FILE_IO_COMPLETION_INFORM
+@@ -2123,7 +3101,7 @@ NTSTATUS WINAPI NtRemoveIoCompletionEx( HANDLE handle, FILE_IO_COMPLETION_INFORM
          assert( status == STATUS_USER_APC );
          goto done;
      }
@@ -1365,7 +1369,7 @@ index b64a7dd40af..a66ae7dbe89 100644
          SERVER_START_REQ( get_thread_context )
          {
 diff --git a/dlls/ntdll/unix/unix_private.h b/dlls/ntdll/unix/unix_private.h
-index 8bb4ba60897..632e96135b6 100644
+index f4dc02cf0cf..e71408933fe 100644
 --- a/dlls/ntdll/unix/unix_private.h
 +++ b/dlls/ntdll/unix/unix_private.h
 @@ -112,6 +112,7 @@ struct ntdll_thread_data
@@ -1376,7 +1380,7 @@ index 8bb4ba60897..632e96135b6 100644
  };
  
  C_ASSERT( sizeof(struct ntdll_thread_data) <= sizeof(((TEB *)0)->GdiTebBatch) );
-@@ -206,6 +207,8 @@ extern NTSTATUS load_start_exe( WCHAR **image, void **module );
+@@ -207,6 +208,8 @@ extern NTSTATUS load_start_exe( WCHAR **image, void **module );
  extern ULONG_PTR redirect_arm64ec_rva( void *module, ULONG_PTR rva, const IMAGE_ARM64EC_METADATA *metadata );
  extern void start_server( BOOL debug );
  
@@ -1385,7 +1389,7 @@ index 8bb4ba60897..632e96135b6 100644
  extern unsigned int server_call_unlocked( void *req_ptr );
  extern void server_enter_uninterrupted_section( pthread_mutex_t *mutex, sigset_t *sigset );
  extern void server_leave_uninterrupted_section( pthread_mutex_t *mutex, sigset_t *sigset );
-@@ -213,10 +216,12 @@ extern unsigned int server_select( const union select_op *select_op, data_size_t
+@@ -214,10 +217,12 @@ extern unsigned int server_select( const union select_op *select_op, data_size_t
                                     timeout_t abs_timeout, struct context_data *context, struct user_apc *user_apc );
  extern unsigned int server_wait( const union select_op *select_op, data_size_t size, UINT flags,
                                   const LARGE_INTEGER *timeout );
@@ -1398,7 +1402,7 @@ index 8bb4ba60897..632e96135b6 100644
  extern void wine_server_send_fd( int fd );
  extern void process_exit_wrapper( int status ) DECLSPEC_NORETURN;
  extern size_t server_init_process(void);
-@@ -379,6 +384,8 @@ extern NTSTATUS wow64_wine_spawnvp( void *args );
+@@ -380,6 +385,8 @@ extern NTSTATUS wow64_wine_spawnvp( void *args );
  
  extern void dbg_init(void);
  
@@ -1407,7 +1411,7 @@ index 8bb4ba60897..632e96135b6 100644
  extern NTSTATUS call_user_apc_dispatcher( CONTEXT *context_ptr, ULONG_PTR arg1, ULONG_PTR arg2, ULONG_PTR arg3,
                                            PNTAPCFUNC func, NTSTATUS status );
  extern NTSTATUS call_user_exception_dispatcher( EXCEPTION_RECORD *rec, CONTEXT *context );
-@@ -387,6 +394,7 @@ extern void call_raise_user_exception_dispatcher(void);
+@@ -388,6 +395,7 @@ extern void call_raise_user_exception_dispatcher(void);
  #define IMAGE_DLLCHARACTERISTICS_PREFER_NATIVE 0x0010 /* Wine extension */
  
  #define TICKSPERSEC 10000000
@@ -1415,7 +1419,7 @@ index 8bb4ba60897..632e96135b6 100644
  #define SECS_1601_TO_1970  ((369 * 365 + 89) * (ULONGLONG)86400)
  
  static inline ULONGLONG ticks_from_time_t( time_t time )
-@@ -452,7 +460,7 @@ static inline struct async_data server_async( HANDLE handle, struct async_fileio
+@@ -453,7 +461,7 @@ static inline struct async_data server_async( HANDLE handle, struct async_fileio
  
  static inline NTSTATUS wait_async( HANDLE handle, BOOL alertable )
  {
@@ -1425,10 +1429,10 @@ index 8bb4ba60897..632e96135b6 100644
  
  static inline BOOL in_wow64_call(void)
 diff --git a/dlls/ntdll/unix/virtual.c b/dlls/ntdll/unix/virtual.c
-index b2e1be9f53f..0591549854b 100644
+index 9e1c5a2c027..03daf0d901b 100644
 --- a/dlls/ntdll/unix/virtual.c
 +++ b/dlls/ntdll/unix/virtual.c
-@@ -3694,6 +3694,7 @@ static TEB *init_teb( void *ptr, BOOL is_wow )
+@@ -3713,6 +3713,7 @@ static TEB *init_teb( void *ptr, BOOL is_wow )
      thread_data->reply_fd   = -1;
      thread_data->wait_fd[0] = -1;
      thread_data->wait_fd[1] = -1;
@@ -1451,10 +1455,10 @@ index 641904dfcaf..a8971a2f85d 100644
  #undef HAVE_LINUX_PARAM_H
  
 diff --git a/include/wine/server_protocol.h b/include/wine/server_protocol.h
-index 34f5bfddf94..2e133e0d97a 100644
+index c6ff952a038..147978b235b 100644
 --- a/include/wine/server_protocol.h
 +++ b/include/wine/server_protocol.h
-@@ -5908,6 +5908,86 @@ struct set_keyboard_repeat_reply
+@@ -5924,6 +5924,86 @@ struct set_keyboard_repeat_reply
      char __pad_12[4];
  };
  
@@ -1541,8 +1545,8 @@ index 34f5bfddf94..2e133e0d97a 100644
  
  enum request
  {
-@@ -6204,6 +6284,11 @@ enum request
-     REQ_resume_process,
+@@ -6221,6 +6301,11 @@ enum request
+     REQ_get_next_process,
      REQ_get_next_thread,
      REQ_set_keyboard_repeat,
 +    REQ_get_linux_sync_device,
@@ -1553,8 +1557,8 @@ index 34f5bfddf94..2e133e0d97a 100644
      REQ_NB_REQUESTS
  };
  
-@@ -6504,6 +6589,11 @@ union generic_request
-     struct resume_process_request resume_process_request;
+@@ -6522,6 +6607,11 @@ union generic_request
+     struct get_next_process_request get_next_process_request;
      struct get_next_thread_request get_next_thread_request;
      struct set_keyboard_repeat_request set_keyboard_repeat_request;
 +    struct get_linux_sync_device_request get_linux_sync_device_request;
@@ -1565,8 +1569,8 @@ index 34f5bfddf94..2e133e0d97a 100644
  };
  union generic_reply
  {
-@@ -6802,8 +6892,13 @@ union generic_reply
-     struct resume_process_reply resume_process_reply;
+@@ -6821,8 +6911,13 @@ union generic_reply
+     struct get_next_process_reply get_next_process_reply;
      struct get_next_thread_reply get_next_thread_reply;
      struct set_keyboard_repeat_reply set_keyboard_repeat_reply;
 +    struct get_linux_sync_device_reply get_linux_sync_device_reply;
@@ -1576,7 +1580,7 @@ index 34f5bfddf94..2e133e0d97a 100644
 +    struct get_inproc_alert_event_reply get_inproc_alert_event_reply;
  };
  
--#define SERVER_PROTOCOL_VERSION 856
+-#define SERVER_PROTOCOL_VERSION 857
 +#define SERVER_PROTOCOL_VERSION 866
  
  #endif /* __WINE_WINE_SERVER_PROTOCOL_H */
@@ -2132,7 +2136,7 @@ index 39a740e07e5..35449172eaa 100644
      else
      {
 diff --git a/server/device.c b/server/device.c
-index cab09700d8c..72410c2da8b 100644
+index 1f93cca437d..ef3ab50d1e6 100644
 --- a/server/device.c
 +++ b/server/device.c
 @@ -78,6 +78,7 @@ static const struct object_ops irp_call_ops =
@@ -2412,7 +2416,7 @@ index ad7c09acc99..5f25ad61f7b 100644
  DECL_HANDLER(create_event)
  {
 diff --git a/server/fd.c b/server/fd.c
-index 85d22e1e358..3b108b04201 100644
+index 18c5dd2a68d..2d957e8bf06 100644
 --- a/server/fd.c
 +++ b/server/fd.c
 @@ -159,6 +159,7 @@ struct fd
@@ -2479,7 +2483,7 @@ index 85d22e1e358..3b108b04201 100644
      fd->no_fd_status = STATUS_BAD_DEVICE_TYPE;
      init_async_queue( &fd->read_q );
      init_async_queue( &fd->write_q );
-@@ -2266,7 +2274,15 @@ void set_fd_signaled( struct fd *fd, int signaled )
+@@ -2290,7 +2298,15 @@ void set_fd_signaled( struct fd *fd, int signaled )
  {
      if (fd->comp_flags & FILE_SKIP_SET_EVENT_ON_HANDLE) return;
      fd->signaled = signaled;
@@ -2496,7 +2500,7 @@ index 85d22e1e358..3b108b04201 100644
  }
  
  /* check if events are pending and if yes return which one(s) */
-@@ -2292,6 +2308,19 @@ int default_fd_signaled( struct object *obj, struct wait_queue_entry *entry )
+@@ -2316,6 +2332,19 @@ int default_fd_signaled( struct object *obj, struct wait_queue_entry *entry )
      return ret;
  }
  
@@ -2529,7 +2533,7 @@ index 3dccc2734fe..476408fb9aa 100644
      file_destroy                  /* destroy */
  };
 diff --git a/server/file.h b/server/file.h
-index 514e4002c6a..70a6fcfef22 100644
+index b795a3a4424..bae0ec1c8db 100644
 --- a/server/file.h
 +++ b/server/file.h
 @@ -109,6 +109,7 @@ extern char *dup_fd_name( struct fd *root, const char *name ) __WINE_DEALLOC(fre
@@ -2541,7 +2545,7 @@ index 514e4002c6a..70a6fcfef22 100644
  extern void default_poll_event( struct fd *fd, int event );
  extern void fd_cancel_async( struct fd *fd, struct async *async );
 diff --git a/server/handle.c b/server/handle.c
-index c43b19c1160..436674a69d3 100644
+index 8968df73647..58b0fe290d2 100644
 --- a/server/handle.c
 +++ b/server/handle.c
 @@ -138,6 +138,7 @@ static const struct object_ops handle_table_ops =
@@ -2566,10 +2570,10 @@ index ffe7206369e..5faa63e8e10 100644
  };
 diff --git a/server/inproc_sync.c b/server/inproc_sync.c
 new file mode 100644
-index 00000000000..85adac4adee
+index 00000000000..57d6bce4116
 --- /dev/null
 +++ b/server/inproc_sync.c
-@@ -0,0 +1,415 @@
+@@ -0,0 +1,418 @@
 +/*
 + * In-process synchronization primitives
 + *
@@ -2606,12 +2610,15 @@ index 00000000000..85adac4adee
 +#include "thread.h"
 +
 +#ifdef HAVE_LINUX_NTSYNC_H
++# include <linux/ntsync.h>
++#endif
++
++#ifdef NTSYNC_IOC_EVENT_READ
 +
 +#include <fcntl.h>
 +#include <sys/ioctl.h>
 +#include <sys/stat.h>
 +#include <unistd.h>
-+#include <linux/ntsync.h>
 +
 +struct linux_device
 +{
@@ -2950,7 +2957,7 @@ index 00000000000..85adac4adee
 +
 +DECL_HANDLER(get_linux_sync_device)
 +{
-+#ifdef HAVE_LINUX_NTSYNC_H
++#ifdef NTSYNC_IOC_EVENT_READ
 +    struct linux_device *device;
 +
 +    if ((device = get_linux_device()))
@@ -2965,7 +2972,7 @@ index 00000000000..85adac4adee
 +
 +DECL_HANDLER(get_linux_sync_obj)
 +{
-+#ifdef HAVE_LINUX_NTSYNC_H
++#ifdef NTSYNC_IOC_EVENT_READ
 +    struct object *obj;
 +
 +    if ((obj = get_handle_obj( current->process, req->handle, 0, NULL )))
@@ -3022,7 +3029,7 @@ index c54281c2101..929ca3ecb82 100644
      mailslot_device_file_destroy            /* destroy */
  };
 diff --git a/server/mapping.c b/server/mapping.c
-index 4bdd7c5080a..7c715a87457 100644
+index 2ce73b2590d..7f6c7f0aaa9 100644
 --- a/server/mapping.c
 +++ b/server/mapping.c
 @@ -79,6 +79,7 @@ static const struct object_ops ranges_ops =
@@ -3284,7 +3291,7 @@ index 1ca093198e1..0caac02b2ab 100644
  
  int get_serial_async_timeout(struct object *obj, int type, int count);
 diff --git a/server/process.c b/server/process.c
-index e06350f7311..1850d5dcb2b 100644
+index c877bb6f7ae..4420200ac7f 100644
 --- a/server/process.c
 +++ b/server/process.c
 @@ -94,6 +94,7 @@ static unsigned int process_map_access( struct object *obj, unsigned int access
@@ -3413,7 +3420,7 @@ index e06350f7311..1850d5dcb2b 100644
  
  /* add a thread to a process running threads list */
 diff --git a/server/process.h b/server/process.h
-index 96814ab7cf8..667e2506672 100644
+index 9238d638f15..681b75ecfac 100644
 --- a/server/process.h
 +++ b/server/process.h
 @@ -86,6 +86,7 @@ struct process
@@ -3425,10 +3432,10 @@ index 96814ab7cf8..667e2506672 100644
  
  /* process functions */
 diff --git a/server/protocol.def b/server/protocol.def
-index 203c5244a48..fb2887a49ee 100644
+index 5757fa3d8bc..e51179aecb6 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
-@@ -4099,3 +4099,50 @@ struct handle_info
+@@ -4108,3 +4108,50 @@ struct handle_info
  @REPLY
      int enable;                /* previous state of auto-repeat enable */
  @END
@@ -3480,7 +3487,7 @@ index 203c5244a48..fb2887a49ee 100644
 +    obj_handle_t handle;          /* handle to the event */
 +@END
 diff --git a/server/queue.c b/server/queue.c
-index 9e318446410..21da3f01c2d 100644
+index d89245914a3..213d40dbb59 100644
 --- a/server/queue.c
 +++ b/server/queue.c
 @@ -134,6 +134,8 @@ struct msg_queue
@@ -3547,7 +3554,7 @@ index 9e318446410..21da3f01c2d 100644
  }
  
  /* check if message is matched by the filter */
-@@ -1239,6 +1252,10 @@ static int is_queue_hung( struct msg_queue *queue )
+@@ -1273,6 +1286,10 @@ static int is_queue_hung( struct msg_queue *queue )
          if (get_wait_queue_thread(entry)->queue == queue)
              return 0;  /* thread is waiting on queue -> not hung */
      }
@@ -3558,7 +3565,7 @@ index 9e318446410..21da3f01c2d 100644
      return 1;
  }
  
-@@ -1304,6 +1321,17 @@ static void msg_queue_satisfied( struct object *obj, struct wait_queue_entry *en
+@@ -1338,6 +1355,17 @@ static void msg_queue_satisfied( struct object *obj, struct wait_queue_entry *en
          shared->changed_mask = 0;
      }
      SHARED_WRITE_END;
@@ -3576,7 +3583,7 @@ index 9e318446410..21da3f01c2d 100644
  }
  
  static void msg_queue_destroy( struct object *obj )
-@@ -1349,6 +1377,7 @@ static void msg_queue_destroy( struct object *obj )
+@@ -1383,6 +1411,7 @@ static void msg_queue_destroy( struct object *obj )
      if (queue->hooks) release_object( queue->hooks );
      if (queue->fd) release_object( queue->fd );
      if (queue->shared) free_shared_object( queue->shared );
@@ -3584,7 +3591,7 @@ index 9e318446410..21da3f01c2d 100644
  }
  
  static void msg_queue_poll_event( struct fd *fd, int event )
-@@ -1359,6 +1388,7 @@ static void msg_queue_poll_event( struct fd *fd, int event )
+@@ -1393,6 +1422,7 @@ static void msg_queue_poll_event( struct fd *fd, int event )
      if (event & (POLLERR | POLLHUP)) set_fd_events( fd, -1 );
      else set_fd_events( queue->fd, 0 );
      wake_up( &queue->obj, 0 );
@@ -3592,7 +3599,7 @@ index 9e318446410..21da3f01c2d 100644
  }
  
  static void thread_input_dump( struct object *obj, int verbose )
-@@ -3133,7 +3163,15 @@ DECL_HANDLER(set_queue_mask)
+@@ -3177,7 +3207,15 @@ DECL_HANDLER(set_queue_mask)
                  }
                  SHARED_WRITE_END;
              }
@@ -3609,7 +3616,7 @@ index 9e318446410..21da3f01c2d 100644
          }
      }
  }
-@@ -3155,6 +3193,9 @@ DECL_HANDLER(get_queue_status)
+@@ -3199,6 +3237,9 @@ DECL_HANDLER(get_queue_status)
              shared->changed_bits &= ~req->clear_bits;
          }
          SHARED_WRITE_END;
@@ -3619,7 +3626,7 @@ index 9e318446410..21da3f01c2d 100644
      }
      else reply->wake_bits = reply->changed_bits = 0;
  }
-@@ -3353,6 +3394,9 @@ DECL_HANDLER(get_message)
+@@ -3397,6 +3438,9 @@ DECL_HANDLER(get_message)
      }
      SHARED_WRITE_END;
  
@@ -3629,7 +3636,7 @@ index 9e318446410..21da3f01c2d 100644
      /* then check for posted messages */
      if ((filter & QS_POSTMESSAGE) &&
          get_posted_message( queue, queue->ignore_post_msg, get_win, req->get_first, req->get_last, req->flags, reply ))
-@@ -3422,6 +3466,7 @@ DECL_HANDLER(get_message)
+@@ -3466,6 +3510,7 @@ DECL_HANDLER(get_message)
      }
      SHARED_WRITE_END;
  
@@ -3637,7 +3644,7 @@ index 9e318446410..21da3f01c2d 100644
      set_error( STATUS_PENDING );  /* FIXME */
      return;
  
-@@ -4225,3 +4270,42 @@ DECL_HANDLER(set_keyboard_repeat)
+@@ -4269,3 +4314,42 @@ DECL_HANDLER(set_keyboard_repeat)
  
      release_object( desktop );
  }
@@ -3681,7 +3688,7 @@ index 9e318446410..21da3f01c2d 100644
 +    }
 +}
 diff --git a/server/registry.c b/server/registry.c
-index 8de174d6f59..3b18aa326a0 100644
+index 7cca695a3ba..4b19e985576 100644
 --- a/server/registry.c
 +++ b/server/registry.c
 @@ -192,6 +192,7 @@ static const struct object_ops key_ops =
@@ -3705,11 +3712,11 @@ index 2254315b79e..24a4f779e68 100644
      master_socket_destroy          /* destroy */
  };
 diff --git a/server/request_handlers.h b/server/request_handlers.h
-index 88b56d90e0a..94054ce3915 100644
+index 3b0feb29f4f..6d06bf25765 100644
 --- a/server/request_handlers.h
 +++ b/server/request_handlers.h
-@@ -300,6 +300,11 @@ DECL_HANDLER(suspend_process);
- DECL_HANDLER(resume_process);
+@@ -301,6 +301,11 @@ DECL_HANDLER(resume_process);
+ DECL_HANDLER(get_next_process);
  DECL_HANDLER(get_next_thread);
  DECL_HANDLER(set_keyboard_repeat);
 +DECL_HANDLER(get_linux_sync_device);
@@ -3720,8 +3727,8 @@ index 88b56d90e0a..94054ce3915 100644
  
  typedef void (*req_handler)( const void *req, void *reply );
  static const req_handler req_handlers[REQ_NB_REQUESTS] =
-@@ -597,6 +602,11 @@ static const req_handler req_handlers[REQ_NB_REQUESTS] =
-     (req_handler)req_resume_process,
+@@ -599,6 +604,11 @@ static const req_handler req_handlers[REQ_NB_REQUESTS] =
+     (req_handler)req_get_next_process,
      (req_handler)req_get_next_thread,
      (req_handler)req_set_keyboard_repeat,
 +    (req_handler)req_get_linux_sync_device,
@@ -3732,7 +3739,7 @@ index 88b56d90e0a..94054ce3915 100644
  };
  
  C_ASSERT( sizeof(abstime_t) == 8 );
-@@ -2280,3 +2290,18 @@ C_ASSERT( offsetof(struct set_keyboard_repeat_request, period) == 20 );
+@@ -2289,3 +2299,18 @@ C_ASSERT( offsetof(struct set_keyboard_repeat_request, period) == 20 );
  C_ASSERT( sizeof(struct set_keyboard_repeat_request) == 24 );
  C_ASSERT( offsetof(struct set_keyboard_repeat_reply, enable) == 8 );
  C_ASSERT( sizeof(struct set_keyboard_repeat_reply) == 16 );
@@ -3752,10 +3759,10 @@ index 88b56d90e0a..94054ce3915 100644
 +C_ASSERT( offsetof(struct get_inproc_alert_event_reply, handle) == 8 );
 +C_ASSERT( sizeof(struct get_inproc_alert_event_reply) == 16 );
 diff --git a/server/request_trace.h b/server/request_trace.h
-index ad6ce4ab474..beb58ffebed 100644
+index e0e78cf7be8..818e3972687 100644
 --- a/server/request_trace.h
 +++ b/server/request_trace.h
-@@ -3363,6 +3363,45 @@ static void dump_set_keyboard_repeat_reply( const struct set_keyboard_repeat_rep
+@@ -3376,6 +3376,45 @@ static void dump_set_keyboard_repeat_reply( const struct set_keyboard_repeat_rep
      fprintf( stderr, " enable=%d", req->enable );
  }
  
@@ -3801,8 +3808,8 @@ index ad6ce4ab474..beb58ffebed 100644
  typedef void (*dump_func)( const void *req );
  
  static const dump_func req_dumpers[REQ_NB_REQUESTS] =
-@@ -3660,6 +3699,11 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
-     (dump_func)dump_resume_process_request,
+@@ -3674,6 +3713,11 @@ static const dump_func req_dumpers[REQ_NB_REQUESTS] =
+     (dump_func)dump_get_next_process_request,
      (dump_func)dump_get_next_thread_request,
      (dump_func)dump_set_keyboard_repeat_request,
 +    (dump_func)dump_get_linux_sync_device_request,
@@ -3813,8 +3820,8 @@ index ad6ce4ab474..beb58ffebed 100644
  };
  
  static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
-@@ -3957,6 +4001,11 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
-     NULL,
+@@ -3972,6 +4016,11 @@ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
+     (dump_func)dump_get_next_process_reply,
      (dump_func)dump_get_next_thread_reply,
      (dump_func)dump_set_keyboard_repeat_reply,
 +    (dump_func)dump_get_linux_sync_device_reply,
@@ -3825,8 +3832,8 @@ index ad6ce4ab474..beb58ffebed 100644
  };
  
  static const char * const req_names[REQ_NB_REQUESTS] =
-@@ -4254,6 +4303,11 @@ static const char * const req_names[REQ_NB_REQUESTS] =
-     "resume_process",
+@@ -4270,6 +4319,11 @@ static const char * const req_names[REQ_NB_REQUESTS] =
+     "get_next_process",
      "get_next_thread",
      "set_keyboard_repeat",
 +    "get_linux_sync_device",
@@ -3929,10 +3936,10 @@ index 19b76d44c16..85d16baa98c 100644
      handler_destroy           /* destroy */
  };
 diff --git a/server/sock.c b/server/sock.c
-index 32d622aaebc..09366ea7dde 100644
+index 8607cd6eb48..c1c6c480656 100644
 --- a/server/sock.c
 +++ b/server/sock.c
-@@ -483,6 +483,7 @@ static const struct object_ops sock_ops =
+@@ -488,6 +488,7 @@ static const struct object_ops sock_ops =
      NULL,                         /* unlink_name */
      no_open_file,                 /* open_file */
      no_kernel_obj_list,           /* get_kernel_obj_list */
@@ -3940,7 +3947,7 @@ index 32d622aaebc..09366ea7dde 100644
      sock_close_handle,            /* close_handle */
      sock_destroy                  /* destroy */
  };
-@@ -3611,6 +3612,7 @@ static const struct object_ops ifchange_ops =
+@@ -3799,6 +3800,7 @@ static const struct object_ops ifchange_ops =
      NULL,                    /* unlink_name */
      no_open_file,            /* open_file */
      no_kernel_obj_list,      /* get_kernel_obj_list */
@@ -3948,7 +3955,7 @@ index 32d622aaebc..09366ea7dde 100644
      no_close_handle,         /* close_handle */
      ifchange_destroy         /* destroy */
  };
-@@ -3832,6 +3834,7 @@ static const struct object_ops socket_device_ops =
+@@ -4020,6 +4022,7 @@ static const struct object_ops socket_device_ops =
      default_unlink_name,        /* unlink_name */
      socket_device_open_file,    /* open_file */
      no_kernel_obj_list,         /* get_kernel_obj_list */
@@ -3969,10 +3976,10 @@ index 74b60162c01..f0314f2ee90 100644
      symlink_destroy               /* destroy */
  };
 diff --git a/server/thread.c b/server/thread.c
-index d0d23b32d67..2ac12e6e8a4 100644
+index 502caefe30b..7a91c5cad87 100644
 --- a/server/thread.c
 +++ b/server/thread.c
-@@ -111,6 +111,7 @@ static const struct object_ops thread_apc_ops =
+@@ -117,6 +117,7 @@ static const struct object_ops thread_apc_ops =
      NULL,                       /* unlink_name */
      no_open_file,               /* open_file */
      no_kernel_obj_list,         /* get_kernel_obj_list */
@@ -3980,7 +3987,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
      no_close_handle,            /* close_handle */
      thread_apc_destroy          /* destroy */
  };
-@@ -153,6 +154,7 @@ static const struct object_ops context_ops =
+@@ -159,6 +160,7 @@ static const struct object_ops context_ops =
      NULL,                       /* unlink_name */
      no_open_file,               /* open_file */
      no_kernel_obj_list,         /* get_kernel_obj_list */
@@ -3988,7 +3995,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
      no_close_handle,            /* close_handle */
      no_destroy                  /* destroy */
  };
-@@ -180,6 +182,7 @@ static int thread_signaled( struct object *obj, struct wait_queue_entry *entry )
+@@ -186,6 +188,7 @@ static int thread_signaled( struct object *obj, struct wait_queue_entry *entry )
  static unsigned int thread_map_access( struct object *obj, unsigned int access );
  static void thread_poll_event( struct fd *fd, int event );
  static struct list *thread_get_kernel_obj_list( struct object *obj );
@@ -3996,7 +4003,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
  static void destroy_thread( struct object *obj );
  
  static const struct object_ops thread_ops =
-@@ -202,6 +205,7 @@ static const struct object_ops thread_ops =
+@@ -208,6 +211,7 @@ static const struct object_ops thread_ops =
      NULL,                       /* unlink_name */
      no_open_file,               /* open_file */
      thread_get_kernel_obj_list, /* get_kernel_obj_list */
@@ -4004,7 +4011,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
      no_close_handle,            /* close_handle */
      destroy_thread              /* destroy */
  };
-@@ -294,6 +298,8 @@ static inline void init_thread_structure( struct thread *thread )
+@@ -411,6 +415,8 @@ static inline void init_thread_structure( struct thread *thread )
      thread->token           = NULL;
      thread->desc            = NULL;
      thread->desc_len        = 0;
@@ -4013,7 +4020,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
  
      thread->creation_time = current_time;
      thread->exit_time     = 0;
-@@ -445,6 +451,16 @@ static struct list *thread_get_kernel_obj_list( struct object *obj )
+@@ -562,6 +568,16 @@ static struct list *thread_get_kernel_obj_list( struct object *obj )
      return &thread->kernel_object;
  }
  
@@ -4030,7 +4037,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
  /* cleanup everything that is no longer needed by a dead thread */
  /* used by destroy_thread and kill_thread */
  static void cleanup_thread( struct thread *thread )
-@@ -500,6 +516,8 @@ static void destroy_thread( struct object *obj )
+@@ -617,6 +633,8 @@ static void destroy_thread( struct object *obj )
      release_object( thread->process );
      if (thread->id) free_ptid( thread->id );
      if (thread->token) release_object( thread->token );
@@ -4039,7 +4046,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
  }
  
  /* dump a thread on stdout for debugging purposes */
-@@ -1222,8 +1240,13 @@ static int queue_apc( struct process *process, struct thread *thread, struct thr
+@@ -1339,8 +1357,13 @@ static int queue_apc( struct process *process, struct thread *thread, struct thr
      grab_object( apc );
      list_add_tail( queue, &apc->entry );
      if (!list_prev( queue, &apc->entry ))  /* first one */
@@ -4053,7 +4060,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
      return 1;
  }
  
-@@ -1254,6 +1277,8 @@ void thread_cancel_apc( struct thread *thread, struct object *owner, enum apc_ty
+@@ -1371,6 +1394,8 @@ void thread_cancel_apc( struct thread *thread, struct object *owner, enum apc_ty
          apc->executed = 1;
          wake_up( &apc->obj, 0 );
          release_object( apc );
@@ -4062,7 +4069,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
          return;
      }
  }
-@@ -1268,6 +1293,9 @@ static struct thread_apc *thread_dequeue_apc( struct thread *thread, int system
+@@ -1385,6 +1410,9 @@ static struct thread_apc *thread_dequeue_apc( struct thread *thread, int system
      {
          apc = LIST_ENTRY( ptr, struct thread_apc, entry );
          list_remove( ptr );
@@ -4072,7 +4079,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
      }
      return apc;
  }
-@@ -1365,6 +1393,7 @@ void kill_thread( struct thread *thread, int violent_death )
+@@ -1482,6 +1510,7 @@ void kill_thread( struct thread *thread, int violent_death )
      kill_console_processes( thread, 0 );
      abandon_mutexes( thread );
      wake_up( &thread->obj, 0 );
@@ -4080,7 +4087,7 @@ index d0d23b32d67..2ac12e6e8a4 100644
      if (violent_death) send_thread_signal( thread, SIGQUIT );
      cleanup_thread( thread );
      remove_process_thread( thread->process, thread );
-@@ -2111,3 +2140,12 @@ DECL_HANDLER(get_next_thread)
+@@ -2228,3 +2257,12 @@ DECL_HANDLER(get_next_thread)
      set_error( STATUS_NO_MORE_ENTRIES );
      release_object( process );
  }

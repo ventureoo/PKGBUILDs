@@ -1,4 +1,4 @@
-From 18cb9602044c9c1adcbec851b9f32812474a5b84 Mon Sep 17 00:00:00 2001
+From 4a154c6dda5dae012871d4487ceb18de95090052 Mon Sep 17 00:00:00 2001
 From: Paul Gofman <pgofman@codeweavers.com>
 Date: Fri, 7 Feb 2025 22:29:49 +0300
 Subject: [PATCH 5/5] wineboot: Load root certificates on prefix update.
@@ -10,7 +10,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  2 files changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/programs/wineboot/Makefile.in b/programs/wineboot/Makefile.in
-index 0983420a91f..9eaa95c9ad5 100644
+index d346b8984b1..9eaa95c9ad5 100644
 --- a/programs/wineboot/Makefile.in
 +++ b/programs/wineboot/Makefile.in
 @@ -1,6 +1,6 @@
@@ -22,10 +22,10 @@ index 0983420a91f..9eaa95c9ad5 100644
  EXTRADLLFLAGS = -mconsole
  
 diff --git a/programs/wineboot/wineboot.c b/programs/wineboot/wineboot.c
-index b8ccc3bf116..404aeecced4 100644
+index cb036c9853a..b8171a973f9 100644
 --- a/programs/wineboot/wineboot.c
 +++ b/programs/wineboot/wineboot.c
-@@ -1692,6 +1692,14 @@ static void update_win_version(void)
+@@ -1798,6 +1798,14 @@ static void update_win_version(void)
      }
  }
  
@@ -40,7 +40,7 @@ index b8ccc3bf116..404aeecced4 100644
  /* execute rundll32 on the wine.inf file if necessary */
  static void update_wineprefix( BOOL force )
  {
-@@ -1751,6 +1759,7 @@ static void update_wineprefix( BOOL force )
+@@ -1857,6 +1865,7 @@ static void update_wineprefix( BOOL force )
          install_root_pnp_devices();
          update_user_profile();
          update_win_version();

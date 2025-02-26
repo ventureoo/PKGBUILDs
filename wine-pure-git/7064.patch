@@ -1,5 +1,16 @@
+From 275c3fda1274cd48c40eeec02225b30de1a03c03 Mon Sep 17 00:00:00 2001
+From: William Horvath <william@horvath.blog>
+Date: Wed, 26 Feb 2025 14:17:19 +0300
+Subject: [PATCH]  ntdll: Check for invalid GS base in the 64-bit segv_handler.
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
+---
+ dlls/ntdll/tests/exception.c    |  17 +++---
+ dlls/ntdll/unix/signal_x86_64.c | 101 ++++++++++++++++++++++++++++++++
+ 2 files changed, 111 insertions(+), 7 deletions(-)
+
 diff --git a/dlls/ntdll/tests/exception.c b/dlls/ntdll/tests/exception.c
-index 9b5ca2ca5086c27344152eef0f296e71a57cbac3..13ef9b693bf862dd60daa3738bc37a15cac27660 100644
+index 9b5ca2ca508..13ef9b693bf 100644
 --- a/dlls/ntdll/tests/exception.c
 +++ b/dlls/ntdll/tests/exception.c
 @@ -2673,24 +2673,21 @@ static const struct exception
@@ -45,10 +56,10 @@ index 9b5ca2ca5086c27344152eef0f296e71a57cbac3..13ef9b693bf862dd60daa3738bc37a15
  
  static int got_exception;
 diff --git a/dlls/ntdll/unix/signal_x86_64.c b/dlls/ntdll/unix/signal_x86_64.c
-index caa85249896fb9580f1f50dd62b6c0b7a84ee89f..46c70adc83be8112befc7e39cad5ce8b4511cb29 100644
+index bc6b80152ec..1bcde9b4bce 100644
 --- a/dlls/ntdll/unix/signal_x86_64.c
 +++ b/dlls/ntdll/unix/signal_x86_64.c
-@@ -1967,6 +1967,102 @@ static BOOL handle_syscall_trap( ucontext_t *sigcontext, siginfo_t *siginfo )
+@@ -2158,6 +2158,102 @@ static BOOL handle_syscall_trap( ucontext_t *sigcontext, siginfo_t *siginfo )
  }
  
  
@@ -151,7 +162,7 @@ index caa85249896fb9580f1f50dd62b6c0b7a84ee89f..46c70adc83be8112befc7e39cad5ce8b
  /**********************************************************************
   *		segv_handler
   *
-@@ -2025,6 +2121,11 @@ static void segv_handler( int signal, siginfo_t *siginfo, void *sigcontext )
+@@ -2216,6 +2312,11 @@ static void segv_handler( int signal, siginfo_t *siginfo, void *sigcontext )
              /* send EXCEPTION_EXECUTE_FAULT only if data execution prevention is enabled */
              if (!(flags & MEM_EXECUTE_OPTION_DISABLE)) rec.ExceptionInformation[0] = EXCEPTION_READ_FAULT;
          }
@@ -163,3 +174,6 @@ index caa85249896fb9580f1f50dd62b6c0b7a84ee89f..46c70adc83be8112befc7e39cad5ce8b
          break;
      case TRAP_x86_ALIGNFLT:  /* Alignment check exception */
          if (EFL_sig(ucontext) & 0x00040000)
+-- 
+2.48.1
+

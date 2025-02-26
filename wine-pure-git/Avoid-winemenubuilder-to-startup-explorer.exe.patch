@@ -1,20 +1,17 @@
-From 6d30651cc44c043ab26f36efd1cb496fcff2f59c Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Bernhard=20=C3=9Cbelacker?= <bernhardu@mailbox.org>
+From cc622577f11883628a4f13b567b1884cc8bb576d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=3D=3FUTF-8=3Fq=3FBernhard=3D20=3DC3=3D9Cbelacker=3F=3D?=
+ <bernhardu@mailbox.org>
 Date: Sat, 12 Dec 2020 22:36:59 +0100
-Subject: Avoid winemenubuilder to startup explorer.exe.
-Reply-To: wine-devel <wine-devel@winehq.org>
+Subject: [PATCH] Avoid winemenubuilder to startup explorer.exe.
 
-Because its session seems not interactive and fails later
-to create windows.
-
-0050:err:winediag:nodrv_CreateWindow Application tried to create a window, but no driver could be loaded.
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  dlls/win32u/defwnd.c                       | 19 +++++++++++++++++++
  programs/winemenubuilder/winemenubuilder.c | 11 +++++++++++
  2 files changed, 30 insertions(+)
 
 diff --git a/dlls/win32u/defwnd.c b/dlls/win32u/defwnd.c
-index 11111111111..11111111111 100644
+index 0cbb41d8604..ae982be0c0d 100644
 --- a/dlls/win32u/defwnd.c
 +++ b/dlls/win32u/defwnd.c
 @@ -26,6 +26,7 @@
@@ -25,8 +22,8 @@ index 11111111111..11111111111 100644
  #include "wine/server.h"
  
  WINE_DEFAULT_DEBUG_CHANNEL(win);
-@@ -2962,6 +2963,24 @@ LRESULT desktop_window_proc( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam )
-                      guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7] );
+@@ -2984,6 +2985,24 @@ LRESULT desktop_window_proc( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam,
+                       guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7] );
              NtAddAtom( bufferW, asciiz_to_unicode( bufferW, buffer ) - sizeof(WCHAR), &atom );
              NtUserSetProp( hwnd, wine_display_device_guidW, ULongToHandle( atom ) );
 +
@@ -51,10 +48,10 @@ index 11111111111..11111111111 100644
          return TRUE;
      }
 diff --git a/programs/winemenubuilder/winemenubuilder.c b/programs/winemenubuilder/winemenubuilder.c
-index 11111111111..11111111111 100644
+index 36569fa9d5f..103cb1de328 100644
 --- a/programs/winemenubuilder/winemenubuilder.c
 +++ b/programs/winemenubuilder/winemenubuilder.c
-@@ -2898,6 +2898,17 @@ int PASCAL wWinMain (HINSTANCE hInstance, HINSTANCE prev, LPWSTR cmdline, int sh
+@@ -2895,6 +2895,17 @@ int PASCAL wWinMain (HINSTANCE hInstance, HINSTANCE prev, LPWSTR cmdline, int sh
      if (!init_xdg())
          return 1;
  
@@ -73,5 +70,5 @@ index 11111111111..11111111111 100644
      if (FAILED(hr))
      {
 -- 
-2.40.0
+2.48.1
 

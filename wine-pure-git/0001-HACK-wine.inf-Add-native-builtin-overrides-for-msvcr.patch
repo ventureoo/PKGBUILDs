@@ -1,4 +1,4 @@
-From 597d94e1508b3c743767de4d2e6511647e9ab676 Mon Sep 17 00:00:00 2001
+From ac40f35bbdead99900d16d9b3e3ea1337443f7ac Mon Sep 17 00:00:00 2001
 From: Andrew Eikum <aeikum@codeweavers.com>
 Date: Fri, 7 Feb 2025 22:22:59 +0300
 Subject: [PATCH 1/5] HACK: wine.inf: Add native,builtin overrides for msvcrt
@@ -10,10 +10,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 31 insertions(+)
 
 diff --git a/loader/wine.inf.in b/loader/wine.inf.in
-index cedcf16fba7..c45a58bb775 100644
+index e6ff05570f0..04612cd2522 100644
 --- a/loader/wine.inf.in
 +++ b/loader/wine.inf.in
-@@ -2621,6 +2621,37 @@ HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-Shanghai-EnableGame",0x1
+@@ -2874,6 +2874,37 @@ HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-Shanghai-EnableGame",0x1
  HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-Solitaire-EnableGame",0x10001,0x00000001
  HKLM,Software\Wine\LicenseInformation,"Shell-InBoxGames-SpiderSolitaire-EnableGame",0x10001,0x00000001
  HKLM,Software\Wine\LicenseInformation,"Shell-PremiumInBoxGames-Chess-EnableGame",0x10001,0x00000001

@@ -1,4 +1,4 @@
-From 6f498334ff6fe6e707242d016c31f55a62a101ae Mon Sep 17 00:00:00 2001
+From b664a786b1b7a5b00e9dbc30c40d537a57fde145 Mon Sep 17 00:00:00 2001
 From: Paul Gofman <pgofman@codeweavers.com>
 Date: Fri, 7 Feb 2025 22:25:55 +0300
 Subject: [PATCH 2/5] wine.inf: Set a valid Win10 ProductId
@@ -9,10 +9,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/loader/wine.inf.in b/loader/wine.inf.in
-index c45a58bb775..27a48d3e728 100644
+index 04612cd2522..27df37619d0 100644
 --- a/loader/wine.inf.in
 +++ b/loader/wine.inf.in
-@@ -365,7 +365,7 @@ HKCU,%CurrentVersion%\Run,,16
+@@ -369,7 +369,7 @@ HKCU,%CurrentVersion%\Run,,16
  HKCU,%CurrentVersionNT%\Winlogon,,16
  HKLM,%CurrentVersion%,"CommonFilesDir",,"%16427%"
  HKLM,%CurrentVersion%,"FirstInstallDateTime",1,21,81,7c,23
@@ -21,7 +21,7 @@ index c45a58bb775..27a48d3e728 100644
  HKLM,%CurrentVersion%,"ProgramFilesDir",,"%16422%"
  HKLM,%CurrentVersion%,"ProgramFilesPath",0x20000,"%%ProgramFiles%%"
  HKLM,%CurrentVersion%,"RegisteredOrganization",2,""
-@@ -391,7 +391,7 @@ HKLM,%CurrentVersion%\Shell Extensions\Approved,,16
+@@ -395,7 +395,7 @@ HKLM,%CurrentVersion%\Shell Extensions\Approved,,16
  HKLM,%CurrentVersion%\Time Zones,"SymbolicLinkValue",0x60000,"\Registry\Machine\%CurrentVersionNT%\Time Zones"
  HKLM,%CurrentVersion%\Uninstall,,16
  HKLM,%CurrentVersionNT%,"InstallDate",0x10003,1273299354
