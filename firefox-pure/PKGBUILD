@@ -119,7 +119,7 @@ ac_add_options --disable-install-strip
 ac_add_options --disable-elf-hack
 ac_add_options --disable-bootstrap
 ac_add_options --with-wasi-sysroot=/usr/share/wasi-sysroot
-ac_add_options --enable-default-toolkit=cairo-gtk3-wayland
+ac_add_options --enable-default-toolkit=cairo-gtk3-wayland-only
 
 # Branding
 ac_add_options --enable-official-branding
