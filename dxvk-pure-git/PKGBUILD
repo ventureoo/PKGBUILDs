@@ -3,8 +3,8 @@
 # Maintainer: Adrià Cereto i Massagué <ssorgatem at gmail.com>
 
 pkgname=dxvk-pure-git
-pkgver=2.5.3.r219.gfcbdff3b7
-pkgrel=2
+pkgver=2.5.3.r238.g3cf453160
+pkgrel=1
 pkgdesc="A Vulkan-based compatibility layer for Direct3D 9/10/11 which allows running 3D applications on Linux using Wine. Windows DLL version)"
 arch=('x86_64')
 url="https://github.com/doitsujin/dxvk"
@@ -20,6 +20,7 @@ source=(
     "git+https://github.com/KhronosGroup/Vulkan-Headers.git"
     "git+https://github.com/KhronosGroup/SPIRV-Headers.git"
     "dxvk-extraopts.patch"
+    "fix-nvidia.patch"
 )
 sha256sums=(
     "SKIP"
@@ -27,6 +28,7 @@ sha256sums=(
     "SKIP"
     "SKIP"
     "bcc15521e4c7f966a0192a1dabb7fb4935b33db39344ab5b861f9d81486f1362"
+    '986b46f7d215029a2a4d1159f4961db132cb59c5382d0fe44087d600b27a6cd3'
 )
 
 
@@ -43,6 +45,9 @@ prepare() {
 
     # Patch to passthrough compiler flags (thanks @loathingkernel)
     patch -p1 -i "$srcdir"/dxvk-extraopts.patch
+
+    # Fixes: https://github.com/doitsujin/dxvk/issues/4720
+    patch -p1 -i "$srcdir"/fix-nvidia.patch
 
     local -a split=($CFLAGS)
     local -A flags

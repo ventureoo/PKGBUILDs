@@ -1,0 +1,13 @@
+diff --git a/src/dxvk/dxvk_adapter.cpp b/src/dxvk/dxvk_adapter.cpp
+index 5c07fc8..f0bf424 100644
+--- a/src/dxvk/dxvk_adapter.cpp
++++ b/src/dxvk/dxvk_adapter.cpp
+@@ -439,7 +439,7 @@ namespace dxvk {
+       m_deviceFeatures.khrPresentWait.presentWait;
+ 
+     // Unless we're on an Nvidia driver where these extensions are known to be broken
+-    if (matchesDriver(VK_DRIVER_ID_NVIDIA_PROPRIETARY, Version(), Version(535, 0, 0))) {
++    if (matchesDriver(VK_DRIVER_ID_NVIDIA_PROPRIETARY)) {
+       enabledFeatures.khrPresentId.presentId = VK_FALSE;
+       enabledFeatures.khrPresentWait.presentWait = VK_FALSE;
+     }

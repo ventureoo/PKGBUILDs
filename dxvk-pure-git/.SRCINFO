@@ -1,7 +1,7 @@
 pkgbase = dxvk-pure-git
 	pkgdesc = A Vulkan-based compatibility layer for Direct3D 9/10/11 which allows running 3D applications on Linux using Wine. Windows DLL version)
-	pkgver = 2.5.3.r219.gfcbdff3b7
-	pkgrel = 2
+	pkgver = 2.5.3.r238.g3cf453160
+	pkgrel = 1
 	url = https://github.com/doitsujin/dxvk
 	arch = x86_64
 	license = zlib/libpng
@@ -13,7 +13,7 @@ pkgbase = dxvk-pure-git
 	depends = vulkan-icd-loader
 	provides = dxvk
 	provides = d9vk
-	provides = dxvk=2.5.3.r219.gfcbdff3b7
+	provides = dxvk=2.5.3.r238.g3cf453160
 	conflicts = d9vk
 	conflicts = dxvk
 	conflicts = dxvk-bin
@@ -25,10 +25,12 @@ pkgbase = dxvk-pure-git
 	source = git+https://github.com/KhronosGroup/Vulkan-Headers.git
 	source = git+https://github.com/KhronosGroup/SPIRV-Headers.git
 	source = dxvk-extraopts.patch
+	source = fix-nvidia.patch
 	sha256sums = SKIP
 	sha256sums = SKIP
 	sha256sums = SKIP
 	sha256sums = SKIP
 	sha256sums = bcc15521e4c7f966a0192a1dabb7fb4935b33db39344ab5b861f9d81486f1362
+	sha256sums = 986b46f7d215029a2a4d1159f4961db132cb59c5382d0fe44087d600b27a6cd3
 
 pkgname = dxvk-pure-git
