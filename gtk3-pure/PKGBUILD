@@ -1,0 +1,122 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+# Arch Linux's maintainers:
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Ionut Biru <ibiru@archlinux.org>
+
+pkgname=gtk3-pure
+pkgver=3.24.48
+pkgrel=2
+epoch=1
+pkgdesc="GObject-based multi-platform GUI toolkit"
+url="https://www.gtk.org/"
+arch=(x86_64)
+license=(LGPL-2.1-or-later)
+depends=(
+  at-spi2-core
+  cairo
+  desktop-file-utils
+  fribidi
+  gdk-pixbuf2
+  gtk-update-icon-cache
+  libepoxy
+  librsvg
+  libxkbcommon
+  pango
+  shared-mime-info
+  wayland
+)
+makedepends=(
+  cairo
+  cantarell-fonts
+  desktop-file-utils
+  fribidi
+  gdk-pixbuf2
+  git
+  glib2-devel
+  gobject-introspection
+  gtk-update-icon-cache
+  hicolor-icon-theme
+  libcups
+  libegl
+  libepoxy
+  libgl
+  librsvg
+  libxkbcommon
+  meson
+  pango
+  quilt
+  sassc
+  shared-mime-info
+  wayland
+  wayland-protocols
+)
+provides=(
+  gtk3
+  gtk3-print-backends
+  libgailutil-3.so
+  libgdk-3.so
+  libgtk-3.so
+)
+conflicts=(gtk3 gtk3-print-backends)
+replaces=(gtk3 "gtk3-print-backends<=3.22.26-1")
+install=gtk3.install
+source=(
+  "https://gitlab.gnome.org/GNOME/gtk/-/archive/$pkgver/gtk-$pkgver.tar.gz"
+  "git+https://github.com/lah7/gtk3-classic#tag=$pkgver-$pkgrel"
+  0001-Allow-disabling-legacy-Tracker-search.patch
+  gtk-query-immodules-3.0.hook
+)
+b2sums=(
+  '2c765007770b4d8d3fa3f4df54f01f19a3fbaa31654abb78f1a49dbd2ce0c6d7b0b29805ea4aeb8bc2358621e5a091f2177fca0356d11764e3dfae34ba7e159e'
+  'SKIP'
+  'SKIP'
+  '8e6a3906126749c6d853f582e3802254cdbba099c6af7190ad576eff6ea5425404a72b1b36950a87e3afdac82295cfe246003172c3e0341a73bd931a36f3b407'
+)
+
+prepare() {
+  cd "gtk-$pkgver"
+
+  # Don't try to use the old Tracker
+  patch -Np1 -i "${srcdir}/0001-Allow-disabling-legacy-Tracker-search.patch"
+
+  # Apply gtk3-classic patchset
+  for patch in "${srcdir}"/gtk3-classic/*.patch; do
+    patch -Np1 -i "$patch"
+  done
+}
+
+build() {
+  local meson_options=(
+    -D colord=auto
+    -D gtk_doc=false
+    -D examples=false
+    -D tests=false
+    -D installed_tests=false
+    -D introspection=true
+    -D man=false
+    -D demos=false
+    -D tracker=false
+    -D tracker3=false
+    -D atk_bridge=false
+    -D x11_backend=false
+  )
+
+  CFLAGS+=" -DG_DISABLE_CAST_CHECKS"
+  arch-meson "gtk-$pkgver" build "${meson_options[@]}"
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+
+  rm "$pkgdir/usr/bin/gtk-update-icon-cache"
+  install -Dm644 /dev/stdin "$pkgdir/usr/share/gtk-3.0/settings.ini" <<END
+[Settings]
+gtk-icon-theme-name = Adwaita
+gtk-theme-name = Adwaita
+gtk-font-name = Cantarell 11
+END
+  install -Dm644 gtk-query-immodules-3.0.hook -t "$pkgdir/usr/share/libalpm/hooks"
+}
+
+# vim:set sw=2 sts=-1 et:
