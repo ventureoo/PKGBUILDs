@@ -5,7 +5,7 @@
 # Contributor: Jakub Schmidtke <sjakub@gmail.com>
 pkgname=firefox-nightly-pure
 pkgver=138.0a1.r777183.5269da7
-pkgrel=1
+pkgrel=2
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -40,6 +40,7 @@ depends=(
   zlib
 )
 makedepends=(
+  git
   git-cinnabar
   cbindgen
   clang
