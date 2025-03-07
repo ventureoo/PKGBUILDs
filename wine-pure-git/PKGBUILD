@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=10.2.r74.ge4bf31b6734
+pkgver=10.3.r0.g3364df08cb6
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -153,8 +153,8 @@ build() {
   local mtune="${flags["-mtune"]:-"haswell"}"
 
   # Apply flags for cross-compilation (from Proton)
-  export CFLAGS="-O3 -march=$march -mtune=$mtune -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe -Wa,-muse-unaligned-vector-move"
-  export CROSSCFLAGS="$CFLAGS"
+  export CFLAGS="-O3 -march=$march -mtune=$mtune -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
+  export CROSSCFLAGS="$CFLAGS -Wa,-muse-unaligned-vector-move"
   export CROSSCXXFLAGS="$CROSSCFLAGS"
   export CROSSLDFLAGS="-Wl,-O1"
   export LDFLAGS="-Wl,-O1,--sort-common,--as-needed"
