@@ -6,7 +6,7 @@
 
 pkgname=firefox-pure
 pkgver=136.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -79,6 +79,7 @@ source=(
   "firefox.desktop"
   "org.mozilla.firefox.metainfo.xml"
   "0001-Install-under-remoting-name.patch"
+  "vendor.js"
   "https://dev.gentoo.org/~juippis/mozilla/patchsets/firefox-136-patches-01.tar.xz"
 )
 sha256sums=(
@@ -87,8 +88,10 @@ sha256sums=(
   '71fe797430198ac8c00b538dce537284cf526e48be0496698cf5a980d70c16da'
   '23f557fa7989adcae03cc9458d94716981dbcf0e9d6d52a289a2426e50b4b785'
   '883ca2fa723a7572269d18559d5b82412782ad63e5dd3820eeb0540e3fe34314'
+  'c1740bef5944fb70c5afb392607bc5ad67280eb97ab4ac5124abad38c931a1b2'
   '9615f6bfd90bdd7138a6ebc29591d73213a8af4cf6e3b6c88b7170d62df7a0f5'
 )
+
 
 prepare() {
   mkdir mozbuild
@@ -198,81 +201,7 @@ package() {
   cd firefox-$pkgver
   DESTDIR="$pkgdir" ./mach install
 
-  local vendorjs="$pkgdir/usr/lib/firefox/browser/defaults/preferences/vendor.js"
-  install -Dvm644 /dev/stdin "$vendorjs" <<END
-// Use LANG environment variable to choose locale
-pref("intl.locale.requested", "");
-
-// Use system-provided dictionaries
-pref("spellchecker.dictionary_path", "/usr/share/hunspell");
-
-// Disable default browser checking.
-pref("browser.shell.checkDefaultBrowser", false);
-
-// Don't disable extensions in the application directory
-pref("extensions.autoDisableScopes", 11);
-
-// Enable WebRender
-pref("gfx.webrender.all", true);
-
-// Enable hardware accelerated video
-pref("media.hardware-video-decoding.enabled", true);
-pref("media.hardware-video-decoding.force-enabled", true);
-pref("media.ffmpeg.vaapi.enabled", true);
-pref("media.webrtc.hw.h264.enabled", true);
-
-// Fuck mozilla garbage
-pref("browser.newtabpage.activity-stream.showSponsored", false, locked);
-pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false, locked);
-pref("browser.ping-centre.telemetry", false, locked);
-pref("toolkit.telemetry.unified", false, locked);
-pref("toolkit.telemetry.enabled", false, locked);
-pref("toolkit.telemetry.server", "data:,", locked);
-pref("toolkit.telemetry.archive.enabled", false, locked);
-pref("toolkit.telemetry.newProfilePing.enabled", false, locked);
-pref("toolkit.telemetry.shutdownPingSender.enabled", false, locked);
-pref("toolkit.telemetry.updatePing.enabled", false, locked);
-pref("toolkit.telemetry.bhrPing.enabled", false, locked);
-pref("toolkit.telemetry.firstShutdownPing.enabled", false, locked);
-pref("toolkit.telemetry.coverage.opt-out", true, locked);
-pref("toolkit.coverage.opt-out", true, locked);
-pref("toolkit.coverage.endpoint.base", "", locked);
-pref("browser.newtabpage.activity-stream.feeds.telemetry", false, locked);
-pref("browser.newtabpage.activity-stream.telemetry", false, locked);
-pref("app.normandy.enabled", false, locked);
-pref("app.normandy.api_url", "", locked);
-pref("breakpad.reportURL", "", locked);
-pref("browser.tabs.crashReporting.sendReport", false, locked);
-pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false, locked);
-pref("captivedetect.canonicalURL", "", locked);
-pref("network.captive-portal-service.enabled", false, locked);
-pref("network.connectivity-service.enabled", false, locked);
-pref("browser.safebrowsing.downloads.remote.enabled", false, locked);
-pref("browser.safebrowsing.downloads.remote.block_potentially_unwanted", false, locked);
-pref("browser.safebrowsing.downloads.remote.block_uncommon", false, locked);
-pref("security.remote_settings.crlite_filters.enabled", false, locked);
-pref("security.pki.crlite_mode", 0, locked);
-pref("browser.contentanalysis.enabled", false, locked);
-pref("browser.contentanalysis.default_result", 0, locked);
-pref("dom.push.enabled", false, locked);
-pref("datareporting.healthreport.uploadEnabled", false, locked);
-pref("datareporting.policy.dataSubmissionEnabled", false, locked);
-pref("browser.discovery.enabled", false, locked);
-pref("extensions.getAddons.showPane", false, locked);
-pref("extensions.htmlaboutaddons.recommendations.enabled", false, locked);
-pref("browser.shopping.experience2023.enabled", false, locked);
-pref("browser.discovery.enabled", false, locked);
-pref("browser.urlbar.addons.featureGate", false, locked);
-pref("browser.urlbar.fakespot.featureGate", false, locked);
-pref("browser.urlbar.mdn.featureGate", false, locked);
-pref("browser.urlbar.pocket.featureGate", false, locked);
-pref("browser.urlbar.weather.featureGate", false, locked);
-pref("browser.urlbar.yelp.featureGate", false, locked);
-pref("dom.private-attribution.submission.enabled", false, locked);
-pref("devtools.debugger.remote-enabled", false, locked);
-pref("media.gmp-gmpopenh264.autoupdate", false, locked);
-END
-
+  install -Dvm644 "$srcdir/vendor.js" "$pkgdir/usr/lib/firefox/browser/defaults/preferences/vendor.js"
 
   local distini="$pkgdir/usr/lib/firefox/distribution/distribution.ini"
   install -Dvm644 /dev/stdin "$distini" <<END
