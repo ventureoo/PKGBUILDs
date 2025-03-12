@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=10.3.r15.g4cb856a95de
+pkgver=10.3.r34.g10bb431e0d0
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -24,7 +24,7 @@ source=(
   0005-wineboot-Load-root-certificates-on-prefix-update.patch
   Avoid-winemenubuilder-to-startup-explorer.exe.patch
   include-use-ntsync.h-v7-module-header-as-an-in-tree-header.patch
-  kernelbase-openthread-devectorization.patch
+  kernelbase-Fix-uninitialized-structs-in-OpenThread.patch
 )
 sha512sums=(
   'SKIP'
@@ -141,9 +141,9 @@ prepare() {
   # Fixes "The explorer process failed to start" issue
   patch -Np1 -i "${srcdir}/Avoid-winemenubuilder-to-startup-explorer.exe.patch"
 
-  # Remove SIMD vectorization for kernelbase.OpenThread() call
+  # Fixes struct alignment inside kernelbase.OpenThread()
   # Fixes: cracked Hogwarts Legacy by Empress
-  patch -Np1 -i "${srcdir}/kernelbase-openthread-devectorization.patch"
+  patch -Np1 -i "${srcdir}/kernelbase-Fix-uninitialized-structs-in-OpenThread.patch"
 
   ./dlls/winevulkan/make_vulkan
   ./tools/make_requests
