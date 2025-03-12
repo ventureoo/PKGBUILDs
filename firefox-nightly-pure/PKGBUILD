@@ -5,7 +5,7 @@
 # Contributor: Jakub Schmidtke <sjakub@gmail.com>
 pkgname=firefox-nightly-pure
 pkgver=138.0a1.r777519.3dbabe7
-pkgrel=2
+pkgrel=3
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -88,7 +88,7 @@ sha256sums=(
   '71fe797430198ac8c00b538dce537284cf526e48be0496698cf5a980d70c16da'
   '23f557fa7989adcae03cc9458d94716981dbcf0e9d6d52a289a2426e50b4b785'
   '883ca2fa723a7572269d18559d5b82412782ad63e5dd3820eeb0540e3fe34314'
-  'c1740bef5944fb70c5afb392607bc5ad67280eb97ab4ac5124abad38c931a1b2'
+  'b7491d0e87bf0d42abc68f1801acd509999f76a3f82cc1736d22e77260085785'
 )
 
 pkgver() {
