@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 0857cfb08cf..19c55dcfe3f 100755
+index 5483d78f555..34cb58c339d 100755
 --- a/configure
 +++ b/configure
-@@ -7753,6 +7753,12 @@ if test "x$ac_cv_header_linux_major_h" = xyes
+@@ -7765,6 +7765,12 @@ if test "x$ac_cv_header_linux_major_h" = xyes
  then :
    printf "%s\n" "#define HAVE_LINUX_MAJOR_H 1" >>confdefs.h
  
@@ -16,7 +16,7 @@ index 0857cfb08cf..19c55dcfe3f 100755
  ac_fn_c_check_header_compile "$LINENO" "linux/param.h" "ac_cv_header_linux_param_h" "$ac_includes_default"
  if test "x$ac_cv_header_linux_param_h" = xyes
 diff --git a/configure.ac b/configure.ac
-index 5b734040115..6841c085400 100644
+index 17a7597604c..fc9336000fd 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -389,6 +389,7 @@ AC_CHECK_HEADERS(\
@@ -28,10 +28,10 @@ index 5b734040115..6841c085400 100644
  	linux/seccomp.h \
  	linux/serial.h \
 diff --git a/dlls/ntdll/unix/file.c b/dlls/ntdll/unix/file.c
-index 283cb172069..817d3a245cb 100644
+index 816b5d5e5eb..e8da7a59429 100644
 --- a/dlls/ntdll/unix/file.c
 +++ b/dlls/ntdll/unix/file.c
-@@ -7621,7 +7621,7 @@ NTSTATUS WINAPI NtLockFile( HANDLE file, HANDLE event, PIO_APC_ROUTINE apc, void
+@@ -7663,7 +7663,7 @@ NTSTATUS WINAPI NtLockFile( HANDLE file, HANDLE event, PIO_APC_ROUTINE apc, void
          }
          if (handle)
          {
@@ -1429,10 +1429,10 @@ index f4dc02cf0cf..e71408933fe 100644
  
  static inline BOOL in_wow64_call(void)
 diff --git a/dlls/ntdll/unix/virtual.c b/dlls/ntdll/unix/virtual.c
-index 9e1c5a2c027..03daf0d901b 100644
+index 6ecd016ec99..48fb985d6aa 100644
 --- a/dlls/ntdll/unix/virtual.c
 +++ b/dlls/ntdll/unix/virtual.c
-@@ -3713,6 +3713,7 @@ static TEB *init_teb( void *ptr, BOOL is_wow )
+@@ -3720,6 +3720,7 @@ static TEB *init_teb( void *ptr, BOOL is_wow )
      thread_data->reply_fd   = -1;
      thread_data->wait_fd[0] = -1;
      thread_data->wait_fd[1] = -1;
@@ -1441,10 +1441,10 @@ index 9e1c5a2c027..03daf0d901b 100644
      return teb;
  }
 diff --git a/include/config.h.in b/include/config.h.in
-index 641904dfcaf..a8971a2f85d 100644
+index 3dff723efa7..be3d6fcd312 100644
 --- a/include/config.h.in
 +++ b/include/config.h.in
-@@ -189,6 +189,9 @@
+@@ -192,6 +192,9 @@
  /* Define to 1 if you have the <linux/major.h> header file. */
  #undef HAVE_LINUX_MAJOR_H
  
@@ -1455,10 +1455,10 @@ index 641904dfcaf..a8971a2f85d 100644
  #undef HAVE_LINUX_PARAM_H
  
 diff --git a/include/wine/server_protocol.h b/include/wine/server_protocol.h
-index c6ff952a038..147978b235b 100644
+index 5a501c2a36a..f5e09a5dea6 100644
 --- a/include/wine/server_protocol.h
 +++ b/include/wine/server_protocol.h
-@@ -5924,6 +5924,86 @@ struct set_keyboard_repeat_reply
+@@ -5926,6 +5926,86 @@ struct set_keyboard_repeat_reply
      char __pad_12[4];
  };
  
@@ -1545,7 +1545,7 @@ index c6ff952a038..147978b235b 100644
  
  enum request
  {
-@@ -6221,6 +6301,11 @@ enum request
+@@ -6223,6 +6303,11 @@ enum request
      REQ_get_next_process,
      REQ_get_next_thread,
      REQ_set_keyboard_repeat,
@@ -1557,7 +1557,7 @@ index c6ff952a038..147978b235b 100644
      REQ_NB_REQUESTS
  };
  
-@@ -6522,6 +6607,11 @@ union generic_request
+@@ -6524,6 +6609,11 @@ union generic_request
      struct get_next_process_request get_next_process_request;
      struct get_next_thread_request get_next_thread_request;
      struct set_keyboard_repeat_request set_keyboard_repeat_request;
@@ -1569,7 +1569,7 @@ index c6ff952a038..147978b235b 100644
  };
  union generic_reply
  {
-@@ -6821,8 +6911,13 @@ union generic_reply
+@@ -6823,8 +6913,13 @@ union generic_reply
      struct get_next_process_reply get_next_process_reply;
      struct get_next_thread_reply get_next_thread_reply;
      struct set_keyboard_repeat_reply set_keyboard_repeat_reply;
@@ -1580,12 +1580,12 @@ index c6ff952a038..147978b235b 100644
 +    struct get_inproc_alert_event_reply get_inproc_alert_event_reply;
  };
  
--#define SERVER_PROTOCOL_VERSION 857
+-#define SERVER_PROTOCOL_VERSION 858
 +#define SERVER_PROTOCOL_VERSION 866
  
  #endif /* __WINE_WINE_SERVER_PROTOCOL_H */
 diff --git a/server/Makefile.in b/server/Makefile.in
-index 4468ff018c4..b66faf9990a 100644
+index 7e571ac2ba6..91ec73dabc5 100644
 --- a/server/Makefile.in
 +++ b/server/Makefile.in
 @@ -16,6 +16,7 @@ SOURCES = \
@@ -2416,7 +2416,7 @@ index ad7c09acc99..5f25ad61f7b 100644
  DECL_HANDLER(create_event)
  {
 diff --git a/server/fd.c b/server/fd.c
-index 18c5dd2a68d..2d957e8bf06 100644
+index d0ee2e9494f..7cbff198040 100644
 --- a/server/fd.c
 +++ b/server/fd.c
 @@ -159,6 +159,7 @@ struct fd
@@ -2459,7 +2459,7 @@ index 18c5dd2a68d..2d957e8bf06 100644
      no_close_handle,            /* close_handle */
      no_destroy                  /* destroy */
  };
-@@ -1652,6 +1657,7 @@ static void fd_destroy( struct object *obj )
+@@ -1656,6 +1661,7 @@ static void fd_destroy( struct object *obj )
          if (fd->unix_fd != -1) close( fd->unix_fd );
          free( fd->unix_name );
      }
@@ -2467,7 +2467,7 @@ index 18c5dd2a68d..2d957e8bf06 100644
  }
  
  /* check if the desired access is possible without violating */
-@@ -1770,6 +1776,7 @@ static struct fd *alloc_fd_object(void)
+@@ -1774,6 +1780,7 @@ static struct fd *alloc_fd_object(void)
      fd->poll_index = -1;
      fd->completion = NULL;
      fd->comp_flags = 0;
@@ -2475,7 +2475,7 @@ index 18c5dd2a68d..2d957e8bf06 100644
      init_async_queue( &fd->read_q );
      init_async_queue( &fd->write_q );
      init_async_queue( &fd->wait_q );
-@@ -1810,6 +1817,7 @@ struct fd *alloc_pseudo_fd( const struct fd_ops *fd_user_ops, struct object *use
+@@ -1814,6 +1821,7 @@ struct fd *alloc_pseudo_fd( const struct fd_ops *fd_user_ops, struct object *use
      fd->poll_index = -1;
      fd->completion = NULL;
      fd->comp_flags = 0;
@@ -2483,7 +2483,7 @@ index 18c5dd2a68d..2d957e8bf06 100644
      fd->no_fd_status = STATUS_BAD_DEVICE_TYPE;
      init_async_queue( &fd->read_q );
      init_async_queue( &fd->write_q );
-@@ -2290,7 +2298,15 @@ void set_fd_signaled( struct fd *fd, int signaled )
+@@ -2294,7 +2302,15 @@ void set_fd_signaled( struct fd *fd, int signaled )
  {
      if (fd->comp_flags & FILE_SKIP_SET_EVENT_ON_HANDLE) return;
      fd->signaled = signaled;
@@ -2500,7 +2500,7 @@ index 18c5dd2a68d..2d957e8bf06 100644
  }
  
  /* check if events are pending and if yes return which one(s) */
-@@ -2316,6 +2332,19 @@ int default_fd_signaled( struct object *obj, struct wait_queue_entry *entry )
+@@ -2320,6 +2336,19 @@ int default_fd_signaled( struct object *obj, struct wait_queue_entry *entry )
      return ret;
  }
  
@@ -2533,7 +2533,7 @@ index 3dccc2734fe..476408fb9aa 100644
      file_destroy                  /* destroy */
  };
 diff --git a/server/file.h b/server/file.h
-index b795a3a4424..bae0ec1c8db 100644
+index 0b3f3da09d8..e4661c87071 100644
 --- a/server/file.h
 +++ b/server/file.h
 @@ -109,6 +109,7 @@ extern char *dup_fd_name( struct fd *root, const char *name ) __WINE_DEALLOC(fre
@@ -3029,7 +3029,7 @@ index c54281c2101..929ca3ecb82 100644
      mailslot_device_file_destroy            /* destroy */
  };
 diff --git a/server/mapping.c b/server/mapping.c
-index 2ce73b2590d..7f6c7f0aaa9 100644
+index 4a5e51fddc0..0d68f6023a6 100644
 --- a/server/mapping.c
 +++ b/server/mapping.c
 @@ -79,6 +79,7 @@ static const struct object_ops ranges_ops =
@@ -3432,10 +3432,10 @@ index 9238d638f15..681b75ecfac 100644
  
  /* process functions */
 diff --git a/server/protocol.def b/server/protocol.def
-index 5757fa3d8bc..e51179aecb6 100644
+index 09d79f0ebe2..52571995975 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
-@@ -4108,3 +4108,50 @@ struct handle_info
+@@ -4110,3 +4110,50 @@ struct handle_info
  @REPLY
      int enable;                /* previous state of auto-repeat enable */
  @END
@@ -3712,7 +3712,7 @@ index 2254315b79e..24a4f779e68 100644
      master_socket_destroy          /* destroy */
  };
 diff --git a/server/request_handlers.h b/server/request_handlers.h
-index 3b0feb29f4f..6d06bf25765 100644
+index b9aae32316f..1e1a802cf78 100644
 --- a/server/request_handlers.h
 +++ b/server/request_handlers.h
 @@ -301,6 +301,11 @@ DECL_HANDLER(resume_process);
@@ -3976,7 +3976,7 @@ index 74b60162c01..f0314f2ee90 100644
      symlink_destroy               /* destroy */
  };
 diff --git a/server/thread.c b/server/thread.c
-index 502caefe30b..7a91c5cad87 100644
+index 9f6f5f57a52..30cb98d3042 100644
 --- a/server/thread.c
 +++ b/server/thread.c
 @@ -117,6 +117,7 @@ static const struct object_ops thread_apc_ops =
@@ -4046,7 +4046,7 @@ index 502caefe30b..7a91c5cad87 100644
  }
  
  /* dump a thread on stdout for debugging purposes */
-@@ -1339,8 +1357,13 @@ static int queue_apc( struct process *process, struct thread *thread, struct thr
+@@ -1338,8 +1356,13 @@ static int queue_apc( struct process *process, struct thread *thread, struct thr
      grab_object( apc );
      list_add_tail( queue, &apc->entry );
      if (!list_prev( queue, &apc->entry ))  /* first one */
@@ -4060,7 +4060,7 @@ index 502caefe30b..7a91c5cad87 100644
      return 1;
  }
  
-@@ -1371,6 +1394,8 @@ void thread_cancel_apc( struct thread *thread, struct object *owner, enum apc_ty
+@@ -1370,6 +1393,8 @@ void thread_cancel_apc( struct thread *thread, struct object *owner, enum apc_ty
          apc->executed = 1;
          wake_up( &apc->obj, 0 );
          release_object( apc );
@@ -4069,7 +4069,7 @@ index 502caefe30b..7a91c5cad87 100644
          return;
      }
  }
-@@ -1385,6 +1410,9 @@ static struct thread_apc *thread_dequeue_apc( struct thread *thread, int system
+@@ -1384,6 +1409,9 @@ static struct thread_apc *thread_dequeue_apc( struct thread *thread, int system
      {
          apc = LIST_ENTRY( ptr, struct thread_apc, entry );
          list_remove( ptr );
@@ -4079,7 +4079,7 @@ index 502caefe30b..7a91c5cad87 100644
      }
      return apc;
  }
-@@ -1482,6 +1510,7 @@ void kill_thread( struct thread *thread, int violent_death )
+@@ -1481,6 +1509,7 @@ void kill_thread( struct thread *thread, int violent_death )
      kill_console_processes( thread, 0 );
      abandon_mutexes( thread );
      wake_up( &thread->obj, 0 );
@@ -4087,7 +4087,7 @@ index 502caefe30b..7a91c5cad87 100644
      if (violent_death) send_thread_signal( thread, SIGQUIT );
      cleanup_thread( thread );
      remove_process_thread( thread->process, thread );
-@@ -2228,3 +2257,12 @@ DECL_HANDLER(get_next_thread)
+@@ -2233,3 +2262,12 @@ DECL_HANDLER(get_next_thread)
      set_error( STATUS_NO_MORE_ENTRIES );
      release_object( process );
  }
@@ -4101,7 +4101,7 @@ index 502caefe30b..7a91c5cad87 100644
 +        reply->handle = alloc_handle( current->process, current->inproc_alert_event, SYNCHRONIZE, 0 );
 +}
 diff --git a/server/thread.h b/server/thread.h
-index 972d98b6520..d0cd79f5b29 100644
+index 2b256be322f..4641ad0fe5a 100644
 --- a/server/thread.h
 +++ b/server/thread.h
 @@ -93,6 +93,8 @@ struct thread
