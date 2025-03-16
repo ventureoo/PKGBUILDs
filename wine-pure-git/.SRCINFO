@@ -1,7 +1,7 @@
 pkgbase = wine-pure-git
 	pkgdesc = Bleeding-edge Wine build (Staging, WoW64, NTSync, Wayland)
 	pkgver = 10.3.r101.g245d3230271
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/ventureoo/PKGBUILDs
 	install = wine.install
 	arch = x86_64
@@ -79,6 +79,7 @@ pkgbase = wine-pure-git
 	source = Avoid-winemenubuilder-to-startup-explorer.exe.patch
 	source = include-use-ntsync.h-v7-module-header-as-an-in-tree-header.patch
 	source = kernelbase-Fix-uninitialized-structs-in-OpenThread.patch
+	source = winecfg-Add-checkbox-to-enable-ALSA-driver.patch
 	sha512sums = SKIP
 	sha512sums = SKIP
 	sha512sums = 6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb
@@ -95,5 +96,6 @@ pkgbase = wine-pure-git
 	sha512sums = 3d621035add00dc8b5801956a7e76b4348ee2ab34c2f383e644acb88307087d339c2932e41c1053fb1128cb63efe69407953c867fe68b13b988687491711f99b
 	sha512sums = ad7644691ccba09220b3b0f140f635eb786ce330b92cfb03f9a2229de410d8de5e87087295b7896148d2d8f62e15e17bc9da87f7ade6883acd59e3d19a48abc7
 	sha512sums = 790e4e4de462b99893b79f8ba110cd5298a8ab13579796a7a058ce1f01124568e8953a8403b46ee4218dd1589813303500697e23777aff887e37a3cff636b8cc
+	sha512sums = 675ad5cd3b99c5b7eb042f04a7575519b66cdb0311483cb7d63f3807bb13435af19a68fac94919d1a843439afb1b9b1a672eadfe6458c95a51432e8526bc5b51
 
 pkgname = wine-pure-git
