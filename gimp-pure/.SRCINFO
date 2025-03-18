@@ -1,6 +1,6 @@
 pkgbase = gimp-pure
 	pkgdesc = GNU Image Manipulation Program (Development version)
-	pkgver = 3.0.0rc3
+	pkgver = 3.0.0
 	pkgrel = 1
 	url = https://www.gimp.org/
 	arch = x86_64
@@ -62,11 +62,11 @@ pkgbase = gimp-pure
 	optdepends = luajit: LUA scripting support
 	optdepends = qoi-headers: QOI image support
 	optdepends = zlib: Compression routines
-	provides = gimp=3.0.0rc3
+	provides = gimp=3.0.0
 	conflicts = gimp
-	source = https://download.gimp.org/pub/gimp/v3.0/gimp-3.0.0-RC3.tar.xz
+	source = https://download.gimp.org/gimp/v3.0/gimp-3.0.0.tar.xz
 	source = linux.gpl
-	sha256sums = 61fb527cf22d093a3f3501884796ababd3c30dd7f0e354dbdc041bef0f7e38ec
+	sha256sums = 93f1ca3d9d1bd8cac0e52c49fb886cbbe4b28222ee835bf1319e3287901d2d20
 	sha256sums = 1003bbf5fc292d0d63be44562f46506f7b2ca5729770da9d38d3bb2e8a2f36b3
 
 pkgname = gimp-pure
