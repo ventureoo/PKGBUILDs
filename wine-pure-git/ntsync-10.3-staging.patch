@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 5483d78f555..34cb58c339d 100755
+index da84af5fe5d..593a0242d1d 100755
 --- a/configure
 +++ b/configure
-@@ -7765,6 +7765,12 @@ if test "x$ac_cv_header_linux_major_h" = xyes
+@@ -7766,6 +7766,12 @@ if test "x$ac_cv_header_linux_major_h" = xyes
  then :
    printf "%s\n" "#define HAVE_LINUX_MAJOR_H 1" >>confdefs.h
  
@@ -16,7 +16,7 @@ index 5483d78f555..34cb58c339d 100755
  ac_fn_c_check_header_compile "$LINENO" "linux/param.h" "ac_cv_header_linux_param_h" "$ac_includes_default"
  if test "x$ac_cv_header_linux_param_h" = xyes
 diff --git a/configure.ac b/configure.ac
-index 17a7597604c..fc9336000fd 100644
+index 59a8021b92c..ba1909b8547 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -389,6 +389,7 @@ AC_CHECK_HEADERS(\
@@ -28,10 +28,10 @@ index 17a7597604c..fc9336000fd 100644
  	linux/seccomp.h \
  	linux/serial.h \
 diff --git a/dlls/ntdll/unix/file.c b/dlls/ntdll/unix/file.c
-index 816b5d5e5eb..e8da7a59429 100644
+index 78a86a8c0dd..b304331e394 100644
 --- a/dlls/ntdll/unix/file.c
 +++ b/dlls/ntdll/unix/file.c
-@@ -7663,7 +7663,7 @@ NTSTATUS WINAPI NtLockFile( HANDLE file, HANDLE event, PIO_APC_ROUTINE apc, void
+@@ -7691,7 +7691,7 @@ NTSTATUS WINAPI NtLockFile( HANDLE file, HANDLE event, PIO_APC_ROUTINE apc, void
          }
          if (handle)
          {
@@ -1356,7 +1356,7 @@ index 2b01aaf83b8..f515865661d 100644
      if (status != WAIT_OBJECT_0) goto done;
  
 diff --git a/dlls/ntdll/unix/thread.c b/dlls/ntdll/unix/thread.c
-index b64a7dd40af..a66ae7dbe89 100644
+index b31f8969c21..798b8d541b4 100644
 --- a/dlls/ntdll/unix/thread.c
 +++ b/dlls/ntdll/unix/thread.c
 @@ -1801,7 +1801,7 @@ NTSTATUS get_thread_context( HANDLE handle, void *context, BOOL *self, USHORT ma
@@ -1429,7 +1429,7 @@ index f4dc02cf0cf..e71408933fe 100644
  
  static inline BOOL in_wow64_call(void)
 diff --git a/dlls/ntdll/unix/virtual.c b/dlls/ntdll/unix/virtual.c
-index 6ecd016ec99..48fb985d6aa 100644
+index ed2df7f3ee5..08a2c8cdd20 100644
 --- a/dlls/ntdll/unix/virtual.c
 +++ b/dlls/ntdll/unix/virtual.c
 @@ -3720,6 +3720,7 @@ static TEB *init_teb( void *ptr, BOOL is_wow )
@@ -1455,7 +1455,7 @@ index 3dff723efa7..be3d6fcd312 100644
  #undef HAVE_LINUX_PARAM_H
  
 diff --git a/include/wine/server_protocol.h b/include/wine/server_protocol.h
-index 5a501c2a36a..f5e09a5dea6 100644
+index a08b3e62a99..ea663210761 100644
 --- a/include/wine/server_protocol.h
 +++ b/include/wine/server_protocol.h
 @@ -5926,6 +5926,86 @@ struct set_keyboard_repeat_reply
@@ -1580,7 +1580,7 @@ index 5a501c2a36a..f5e09a5dea6 100644
 +    struct get_inproc_alert_event_reply get_inproc_alert_event_reply;
  };
  
--#define SERVER_PROTOCOL_VERSION 858
+-#define SERVER_PROTOCOL_VERSION 860
 +#define SERVER_PROTOCOL_VERSION 866
  
  #endif /* __WINE_WINE_SERVER_PROTOCOL_H */
@@ -3029,7 +3029,7 @@ index c54281c2101..929ca3ecb82 100644
      mailslot_device_file_destroy            /* destroy */
  };
 diff --git a/server/mapping.c b/server/mapping.c
-index 4a5e51fddc0..0d68f6023a6 100644
+index 14536d371ad..67d4e50c6fa 100644
 --- a/server/mapping.c
 +++ b/server/mapping.c
 @@ -79,6 +79,7 @@ static const struct object_ops ranges_ops =
@@ -3291,7 +3291,7 @@ index 1ca093198e1..0caac02b2ab 100644
  
  int get_serial_async_timeout(struct object *obj, int type, int count);
 diff --git a/server/process.c b/server/process.c
-index c877bb6f7ae..4420200ac7f 100644
+index 1980e2ca777..b972ef9c73c 100644
 --- a/server/process.c
 +++ b/server/process.c
 @@ -94,6 +94,7 @@ static unsigned int process_map_access( struct object *obj, unsigned int access
@@ -3432,7 +3432,7 @@ index 9238d638f15..681b75ecfac 100644
  
  /* process functions */
 diff --git a/server/protocol.def b/server/protocol.def
-index 09d79f0ebe2..52571995975 100644
+index dc4986eb30e..6be79e42e31 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
 @@ -4110,3 +4110,50 @@ struct handle_info
@@ -3712,7 +3712,7 @@ index 2254315b79e..24a4f779e68 100644
      master_socket_destroy          /* destroy */
  };
 diff --git a/server/request_handlers.h b/server/request_handlers.h
-index b9aae32316f..1e1a802cf78 100644
+index 8d5bf4c9db7..64604b11683 100644
 --- a/server/request_handlers.h
 +++ b/server/request_handlers.h
 @@ -301,6 +301,11 @@ DECL_HANDLER(resume_process);
@@ -3759,7 +3759,7 @@ index b9aae32316f..1e1a802cf78 100644
 +C_ASSERT( offsetof(struct get_inproc_alert_event_reply, handle) == 8 );
 +C_ASSERT( sizeof(struct get_inproc_alert_event_reply) == 16 );
 diff --git a/server/request_trace.h b/server/request_trace.h
-index e0e78cf7be8..818e3972687 100644
+index 273181088e7..60294e1858c 100644
 --- a/server/request_trace.h
 +++ b/server/request_trace.h
 @@ -3376,6 +3376,45 @@ static void dump_set_keyboard_repeat_reply( const struct set_keyboard_repeat_rep
@@ -3976,10 +3976,10 @@ index 74b60162c01..f0314f2ee90 100644
      symlink_destroy               /* destroy */
  };
 diff --git a/server/thread.c b/server/thread.c
-index 9f6f5f57a52..30cb98d3042 100644
+index 8797af32648..fc9ba672045 100644
 --- a/server/thread.c
 +++ b/server/thread.c
-@@ -117,6 +117,7 @@ static const struct object_ops thread_apc_ops =
+@@ -118,6 +118,7 @@ static const struct object_ops thread_apc_ops =
      NULL,                       /* unlink_name */
      no_open_file,               /* open_file */
      no_kernel_obj_list,         /* get_kernel_obj_list */
@@ -3987,7 +3987,7 @@ index 9f6f5f57a52..30cb98d3042 100644
      no_close_handle,            /* close_handle */
      thread_apc_destroy          /* destroy */
  };
-@@ -159,6 +160,7 @@ static const struct object_ops context_ops =
+@@ -160,6 +161,7 @@ static const struct object_ops context_ops =
      NULL,                       /* unlink_name */
      no_open_file,               /* open_file */
      no_kernel_obj_list,         /* get_kernel_obj_list */
@@ -3995,7 +3995,7 @@ index 9f6f5f57a52..30cb98d3042 100644
      no_close_handle,            /* close_handle */
      no_destroy                  /* destroy */
  };
-@@ -186,6 +188,7 @@ static int thread_signaled( struct object *obj, struct wait_queue_entry *entry )
+@@ -187,6 +189,7 @@ static int thread_signaled( struct object *obj, struct wait_queue_entry *entry )
  static unsigned int thread_map_access( struct object *obj, unsigned int access );
  static void thread_poll_event( struct fd *fd, int event );
  static struct list *thread_get_kernel_obj_list( struct object *obj );
@@ -4003,7 +4003,7 @@ index 9f6f5f57a52..30cb98d3042 100644
  static void destroy_thread( struct object *obj );
  
  static const struct object_ops thread_ops =
-@@ -208,6 +211,7 @@ static const struct object_ops thread_ops =
+@@ -209,6 +212,7 @@ static const struct object_ops thread_ops =
      NULL,                       /* unlink_name */
      no_open_file,               /* open_file */
      thread_get_kernel_obj_list, /* get_kernel_obj_list */
@@ -4011,7 +4011,7 @@ index 9f6f5f57a52..30cb98d3042 100644
      no_close_handle,            /* close_handle */
      destroy_thread              /* destroy */
  };
-@@ -411,6 +415,8 @@ static inline void init_thread_structure( struct thread *thread )
+@@ -412,6 +416,8 @@ static inline void init_thread_structure( struct thread *thread )
      thread->token           = NULL;
      thread->desc            = NULL;
      thread->desc_len        = 0;
@@ -4020,7 +4020,7 @@ index 9f6f5f57a52..30cb98d3042 100644
  
      thread->creation_time = current_time;
      thread->exit_time     = 0;
-@@ -562,6 +568,16 @@ static struct list *thread_get_kernel_obj_list( struct object *obj )
+@@ -563,6 +569,16 @@ static struct list *thread_get_kernel_obj_list( struct object *obj )
      return &thread->kernel_object;
  }
  
@@ -4037,7 +4037,7 @@ index 9f6f5f57a52..30cb98d3042 100644
  /* cleanup everything that is no longer needed by a dead thread */
  /* used by destroy_thread and kill_thread */
  static void cleanup_thread( struct thread *thread )
-@@ -617,6 +633,8 @@ static void destroy_thread( struct object *obj )
+@@ -618,6 +634,8 @@ static void destroy_thread( struct object *obj )
      release_object( thread->process );
      if (thread->id) free_ptid( thread->id );
      if (thread->token) release_object( thread->token );
@@ -4046,7 +4046,7 @@ index 9f6f5f57a52..30cb98d3042 100644
  }
  
  /* dump a thread on stdout for debugging purposes */
-@@ -1338,8 +1356,13 @@ static int queue_apc( struct process *process, struct thread *thread, struct thr
+@@ -1350,8 +1368,13 @@ static int queue_apc( struct process *process, struct thread *thread, struct thr
      grab_object( apc );
      list_add_tail( queue, &apc->entry );
      if (!list_prev( queue, &apc->entry ))  /* first one */
@@ -4060,7 +4060,7 @@ index 9f6f5f57a52..30cb98d3042 100644
      return 1;
  }
  
-@@ -1370,6 +1393,8 @@ void thread_cancel_apc( struct thread *thread, struct object *owner, enum apc_ty
+@@ -1382,6 +1405,8 @@ void thread_cancel_apc( struct thread *thread, struct object *owner, enum apc_ty
          apc->executed = 1;
          wake_up( &apc->obj, 0 );
          release_object( apc );
@@ -4069,7 +4069,7 @@ index 9f6f5f57a52..30cb98d3042 100644
          return;
      }
  }
-@@ -1384,6 +1409,9 @@ static struct thread_apc *thread_dequeue_apc( struct thread *thread, int system
+@@ -1396,6 +1421,9 @@ static struct thread_apc *thread_dequeue_apc( struct thread *thread, int system
      {
          apc = LIST_ENTRY( ptr, struct thread_apc, entry );
          list_remove( ptr );
@@ -4079,7 +4079,7 @@ index 9f6f5f57a52..30cb98d3042 100644
      }
      return apc;
  }
-@@ -1481,6 +1509,7 @@ void kill_thread( struct thread *thread, int violent_death )
+@@ -1493,6 +1521,7 @@ void kill_thread( struct thread *thread, int violent_death )
      kill_console_processes( thread, 0 );
      abandon_mutexes( thread );
      wake_up( &thread->obj, 0 );
@@ -4087,7 +4087,7 @@ index 9f6f5f57a52..30cb98d3042 100644
      if (violent_death) send_thread_signal( thread, SIGQUIT );
      cleanup_thread( thread );
      remove_process_thread( thread->process, thread );
-@@ -2233,3 +2262,12 @@ DECL_HANDLER(get_next_thread)
+@@ -2245,3 +2274,12 @@ DECL_HANDLER(get_next_thread)
      set_error( STATUS_NO_MORE_ENTRIES );
      release_object( process );
  }
@@ -4101,7 +4101,7 @@ index 9f6f5f57a52..30cb98d3042 100644
 +        reply->handle = alloc_handle( current->process, current->inproc_alert_event, SYNCHRONIZE, 0 );
 +}
 diff --git a/server/thread.h b/server/thread.h
-index 2b256be322f..4641ad0fe5a 100644
+index 33d150df9cb..f72b533bc35 100644
 --- a/server/thread.h
 +++ b/server/thread.h
 @@ -93,6 +93,8 @@ struct thread
