@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.0.1
+pkgver=25.0.2
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -80,11 +80,11 @@ source=(
   "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
 )
 sha256sums=(
-  '49eb55ba5acccae91deb566573a6a73144a0f39014be1982d78c21c5b6b0bb3f'
+  'adf904d083b308df95898600ffed435f4b5c600d95fb6ec6d4c45638627fdc97'
 )
 
 prepare() {
-  cd mesa-$pkgver
+  cd "mesa-$pkgver"
 
   # Include package release in version string so Chromium invalidates
   # its GPU cache; otherwise it can cause pages to render incorrectly.
