@@ -1,7 +1,7 @@
 pkgbase = firefox-nightly-pure
 	pkgdesc = Fast, Private & Safe Web Browser
-	pkgver = 138.0a1.r777519.3dbabe7
-	pkgrel = 3
+	pkgver = 138.0a1.r777944.43d6400
+	pkgrel = 1
 	url = https://www.mozilla.org/firefox/
 	arch = x86_64
 	license = MPL-2.0
@@ -55,7 +55,7 @@ pkgbase = firefox-nightly-pure
 	optdepends = hunspell-en_US: Spell checking, American English
 	optdepends = libnotify: Notification integration
 	optdepends = xdg-desktop-portal: Screensharing with Wayland
-	provides = firefox=138.0a1.r777519.3dbabe7
+	provides = firefox=138.0a1.r777944.43d6400
 	conflicts = firefox
 	replaces = firefox
 	options = !emptydirs
@@ -72,6 +72,6 @@ pkgbase = firefox-nightly-pure
 	sha256sums = 71fe797430198ac8c00b538dce537284cf526e48be0496698cf5a980d70c16da
 	sha256sums = 23f557fa7989adcae03cc9458d94716981dbcf0e9d6d52a289a2426e50b4b785
 	sha256sums = 883ca2fa723a7572269d18559d5b82412782ad63e5dd3820eeb0540e3fe34314
-	sha256sums = b7491d0e87bf0d42abc68f1801acd509999f76a3f82cc1736d22e77260085785
+	sha256sums = 79b28a2ccb1273e950e9a7c33b97752810224e3c0d29ddea1643ff9dbdbcc54e
 
 pkgname = firefox-nightly-pure

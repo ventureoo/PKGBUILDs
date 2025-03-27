@@ -65,6 +65,7 @@ pref("media.gmp-gmpopenh264.autoupdate", false, locked);
 // Fuck telemetry
 pref("datareporting.healthreport.uploadEnabled", false, locked);
 pref("datareporting.policy.dataSubmissionEnabled", false, locked);
+pref("datareporting.usage.uploadEnabled", false, locked);
 pref("browser.shopping.experience2023.enabled", false, locked);
 pref("browser.search.update", false, locked);
 pref("browser.discovery.enabled", false, locked);
