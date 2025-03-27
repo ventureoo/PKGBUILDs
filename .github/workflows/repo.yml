@@ -50,9 +50,9 @@ jobs:
               mapfile -t <<< "$input"
               local size="${#MAPFILE[@]}"
               for ((i=0; i < size; i++)); do
+                ((i == 0)) && json+="{\"$1\": ["
                 pkgname="$(dirname "${MAPFILE[$i]}")"
                 [[ -e "$pkgname/.ci-skip" ]] && continue
-                ((i == 0)) && json+="{\"$1\": ["
                 json+="\"$pkgname\""
                 ((i == size - 1)) && json+="]}" || json+=", "
               done
