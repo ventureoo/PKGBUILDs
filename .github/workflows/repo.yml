@@ -43,14 +43,17 @@ jobs:
 
           function jsonify() {
             local json=""
+            local pkgname
             local input="$2"
 
             if [ -n "$input" ]; then
               mapfile -t <<< "$input"
               local size="${#MAPFILE[@]}"
               for ((i=0; i < size; i++)); do
+                pkgname="$(basedir "${MAPFILE[$i]}")"
+                [[ -e "$pkgname/.ci-skip" ]] && continue
                 ((i == 0)) && json+="{\"$1\": ["
-                json+="\"$(dirname "${MAPFILE[$i]}")\""
+                json+="\"$pkgname\""
                 ((i == size - 1)) && json+="]}" || json+=", "
               done
             fi
