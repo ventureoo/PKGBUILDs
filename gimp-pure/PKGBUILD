@@ -4,7 +4,7 @@
 
 _pkgname=gimp
 pkgname=${_pkgname}-pure
-pkgver=3.0.0
+pkgver=3.0.2
 pkgrel=1
 pkgdesc="GNU Image Manipulation Program (Development version)"
 arch=('x86_64')
@@ -38,7 +38,7 @@ conflicts=("${_pkgname}")
 provides=("${_pkgname}=${pkgver}")
 source=("https://download.gimp.org/gimp/v${pkgver%.*}/${_pkgname}-${pkgver/rc/-RC}.tar.xz"
         'linux.gpl')
-sha256sums=('93f1ca3d9d1bd8cac0e52c49fb886cbbe4b28222ee835bf1319e3287901d2d20'
+sha256sums=('546ddc30cb2d0e79123c7fcb4d78211e1ee7a6aace91a6a0ad8cbcbf6ea571a2'
             '1003bbf5fc292d0d63be44562f46506f7b2ca5729770da9d38d3bb2e8a2f36b3')
 
 build() {
