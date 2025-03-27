@@ -1,0 +1,18 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+pkgname=firefox-settings
+pkgver=20250327
+pkgrel=1
+pkgdesc='My settings for Firefox browser'
+depends=('firefox')
+arch=('any')
+url="https://github.com/ventureoo/PKGBUILDs"
+source=(pure.js)
+sha256sums=('79b28a2ccb1273e950e9a7c33b97752810224e3c0d29ddea1643ff9dbdbcc54e')
+
+pkgver() {
+    printf "%s" "$(date +%Y%m%d)"
+}
+
+package() {
+    install -Dm644 pure.js "$pkgdir/usr/lib/firefox/browser/defaults/preferences/pure.js"
+}
