@@ -1,7 +1,7 @@
 pkgbase = gtk3-pure
 	pkgdesc = GObject-based multi-platform GUI toolkit
 	pkgver = 3.24.49
-	pkgrel = 1
+	pkgrel = 2
 	url = https://www.gtk.org/
 	install = gtk3.install
 	arch = x86_64
@@ -62,7 +62,7 @@ pkgbase = gtk3-pure
 	replaces = gtk3
 	replaces = gtk3-print-backends<=3.22.26-1
 	source = https://gitlab.gnome.org/GNOME/gtk/-/archive/3.24.49/gtk-3.24.49.tar.gz
-	source = git+https://github.com/lah7/gtk3-classic#tag=3.24.49-1
+	source = git+https://github.com/lah7/gtk3-classic#tag=3.24.49
 	source = 0001-Allow-disabling-legacy-Tracker-search.patch
 	source = gtk-query-immodules-3.0.hook
 	b2sums = 6fa9d05e9b655643a413cd883263c1182dd7e856e2bef7f7f9728b20cbeafea262a0563d59b7596f86d72ed340060d2945b4dcdaf1baec3e1a1b46210e3e911b
