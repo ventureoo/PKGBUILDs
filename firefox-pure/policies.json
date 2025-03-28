@@ -1,0 +1,19 @@
+{
+  "policies": {
+    "DisableFirefoxAccounts": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DisableTelemetry": true,
+    "DontCheckDefaultBrowser": true,
+    "UserMessaging": {
+      "FeatureRecommendations": false,
+      "ExtensionRecommendations": false,
+      "WhatsNew": false,
+      "UrlbarInterventions": false,
+      "SkipOnboarding": true,
+      "FirefoxLabs": false,
+      "MoreFromMozilla": false,
+      "Locked": true
+    }
+  }
+}
