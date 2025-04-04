@@ -1,6 +1,6 @@
 pkgbase = mesa-pure
 	pkgdesc = A purely personal Mesa build
-	pkgver = 25.0.2
+	pkgver = 25.0.3
 	pkgrel = 1
 	url = https://www.mesa3d.org/
 	arch = x86_64
@@ -60,7 +60,7 @@ pkgbase = mesa-pure
 	conflicts = libva-mesa-driver
 	conflicts = mesa-libgl
 	conflicts = mesa
-	source = https://mesa.freedesktop.org/archive/mesa-25.0.2.tar.xz
-	sha256sums = adf904d083b308df95898600ffed435f4b5c600d95fb6ec6d4c45638627fdc97
+	source = https://mesa.freedesktop.org/archive/mesa-25.0.3.tar.xz
+	sha256sums = 5ff426ed6ce0588fd96d18975bdff451ae2ab2fe98b5d1528842ee71ec66711b
 
 pkgname = mesa-pure
