@@ -1,6 +1,6 @@
 pkgbase = mpv-pure
 	pkgdesc = a free, open source, and cross-platform media player
-	pkgver = 0.39.0
+	pkgver = 0.40.0
 	pkgrel = 1
 	url = https://mpv.io/
 	arch = x86_64
@@ -39,9 +39,9 @@ pkgbase = mpv-pure
 	conflicts = libmpv.so
 	conflicts = mpv
 	options = !emptydirs
-	source = mpv-pure::git+https://github.com/mpv-player/mpv.git#tag=v0.39.0
+	source = mpv-pure::git+https://github.com/mpv-player/mpv.git#tag=v0.40.0
 	source = dynamically_generate_desktop_file_protocols.patch
-	sha256sums = 51e787dbff240d69227f306685fc962daae215c755689b9de4ef0432ddf4443b
+	sha256sums = 754d045dba7143b51dd6eb2d32ab3a9a483e6a337e685b581a876bc2e20eddf1
 	sha256sums = 88acf97cbc8e0fe745f09bd0bd7f65e0437adcb549dadf3588fd0724d01298e9
 
 pkgname = mpv-pure
