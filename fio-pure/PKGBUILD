@@ -5,7 +5,7 @@
 # Contributor: John Williams <jwilliams4200 liamg reverse&remove moc>
 
 pkgname=fio-pure
-pkgver=3.38
+pkgver=3.39
 pkgrel=1
 pkgdesc='Scriptable I/O tool for storage benchmarks and drive testing'
 arch=(x86_64)
@@ -15,7 +15,7 @@ provides=(fio)
 conflicts=(fio)
 depends=(bash libaio)
 source=(https://github.com/axboe/fio/archive/fio-$pkgver.zip)
-sha256sums=('1650077b323826df7eb563e102f79e201e19b5d7f0522199697d5b9d5a47352d')
+sha256sums=('dca47043f39f02a7640e8eb7a40abc4269b5c05e8189d3e6113c2f94505ff0fd')
 
 prepare() {
   cd fio-fio-$pkgver
