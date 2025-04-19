@@ -1,0 +1,36 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+## Arch Linux's maintainers:
+# Maintainer: Robin Candau <antiz@archlinux.org>
+# Contributor: yaroslav <proninyaroslav@mail.ru>
+# Contributor: Askhat Bakarov <sirocco{at}ngs{dot}ru>
+
+pkgname=android-file-transfer-cli
+_pkgname="${pkgname%-cli}-linux"
+pkgver=4.4
+pkgrel=2
+pkgdesc="Android MTP client (CLI)"
+url="https://whoozle.github.io/android-file-transfer-linux"
+arch=('x86_64')
+license=('LGPL-2.1-or-later')
+depends=('fuse2' 'file' 'android-udev')
+conflicts=(android-file-transfer)
+replaces=(android-file-transfer)
+provides=(android-file-transfer)
+makedepends=('cmake')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/whoozle/android-file-transfer-linux/archive/v${pkgver}.tar.gz")
+sha256sums=('d8225cad6eb2e120afd4c82232030d74fd480e666a0fcc4ab93f4cd57620f7c8')
+
+build() {
+    cmake -B build -S "${_pkgname}-${pkgver}" \
+        -DCMAKE_BUILD_TYPE='None' \
+        -DCMAKE_INSTALL_PREFIX='/usr' \
+        -DCMAKE_CXX_FLAGS="${CXXFLAGS} -ffat-lto-objects" \
+        -DBUILD_QT="OFF" \
+        -Wno-dev
+    cmake --build build
+    make -C build
+}
+
+package() {
+    make DESTDIR="${pkgdir}" -C build install
+}
