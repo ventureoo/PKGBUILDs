@@ -13,6 +13,10 @@ pref("extensions.autoDisableScopes", 11);
 // Enable WebRender
 pref("gfx.webrender.all", true);
 
+// Enable hardware accelerated video
+pref("media.hardware-video-decoding.force-enabled", true);
+pref("media.webrtc.hw.h264.enabled", true);
+
 // Fuck mozilla garbage
 pref("app.normandy.api_url", "", locked);
 pref("app.normandy.enabled", false, locked);

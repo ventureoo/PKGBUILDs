@@ -1,13 +1,13 @@
 # Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
 pkgname=firefox-settings
 pkgver=20250422
-pkgrel=1
+pkgrel=2
 pkgdesc='My settings for Firefox browser'
 depends=('firefox')
 arch=('any')
 url="https://github.com/ventureoo/PKGBUILDs"
 source=(pure.js)
-sha256sums=('0c14461a4dd41665274d3981ce61a123d34134d95a6acb4d7463385230797a4e')
+sha256sums=('ca1a56a647659196c3a5d8c84f00d597c295f4091398d6145e7a9942a6497dd3')
 
 pkgver() {
     date +%Y%m%d
