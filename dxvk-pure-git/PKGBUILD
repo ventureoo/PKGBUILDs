@@ -3,7 +3,7 @@
 # Maintainer: Adrià Cereto i Massagué <ssorgatem at gmail.com>
 
 pkgname=dxvk-pure-git
-pkgver=2.6.r5.g653532376
+pkgver=2.6.1.r33.gcb446100e
 pkgrel=1
 pkgdesc="A Vulkan-based compatibility layer for Direct3D 9/10/11 which allows running 3D applications on Linux using Wine. Windows DLL version)"
 arch=('x86_64')
@@ -28,7 +28,7 @@ sha256sums=(
     "SKIP"
     "SKIP"
     "bcc15521e4c7f966a0192a1dabb7fb4935b33db39344ab5b861f9d81486f1362"
-    '986b46f7d215029a2a4d1159f4961db132cb59c5382d0fe44087d600b27a6cd3'
+    "c5ce0d3f324579bfdca723b8ee065a50fefa39063c2a5cfab8bd4ec8bf1dc14f"
 )
 
 
