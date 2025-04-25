@@ -1,0 +1,92 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+## Arch Linux's maintainers:
+# Maintainer: Caleb Maclennan <caleb@alerque.com>
+# Contributor: Tom Gundersen <teg@jklm.no>
+# Contributor: Ionut Biru <ibiru@archlinux.org>
+# Contributor: Thomas Weißschuh <thomas t-8ch de>
+# Contributor: Florian Pritz <bluewind@xinu.at>
+
+pkgname=transmission-pure
+pkgver=4.1.0_beta.2
+pkgrel=1
+arch=(x86_64)
+url="http://www.transmissionbt.com/"
+license=(GPL)
+pkgdesc='Fast, easy, and free BitTorrent client (CLI tools, daemon and web client)'
+depends=(curl libevent systemd libb64 miniupnpc libnatpmp libdeflate)
+conflicts=(transmission-cli transmission-qt transmission-gtk transmission-remote-gtk)
+replaces=(transmission-cli transmission-qt transmission-gtk transmission-remote-gtk)
+makedepends=(
+    cmake
+    curl
+    dht
+    libb64
+    libdeflate
+    libevent
+    libnatpmp
+    miniupnpc
+    ninja
+    systemd
+)
+source=(
+    "git+https://github.com/transmission/transmission.git#tag=${pkgver/_/-}"
+    transmission-cli.sysusers
+    transmission-cli.tmpfiles
+)
+sha256sums=(
+    'SKIP'
+    '641310fb0590d40e00bea1b5b9c843953ab78edf019109f276be9c6a7bdaf5b2'
+    '1266032bb07e47d6bcdc7dabd74df2557cc466c33bf983a5881316a4cc098451'
+)
+
+prepare() {
+    cd transmission
+    git remote set-url origin https://github.com/transmission/transmission
+    git submodule update --init --filter=tree:0 --recursive
+}
+
+build() {
+    export CFLAGS+=" -ffat-lto-objects"
+    cd transmission
+
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DENABLE_CLI=ON \
+        -DENABLE_DAEMON=ON \
+        -DENABLE_GTK=OFF \
+        -DENABLE_MAC=OFF \
+        -DENABLE_NLS=OFF \
+        -DENABLE_QT=OFF \
+        -DREBUILD_WEB=OFF \
+        -DENABLE_TESTS=OFF \
+        -DENABLE_UTILS=ON \
+        -DENABLE_UTP=ON \
+        -DINSTALL_LIB=OFF \
+        -DUSE_SYSTEM_B64=ON \
+        -DUSE_SYSTEM_DEFLATE=ON \
+        -DUSE_SYSTEM_DHT=ON \
+        -DUSE_SYSTEM_EVENT2=ON \
+        -DUSE_SYSTEM_MINIUPNPC=ON \
+        -DUSE_SYSTEM_NATPMP=ON \
+        -DUSE_SYSTEM_PSL=ON \
+        -DUSE_SYSTEM_UTP=OFF \
+        -DWITH_CRYPTO=openssl \
+        -S . -B build
+
+    cmake --build build --config Release
+}
+
+package() {
+    cd transmission
+    DESTDIR="$pkgdir" ninja -C build install
+
+    install -d "$pkgdir"/usr/share/transmission
+    install -Dm644 daemon/transmission-daemon.service \
+        "$pkgdir/usr/lib/systemd/system/transmission.service"
+
+    install -Dm644 "$srcdir/transmission-cli.sysusers" \
+        "$pkgdir/usr/lib/sysusers.d/transmission.conf"
+    install -Dm644 "$srcdir/transmission-cli.tmpfiles" \
+        "$pkgdir/usr/lib/tmpfiles.d/transmission.conf"
+    install -Dm644 COPYING "$pkgdir/usr/share/licenses/transmission-cli/COPYING"
+}
