@@ -1,13 +1,14 @@
 pkgbase = transmission-pure
 	pkgdesc = Fast, easy, and free BitTorrent client (CLI tools, daemon and web client)
 	pkgver = 4.1.0_beta.2
-	pkgrel = 1
+	pkgrel = 2
 	url = http://www.transmissionbt.com/
 	arch = x86_64
 	license = GPL
 	makedepends = cmake
 	makedepends = curl
 	makedepends = dht
+	makedepends = git
 	makedepends = libb64
 	makedepends = libdeflate
 	makedepends = libevent
