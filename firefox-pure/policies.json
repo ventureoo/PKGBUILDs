@@ -5,6 +5,15 @@
     "DisablePocket": true,
     "DisableTelemetry": true,
     "DontCheckDefaultBrowser": true,
+    "FirefoxHome": {
+        "SponsoredPocket": false,
+        "Pocket": false,
+        "Highlights": false,
+        "SponsoredTopSites": false,
+        "TopSites": false,
+        "Locked": true,
+        "Search": false,
+    },
     "UserMessaging": {
       "FeatureRecommendations": false,
       "ExtensionRecommendations": false,
