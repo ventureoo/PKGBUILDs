@@ -46,6 +46,7 @@ pref("browser.newtabpage.activity-stream.unifiedAds.spocs.enabled",	false, locke
 pref("browser.newtabpage.activity-stream.unifiedAds.tiles.enabled", false, locked);
 pref("browser.places.interactions.enabled", false, locked);
 pref("browser.tabs.crashReporting.sendReport", false, locked);
+pref("browser.urlbar.suggest.trending", false, locked);
 pref("captivedetect.canonicalURL", "", locked);
 pref("devtools.debugger.remote-enabled", false, locked);
 pref("dom.private-attribution.submission.enabled", false, locked);
