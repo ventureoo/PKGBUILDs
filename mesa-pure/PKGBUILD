@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.0.5
+pkgver=25.1.0
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -106,9 +106,6 @@ build() {
     -D b_ndebug=true
     -D gallium-drivers=radeonsi
     -D gallium-extra-hud=false
-    -D gallium-nine=false
-    -D gallium-opencl=disabled
-    -D gallium-rusticl=false
     -D gallium-xa=disabled
     -D gallium-vdpau=disabled
     -D gles1=disabled
@@ -117,7 +114,6 @@ build() {
     -D intel-rt=disabled
     -D libunwind=disabled
     -D microsoft-clc=disabled
-    -D osmesa=false
     -D platforms=x11,wayland
     -D valgrind=enabled
     -D video-codecs=all
