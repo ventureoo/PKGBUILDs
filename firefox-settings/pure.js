@@ -46,6 +46,11 @@ pref("browser.newtabpage.activity-stream.unifiedAds.spocs.enabled",	false, locke
 pref("browser.newtabpage.activity-stream.unifiedAds.tiles.enabled", false, locked);
 pref("browser.places.interactions.enabled", false, locked);
 pref("browser.tabs.crashReporting.sendReport", false, locked);
+pref("browser.urlbar.suggest.addons", false, locked);
+pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false, locked);
+pref("browser.urlbar.suggest.quicksuggest.sponsored", false, locked);
+pref("browser.urlbar.suggest.quicksuggest.fakespot", false, locked);
+pref("browser.urlbar.suggest.quicksuggest.topsites", false, locked);
 pref("browser.urlbar.suggest.trending", false, locked);
 pref("captivedetect.canonicalURL", "", locked);
 pref("devtools.debugger.remote-enabled", false, locked);

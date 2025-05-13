@@ -1,8 +1,10 @@
 {
   "policies": {
+    "DisableFeedbackCommands": true,
     "DisableFirefoxStudies": true,
     "DisablePocket": true,
     "DisableTelemetry": true,
+    "NoDefaultBookmarks": true,
     "DontCheckDefaultBrowser": true,
     "FirefoxHome": {
         "SponsoredPocket": false,
@@ -12,6 +14,19 @@
         "TopSites": false,
         "Locked": true,
         "Search": false
+    },
+    "Extensions": {
+        "Install": [
+            "https://github.com/gorhill/uBlock/releases/download/1.63.2/uBlock0_1.63.2.firefox.signed.xpi"
+        ],
+        "Uninstall": [
+            "amazondotcom@search.mozilla.org",
+            "bing@search.mozilla.org",
+            "ebay@search.mozilla.org",
+            "google@search.mozilla.org",
+            "duckduckgo@search.mozilla.org",
+            "twitter@search.mozilla.org"
+        ]
     },
     "UserMessaging": {
       "FeatureRecommendations": false,
