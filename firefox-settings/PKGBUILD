@@ -1,13 +1,20 @@
 # Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
 pkgname=firefox-settings
 pkgver=20250513
-pkgrel=1
+pkgrel=2
 pkgdesc='My settings for Firefox browser'
 depends=('firefox')
 arch=('any')
+backup=('etc/firefox/policies/policies.json')
 url="https://github.com/ventureoo/PKGBUILDs"
-source=(pure.js)
-sha256sums=('788918b17d8594eee83748d488524421dc4685f1ef8cd9128731fc3a12dec2fd')
+source=(
+    pure.js
+    policies.json
+)
+sha256sums=(
+    '788918b17d8594eee83748d488524421dc4685f1ef8cd9128731fc3a12dec2fd'
+    '78779ee4517415b001433b847932e0d99375cfb4f651701ed2d50f0eedc22909'
+)
 
 pkgver() {
     date +%Y%m%d
@@ -15,4 +22,5 @@ pkgver() {
 
 package() {
     install -Dm644 pure.js "$pkgdir/usr/lib/firefox/browser/defaults/preferences/pure.js"
+    install -Dm644 policies.json "$pkgdir/etc/firefox/policies/policies.json"
 }

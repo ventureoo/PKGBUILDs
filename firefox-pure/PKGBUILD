@@ -6,7 +6,7 @@
 
 pkgname=firefox-pure
 pkgver=138.0.3
-pkgrel=1
+pkgrel=2
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -81,7 +81,6 @@ source=(
   "org.mozilla.firefox.metainfo.xml"
   "0001-Install-under-remoting-name.patch"
   "https://dev.gentoo.org/~juippis/mozilla/patchsets/firefox-138-patches-01.tar.xz"
-  "policies.json"
 )
 sha256sums=(
   'a27f3ab41d635b2a1d8418289d1dedcd6cb532148c7d63d3f8b97c66445513e4'
@@ -90,7 +89,6 @@ sha256sums=(
   '23f557fa7989adcae03cc9458d94716981dbcf0e9d6d52a289a2426e50b4b785'
   '883ca2fa723a7572269d18559d5b82412782ad63e5dd3820eeb0540e3fe34314'
   '5051e81607bb75934ed516dd4e7c03c9c80c6dc16f70d98968776df1f641a1b8'
-  'aed09e275194249961a1b3bad4649896bcaeda941bde4533e5b76b1ff63f2614'
 )
 
 prepare() {
@@ -215,7 +213,6 @@ app.distributor=archlinux
 app.distributor.channel=firefox
 app.partner.archlinux=archlinux
 END
-  install -Dvm644 ../policies.json "$pkgdir/usr/lib/firefox/distribution/policies.json"
 
   local i theme=official
   for i in 16 22 24 32 48 64 128 256; do
