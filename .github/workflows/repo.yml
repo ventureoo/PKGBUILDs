@@ -138,15 +138,6 @@ jobs:
           fail-if-no-assets: false
           fail-if-no-release: false
 
-      - name: Upload package to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GH_REPO_TOKEN }}
-          file: ${{ matrix.package }}/*.pkg.tar.zst*
-          tag: pure
-          file_glob: true
-          overwrite: true
-
       - name: Upload package to artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -166,13 +157,22 @@ jobs:
         with:
           path: /tmp/artifacts
           merge-multiple: true
-      
-      - name: Repository database
+
+      - name: Download repository database
         uses: robinraju/release-downloader@v1
         with:
           token: ${{ secrets.GH_REPO_TOKEN }}
           tag: pure
           fileName: pure.db.tar.zst
+
+      - name: Upload package to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GH_REPO_TOKEN }}
+          file: /tmp/artifacts/*.pkg.tar.zst*
+          tag: pure
+          file_glob: true
+          overwrite: true
 
       - name: Update repository database
         if: needs.build.result == 'success'
@@ -182,7 +182,7 @@ jobs:
       - name: Purge removed packages
         if: needs.get-changed-packages.outputs.removed != ''
         run: |
-          repo-remove --nocolor pure.db.tar.zst ${{ join(fromJSON(needs.get-changed-packages.outputs.removed).package, ' ') }} || repo-remove --nocolor pure.db.tar.zst nvidia-vulkan-utils nvidia-vulkan-dkms nvidia-vulkan-opencl
+          repo-remove --nocolor pure.db.tar.zst ${{ join(fromJSON(needs.get-changed-packages.outputs.removed).package, ' ') }}
 
       - name: Replace symlinks to repository database
         run: |
