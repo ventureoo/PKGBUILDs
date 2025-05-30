@@ -6,6 +6,6 @@ pkgbase = firefox-settings
 	arch = any
 	depends = firefox
 	source = pure.js
-	sha256sums = 788918b17d8594eee83748d488524421dc4685f1ef8cd9128731fc3a12dec2fd
+	sha256sums = 57c44d1a8dbeedd4af4a9e930116f9dd121ef97ee7cc86e0f2aaac4367209670
 
 pkgname = firefox-settings
