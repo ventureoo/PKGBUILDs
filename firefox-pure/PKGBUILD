@@ -154,7 +154,6 @@ ac_add_options --disable-synth-speechd
 ac_add_options --disable-debug-symbols
 ac_add_options --disable-debug-js-modules
 ac_add_options --disable-necko-wifi
-ac_add_options --disable-eme
 ac_add_options --disable-webspeech
 ac_add_options --disable-webspeechtestbackend
 ac_add_options --disable-jack
