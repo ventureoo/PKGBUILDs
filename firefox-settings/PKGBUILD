@@ -1,7 +1,7 @@
 # Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
 pkgname=firefox-settings
 pkgver=20250513
-pkgrel=2
+pkgrel=3
 pkgdesc='My settings for Firefox browser'
 depends=('firefox')
 arch=('any')
@@ -12,7 +12,7 @@ source=(
     policies.json
 )
 sha256sums=(
-    '57c44d1a8dbeedd4af4a9e930116f9dd121ef97ee7cc86e0f2aaac4367209670'
+    'd16399db07cbd9b0d912cff0c69f9dc42169ddd1fb6bd22776be20f2dd9702b3'
     '78779ee4517415b001433b847932e0d99375cfb4f651701ed2d50f0eedc22909'
 )
 
