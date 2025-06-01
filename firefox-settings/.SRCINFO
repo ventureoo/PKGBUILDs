@@ -1,11 +1,12 @@
 pkgbase = firefox-settings
 	pkgdesc = My settings for Firefox browser
 	pkgver = 20250513
-	pkgrel = 1
+	pkgrel = 3
 	url = https://github.com/ventureoo/PKGBUILDs
 	arch = any
 	depends = firefox
+	depends = xdg-desktop-portal
 	source = pure.js
-	sha256sums = 788918b17d8594eee83748d488524421dc4685f1ef8cd9128731fc3a12dec2fd
+	sha256sums = fdd5be81d11b1f0bd4b4c79dc2b04531be8e9198fd4335b4367adb3bde63a9c5
 
 pkgname = firefox-settings

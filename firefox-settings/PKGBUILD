@@ -1,9 +1,9 @@
 # Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
 pkgname=firefox-settings
 pkgver=20250513
-pkgrel=2
+pkgrel=3
 pkgdesc='My settings for Firefox browser'
-depends=('firefox')
+depends=('firefox' 'xdg-desktop-portal')
 arch=('any')
 backup=('etc/firefox/policies/policies.json')
 url="https://github.com/ventureoo/PKGBUILDs"
@@ -12,7 +12,7 @@ source=(
     policies.json
 )
 sha256sums=(
-    '788918b17d8594eee83748d488524421dc4685f1ef8cd9128731fc3a12dec2fd'
+    'fdd5be81d11b1f0bd4b4c79dc2b04531be8e9198fd4335b4367adb3bde63a9c5'
     '78779ee4517415b001433b847932e0d99375cfb4f651701ed2d50f0eedc22909'
 )
 
