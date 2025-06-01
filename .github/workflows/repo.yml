@@ -142,6 +142,21 @@ jobs:
     if: (needs.build.result == 'success' || needs.get-changed-packages.outputs.removed != '') && github.ref == 'refs/heads/main'
     needs: [build, get-changed-packages]
     steps:
+      - name: Purge removed packages from the database
+        if: needs.get-changed-packages.outputs.removed != ''
+        run: |
+          repo-remove --nocolor pure.db.tar.zst ${{ join(fromJSON(needs.get-changed-packages.outputs.removed).package, ' ') }}
+
+      - uses: mknejp/delete-release-assets@v1
+        name: Purge removed packages from the release
+        if: needs.get-changed-packages.outputs.removed != '' && needs.build.result == 'success'
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.removed).package, fromJSON('"*.pkg.tar.zst*\n"'))) }}
+          fail-if-no-assets: false
+          fail-if-no-release: false
+
       - name: Download packages
         if: needs.build.result == 'success'
         uses: actions/download-artifact@v4
@@ -170,11 +185,6 @@ jobs:
         run: |
           repo-add -R --nocolor pure.db.tar.zst /tmp/artifacts/*.pkg.tar.zst
 
-      - name: Purge removed packages
-        if: needs.get-changed-packages.outputs.removed != ''
-        run: |
-          repo-remove --nocolor pure.db.tar.zst ${{ join(fromJSON(needs.get-changed-packages.outputs.removed).package, ' ') }}
-
       - uses: mknejp/delete-release-assets@v1
         name: Remove old package versions
         if: needs.get-changed-packages.outputs.changed != '' && needs.build.result == 'success'
@@ -182,16 +192,6 @@ jobs:
           token: ${{ secrets.GH_REPO_TOKEN }}
           tag: pure
           assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.changed).package, fromJSON('"*.pkg.tar.zst*\n"'))) }}
-          fail-if-no-assets: false
-          fail-if-no-release: false
-
-      - uses: mknejp/delete-release-assets@v1
-        name: Purge removed packages
-        if: needs.get-changed-packages.outputs.removed != '' && needs.build.result == 'success'
-        with:
-          token: ${{ secrets.GH_REPO_TOKEN }}
-          tag: pure
-          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.removed).package, fromJSON('"*.pkg.tar.zst*\n"'))) }}
           fail-if-no-assets: false
           fail-if-no-release: false
 
