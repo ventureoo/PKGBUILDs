@@ -16,6 +16,7 @@ pref("gfx.webrender.all", true);
 // Enable hardware accelerated video
 pref("media.hardware-video-decoding.force-enabled", true);
 pref("media.webrtc.hw.h264.enabled", true);
+pref("media.gpu-process-decoder", true); // Needed for FF 141 hardware accel https://discord.com/channels/862292009423470592/871070647353233449/1378663451475312702
 
 // Fuck mozilla garbage
 pref("app.normandy.api_url", "", locked);
