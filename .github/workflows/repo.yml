@@ -129,15 +129,6 @@ jobs:
           echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --batch --import
           echo -n "$GPG_SIGNING_PASSWORD" | gpg --pinentry-mode loopback --batch --yes --passphrase-fd 0 --detach-sign --no-armor *.pkg.tar.zst
 
-      - uses: mknejp/delete-release-assets@v1
-        name: Remove old package version
-        with:
-          token: ${{ secrets.GH_REPO_TOKEN }}
-          tag: pure
-          assets: ${{ matrix.package }}*.pkg.tar.zst*
-          fail-if-no-assets: false
-          fail-if-no-release: false
-
       - name: Upload package to artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -165,7 +156,7 @@ jobs:
           tag: pure
           fileName: pure.db.tar.zst
 
-      - name: Upload package to release
+      - name: Upload packages to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GH_REPO_TOKEN }}
@@ -183,6 +174,26 @@ jobs:
         if: needs.get-changed-packages.outputs.removed != ''
         run: |
           repo-remove --nocolor pure.db.tar.zst ${{ join(fromJSON(needs.get-changed-packages.outputs.removed).package, ' ') }}
+
+      - uses: mknejp/delete-release-assets@v1
+        name: Remove old package versions
+        if: needs.get-changed-packages.outputs.changed != '' && needs.build.result == 'success'
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.changed).package, '*.pkg.tar.zst*\n')) }}
+          fail-if-no-assets: false
+          fail-if-no-release: false
+
+      - uses: mknejp/delete-release-assets@v1
+        name: Purge removed packages
+        if: needs.get-changed-packages.outputs.removed != '' && needs.build.result == 'success'
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.removed).package, '*.pkg.tar.zst*\n')) }}
+          fail-if-no-assets: false
+          fail-if-no-release: false
 
       - name: Replace symlinks to repository database
         run: |
@@ -235,23 +246,3 @@ jobs:
           tag: pure
           file: state
           overwrite: true
-
-  purge:
-    name: Remove ${{ matrix.package }}
-    runs-on: ubuntu-latest
-    container: archlinux:base-devel
-    if: needs.get-changed-packages.outputs.removed != '' && needs.deploy.result == 'success'
-    needs: [deploy, get-changed-packages]
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix: ${{fromJSON(needs.get-changed-packages.outputs.removed)}}
-    steps:
-      - uses: mknejp/delete-release-assets@v1
-        name: Remove package
-        with:
-          token: ${{ secrets.GH_REPO_TOKEN }}
-          tag: pure
-          assets: ${{ matrix.package }}*.pkg.tar.zst*
-          fail-if-no-assets: false
-          fail-if-no-release: false
