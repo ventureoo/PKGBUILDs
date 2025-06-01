@@ -47,10 +47,11 @@ pref("browser.newtabpage.activity-stream.unifiedAds.spocs.enabled",	false, locke
 pref("browser.newtabpage.activity-stream.unifiedAds.tiles.enabled", false, locked);
 pref("browser.places.interactions.enabled", false, locked);
 pref("browser.tabs.crashReporting.sendReport", false, locked);
+pref("browser.uitour.enabled", false, locked);
 pref("browser.urlbar.suggest.addons", false, locked);
+pref("browser.urlbar.suggest.quicksuggest.fakespot", false, locked);
 pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false, locked);
 pref("browser.urlbar.suggest.quicksuggest.sponsored", false, locked);
-pref("browser.urlbar.suggest.quicksuggest.fakespot", false, locked);
 pref("browser.urlbar.suggest.quicksuggest.topsites", false, locked);
 pref("browser.urlbar.suggest.trending", false, locked);
 pref("captivedetect.canonicalURL", "", locked);
@@ -157,28 +158,28 @@ pref("browser.safebrowsing.provider.mozilla.reportURL", "", locked);
 pref("browser.safebrowsing.provider.mozilla.updateURL", "", locked);
 pref("browser.safebrowsing.reportPhishURL", "", locked);
 
-pref("browser.contentblocking.category", "strict"); // https://blog.mozilla.org/security/2021/02/23/total-cookie-protection/
-pref("browser.download.autohideButton", false, locked); //do not hide download button automatically
-pref("browser.download.start_downloads_in_tmp_dir", true, locked); //start downloads in temp
-pref("browser.helperApps.deleteTempFileOnExit", true); // https://bugzilla.mozilla.org/show_bug.cgi?id=238789#c19
+// Performance tweaks
 pref("browser.tabs.unloadOnLowMemory", true, locked); // Unload unused tabs
-pref("browser.uitour.enabled", false, locked); // https://trac.torproject.org/projects/tor/ticket/19047#comment:3
-
 pref("content.notify.interval", 100000); // page reflow timer, lower redrawn rendering timer, increases responsiveness but increase total load time
-pref("dom.security.https_only_mode", true, locked); // only allow https in all windows, including private browsing
-
 pref("network.dnsCacheExpiration", 3600); // Time DNS entries are cached in seconds.
 pref("network.http.max-connections", 1800); //https://kb.mozillazine.org/Network.http.max-connections
 pref("network.http.max-persistent-connections-per-server", 10); //https://kb.mozillazine.org/Network.http.max-persistent-connections-per-server
 pref("network.http.max-urgent-start-excessive-connections-per-host", 5); //Number of connections that we can open beyond the standard parallelism limit defined by max-persistent-connections-per-server/-proxy to handle urgent-start marked requests
 pref("network.http.pacing.requests.enabled", false); //Disable pacing requests
 
+
+// Privacy hardening
+pref("browser.contentblocking.category", "strict"); // https://blog.mozilla.org/security/2021/02/23/total-cookie-protection/
+pref("browser.download.autohideButton", false, locked); //do not hide download button automatically
+pref("browser.download.start_downloads_in_tmp_dir", true, locked); //start downloads in temp
+pref("browser.helperApps.deleteTempFileOnExit", true); // https://bugzilla.mozilla.org/show_bug.cgi?id=238789#c19
+pref("dom.security.https_only_mode", true, locked); // only allow https in all windows, including private browsing
 pref("network.predictor.enable-prefetch", false) // Disable speculative website loading
 pref("network.predictor.enabled", false); // Disable speculative website loading
 pref("network.prefetch-next", false); // https://developer.mozilla.org/en-US/docs/Glossary/Prefetch
-
 pref("privacy.query_stripping.strip_list", "__hsfp __hssc __hstc __s _hsenc _openstat dclid fbclid gbraid gclid hsCtaTracking igshid mc_eid ml_subscriber ml_subscriber_hash msclkid oft_c oft_ck oft_d oft_id oft_ids oft_k oft_lk oft_sk oly_anon_id oly_enc_id rb_clickid s_cid twclid vero_conv vero_id wbraid wickedid yclid"); // https://groups.google.com/a/mozilla.org/g/dev-platform/c/1vOSas0ptVQ?pli=1
 pref("urlclassifier.features.socialtracking.skipURLs", "*.instagram.com, *.twitter.com, *.twimg.com"); // allow embedded social content
 pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com"); // allow embedded social content
 
-pref("widget.use-xdg-desktop-portal.file-picker", 1) // Use desktop portals' file picker
+// Desktop integration
+pref("widget.use-xdg-desktop-portal.file-picker", 1)
