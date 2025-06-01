@@ -5,6 +5,7 @@ pkgbase = firefox-settings
 	url = https://github.com/ventureoo/PKGBUILDs
 	arch = any
 	depends = firefox
+	depends = xdg-desktop-portal
 	source = pure.js
 	sha256sums = d16399db07cbd9b0d912cff0c69f9dc42169ddd1fb6bd22776be20f2dd9702b3
 
