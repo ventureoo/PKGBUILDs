@@ -28,7 +28,6 @@ pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false, locked);
 pref("browser.discovery.enabled", false, locked);
 pref("browser.ml.enable", false, locked);
 pref("browser.newtabpage.activity-stream.feeds.aboutpreferences", false, locked);
-pref("browser.newtabpage.activity-stream.feeds.aboutpreferences", false, locked);
 pref("browser.newtabpage.activity-stream.feeds.adsfeed", false, locked);
 pref("browser.newtabpage.activity-stream.feeds.discoverystreamfeed", false, locked);
 pref("browser.newtabpage.activity-stream.feeds.places", false, locked);
@@ -174,7 +173,7 @@ pref("browser.download.autohideButton", false, locked); //do not hide download b
 pref("browser.download.start_downloads_in_tmp_dir", true, locked); //start downloads in temp
 pref("browser.helperApps.deleteTempFileOnExit", true); // https://bugzilla.mozilla.org/show_bug.cgi?id=238789#c19
 pref("dom.security.https_only_mode", true, locked); // only allow https in all windows, including private browsing
-pref("network.predictor.enable-prefetch", false) // Disable speculative website loading
+pref("network.predictor.enable-prefetch", false); // Disable speculative website loading
 pref("network.predictor.enabled", false); // Disable speculative website loading
 pref("network.prefetch-next", false); // https://developer.mozilla.org/en-US/docs/Glossary/Prefetch
 pref("privacy.query_stripping.strip_list", "__hsfp __hssc __hstc __s _hsenc _openstat dclid fbclid gbraid gclid hsCtaTracking igshid mc_eid ml_subscriber ml_subscriber_hash msclkid oft_c oft_ck oft_d oft_id oft_ids oft_k oft_lk oft_sk oly_anon_id oly_enc_id rb_clickid s_cid twclid vero_conv vero_id wbraid wickedid yclid"); // https://groups.google.com/a/mozilla.org/g/dev-platform/c/1vOSas0ptVQ?pli=1
@@ -182,4 +181,4 @@ pref("urlclassifier.features.socialtracking.skipURLs", "*.instagram.com, *.twitt
 pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com"); // allow embedded social content
 
 // Desktop integration
-pref("widget.use-xdg-desktop-portal.file-picker", 1)
+pref("widget.use-xdg-desktop-portal.file-picker", 1);
