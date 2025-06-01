@@ -99,8 +99,7 @@ prepare() {
 
   # Gentoo patches
   for patch in "${srcdir}/firefox-patches"/*.patch; do
-    [[ "$patch" == */0021-bgo-940031-wasm-support.patch ]] && continue
-    [[ "$patch" == */0014-gcc-lto-pgo-gentoo.patch ]] && continue
+    [[ "$patch" == */0020-bgo-940031-wasm-support.patch ]] && continue
     echo "Applying patch $patch..."
     patch -Np1 -i "${patch}"
   done
