@@ -181,7 +181,7 @@ jobs:
         with:
           token: ${{ secrets.GH_REPO_TOKEN }}
           tag: pure
-          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.changed).package, '*.pkg.tar.zst*\n')) }}
+          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.changed).package, fromJSON('"*.pkg.tar.zst*\n"'))) }}
           fail-if-no-assets: false
           fail-if-no-release: false
 
@@ -191,7 +191,7 @@ jobs:
         with:
           token: ${{ secrets.GH_REPO_TOKEN }}
           tag: pure
-          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.removed).package, '*.pkg.tar.zst*\n')) }}
+          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.removed).package, fromJSON('"*.pkg.tar.zst*\n"'))) }}
           fail-if-no-assets: false
           fail-if-no-release: false
 
