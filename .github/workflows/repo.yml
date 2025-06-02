@@ -139,9 +139,16 @@ jobs:
     name: Deploy packages
     runs-on: ubuntu-latest
     container: archlinux:base-devel
-    if: always() && (needs.build.result == 'skipped' || needs.build.result == 'success') && github.ref == 'refs/heads/main'
+    if: always() && (needs.build.result == 'success' || needs.get-changed-packages.outputs.removed != '') && github.ref == 'refs/heads/main'
     needs: [build, get-changed-packages]
     steps:
+      - name: Download repository database
+        uses: robinraju/release-downloader@v1
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          fileName: pure.db.tar.zst
+
       - name: Purge removed packages from the database
         if: needs.get-changed-packages.outputs.removed != ''
         run: |
@@ -174,13 +181,6 @@ jobs:
         with:
           path: /tmp/artifacts
           merge-multiple: true
-
-      - name: Download repository database
-        uses: robinraju/release-downloader@v1
-        with:
-          token: ${{ secrets.GH_REPO_TOKEN }}
-          tag: pure
-          fileName: pure.db.tar.zst
 
       - name: Upload packages to release
         uses: svenstaro/upload-release-action@v2
