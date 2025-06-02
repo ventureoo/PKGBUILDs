@@ -139,7 +139,7 @@ jobs:
     name: Deploy packages
     runs-on: ubuntu-latest
     container: archlinux:base-devel
-    if: (needs.build.result == 'success' || needs.get-changed-packages.outputs.removed != '') && github.ref == 'refs/heads/main'
+    if: (needs.build.result == 'success' || needs.build.result == 'skipped') && github.ref == 'refs/heads/main'
     needs: [build, get-changed-packages]
     steps:
       - name: Purge removed packages from the database
