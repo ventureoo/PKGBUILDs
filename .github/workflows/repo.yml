@@ -157,6 +157,17 @@ jobs:
           fail-if-no-assets: false
           fail-if-no-release: false
 
+      - uses: mknejp/delete-release-assets@v1
+        name: Remove old package versions
+        if: needs.get-changed-packages.outputs.changed != '' && needs.build.result == 'success'
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          tag: pure
+          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.changed).package, fromJSON('"*.pkg.tar.zst*\n"'))) }}
+          fail-if-no-assets: false
+          fail-if-no-release: false
+
+
       - name: Download packages
         if: needs.build.result == 'success'
         uses: actions/download-artifact@v4
@@ -184,16 +195,6 @@ jobs:
         if: needs.build.result == 'success'
         run: |
           repo-add -R --nocolor pure.db.tar.zst /tmp/artifacts/*.pkg.tar.zst
-
-      - uses: mknejp/delete-release-assets@v1
-        name: Remove old package versions
-        if: needs.get-changed-packages.outputs.changed != '' && needs.build.result == 'success'
-        with:
-          token: ${{ secrets.GH_REPO_TOKEN }}
-          tag: pure
-          assets: ${{ format('{0}*.pkg.tar.zst*', join(fromJSON(needs.get-changed-packages.outputs.changed).package, fromJSON('"*.pkg.tar.zst*\n"'))) }}
-          fail-if-no-assets: false
-          fail-if-no-release: false
 
       - name: Replace symlinks to repository database
         run: |
