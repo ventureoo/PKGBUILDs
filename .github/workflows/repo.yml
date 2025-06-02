@@ -183,6 +183,7 @@ jobs:
           merge-multiple: true
 
       - name: Upload packages to release
+        if: needs.build.result == 'success'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GH_REPO_TOKEN }}
