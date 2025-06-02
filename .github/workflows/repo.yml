@@ -139,7 +139,7 @@ jobs:
     name: Deploy packages
     runs-on: ubuntu-latest
     container: archlinux:base-devel
-    if: needs.build.result != 'failure' && needs.build.result != 'cancelled' && github.ref == 'refs/heads/main'
+    if: always() && (needs.build.result == 'skipped' || needs.build.result == 'success') && github.ref == 'refs/heads/main'
     needs: [build, get-changed-packages]
     steps:
       - name: Purge removed packages from the database
@@ -149,7 +149,7 @@ jobs:
 
       - uses: mknejp/delete-release-assets@v1
         name: Purge removed packages from the release
-        if: needs.get-changed-packages.outputs.removed != '' && needs.build.result == 'success'
+        if: needs.get-changed-packages.outputs.removed != ''
         with:
           token: ${{ secrets.GH_REPO_TOKEN }}
           tag: pure
