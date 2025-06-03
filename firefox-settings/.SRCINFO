@@ -1,7 +1,7 @@
 pkgbase = firefox-settings
 	pkgdesc = My settings for Firefox browser
 	pkgver = 20250601
-	pkgrel = 2
+	pkgrel = 3
 	url = https://github.com/ventureoo/PKGBUILDs
 	arch = any
 	depends = firefox
@@ -10,6 +10,6 @@ pkgbase = firefox-settings
 	source = pure.js
 	source = policies.json
 	sha256sums = 3c2656a83bf7e2fad518e203f234d0196b935cb11670211562cca23b725d5015
-	sha256sums = 78779ee4517415b001433b847932e0d99375cfb4f651701ed2d50f0eedc22909
+	sha256sums = dae8cd53706d84b59512070c9c1ed82c3bd7a99f08c727c63809d26fdacbd322
 
 pkgname = firefox-settings
