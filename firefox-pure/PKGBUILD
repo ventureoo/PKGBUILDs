@@ -209,17 +209,14 @@ build() {
   cat >.mozconfig ../mozconfig
 
   # Run tinywl compositor for PGO profiling
+  export XDG_RUNTIME_DIR="$(mktemp --tmpdir "XXX-runtime-dir")"
   coproc VIRTWL { WLR_BACKENDS=headless exec tinywl -s 'echo $WAYLAND_DISPLAY; read _; kill $PPID'; }
   local -x WAYLAND_DISPLAY
   read WAYLAND_DISPLAY <&${VIRTWL[0]}
 
-  [[ -z "$VIRTWL_PID" ]] && {
-    echo "Failed to spawn tinywl" >&2
-    return 1
-  }
-
   ./mach build
 
+  rm -rf "${XDG_RUNTIME_DIR}"
   exec {VIRTWL[0]} {VIRTWL[1]} <&- >&-
 }
 
