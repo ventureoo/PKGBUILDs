@@ -208,9 +208,12 @@ build() {
   echo "Building browser..."
   cat >.mozconfig ../mozconfig
 
+  # Export XDG_RUNTIME_DIR for tinywl
+  XDG_RUNTIME_DIR="/tmp/$(id -u)-runtime-dir"
+  mkdir -pm 0700 "$XDG_RUNTIME_DIR"
+  export XDG_RUNTIME_DIR
+
   # Run tinywl compositor for PGO profiling
-  export XDG_RUNTIME_DIR="$(mktemp --tmpdir "XXX-runtime-dir")"
-  chmod 0700 "$XDG_RUNTIME_DIR"
   coproc VIRTWL {
     WLR_RENDERER=pixman WLR_BACKENDS=headless \
       exec tinywl -s 'echo $WAYLAND_DISPLAY; read _; kill $PPID'
@@ -220,8 +223,8 @@ build() {
 
   ./mach build
 
-  rm -rf "${XDG_RUNTIME_DIR}"
   exec {VIRTWL[0]} {VIRTWL[1]} <&- >&-
+  rm -rf "${XDG_RUNTIME_DIR}"
 }
 
 package() {
