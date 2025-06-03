@@ -1,7 +1,7 @@
 pkgbase = firefox-pure
 	pkgdesc = Fast, Private & Safe Web Browser
 	pkgver = 139.0.1
-	pkgrel = 4
+	pkgrel = 5
 	url = https://www.mozilla.org/firefox/
 	arch = x86_64
 	license = MPL-2.0
@@ -16,6 +16,7 @@ pkgbase = firefox-pure
 	makedepends = nodejs
 	makedepends = python
 	makedepends = rust
+	makedepends = tinywl
 	makedepends = unzip
 	makedepends = wasi-compiler-rt
 	makedepends = wasi-libc

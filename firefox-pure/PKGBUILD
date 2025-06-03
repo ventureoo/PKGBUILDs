@@ -6,7 +6,7 @@
 
 pkgname=firefox-pure
 pkgver=139.0.1
-pkgrel=4
+pkgrel=5
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -53,6 +53,7 @@ makedepends=(
   nodejs
   python
   rust
+  tinywl
   unzip
   wasi-compiler-rt
   wasi-libc
@@ -105,9 +106,22 @@ prepare() {
     patch -Np1 -i "${patch}"
   done
 
+  # Unset variables to prevent issues with PGO profiling
+  unset \
+    DBUS_SESSION_BUS_ADDRESS \
+    DISPLAY \
+    ORBIT_SOCKETDIR \
+    SESSION_MANAGER \
+    XAUTHORITY \
+    XDG_CACHE_HOME \
+    XDG_SESSION_COOKIE
+
+  export LLVM_PROFDATA="llvm-profdata"
+
   cat >../mozconfig <<END
 ac_add_options --enable-application=browser
 mk_add_options MOZ_OBJDIR=${PWD@Q}/obj
+mk_add_options MOZ_PGO=1
 
 ac_add_options --prefix=/usr
 ac_add_options --enable-release
@@ -170,6 +184,8 @@ END
 }
 
 build() {
+  local VIRTWL VIRTWL_PID
+
   cd "firefox-$pkgver"
 
   export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=pip
@@ -192,7 +208,19 @@ build() {
   echo "Building browser..."
   cat >.mozconfig ../mozconfig
 
+  # Run tinywl compositor for PGO profiling
+  coproc VIRTWL { WLR_BACKENDS=headless exec tinywl -s 'echo $WAYLAND_DISPLAY; read _; kill $PPID'; }
+  local -x WAYLAND_DISPLAY
+  read WAYLAND_DISPLAY <&${VIRTWL[0]}
+
+  [[ -z "$VIRTWL_PID" ]] && {
+    echo "Failed to spawn tinywl" >&2
+    return 1
+  }
+
   ./mach build
+
+  exec {VIRTWL[0]} {VIRTWL[1]} <&- >&-
 }
 
 package() {
