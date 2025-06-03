@@ -39,7 +39,7 @@
         "twitter@search.mozilla.org"
       ]
     },
-    "ExtensionsSettings": {
+    "ExtensionSettings": {
       "uBlock0@raymondhill.net": {
         "private_browsing": true
       }
