@@ -1,0 +1,13 @@
+pkgbase = tinywl
+	pkgdesc = Prototype of Wayland compositor based on wlroots
+	pkgver = 0.19.0
+	pkgrel = 1
+	url = https://gitlab.freedesktop.org/wlroots/wlroots/-/tree/master/tinywl
+	arch = x86_64
+	license = CC0-1.0
+	makedepends = wayland-protocols
+	depends = wlroots0.19
+	source = git+https://gitlab.freedesktop.org/wlroots/wlroots.git#tag=0.19.0
+	sha256sums = 6c5d9b1012769497aa9a0f03915582fdb3399ff8dbf1344ef03778e6a37f73cc
+
+pkgname = tinywl
