@@ -1,7 +1,7 @@
 # Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
 pkgname=firefox-settings
 pkgver=20250601
-pkgrel=2
+pkgrel=3
 pkgdesc='My settings for Firefox browser'
 depends=('firefox' 'xdg-desktop-portal')
 arch=('any')
