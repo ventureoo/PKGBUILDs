@@ -1,7 +1,7 @@
 pkgbase = firefox-settings
 	pkgdesc = My settings for Firefox browser
 	pkgver = 20250601
-	pkgrel = 2
+	pkgrel = 3
 	url = https://github.com/ventureoo/PKGBUILDs
 	arch = any
 	depends = firefox
