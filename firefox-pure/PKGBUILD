@@ -210,7 +210,11 @@ build() {
 
   # Run tinywl compositor for PGO profiling
   export XDG_RUNTIME_DIR="$(mktemp --tmpdir "XXX-runtime-dir")"
-  coproc VIRTWL { WLR_BACKENDS=headless exec tinywl -s 'echo $WAYLAND_DISPLAY; read _; kill $PPID'; }
+  chmod 0700 "$XDG_RUNTIME_DIR"
+  coproc VIRTWL {
+    WLR_RENDERER=pixman WLR_BACKENDS=headless \
+      exec tinywl -s 'echo $WAYLAND_DISPLAY; read _; kill $PPID'
+  }
   local -x WAYLAND_DISPLAY
   read WAYLAND_DISPLAY <&${VIRTWL[0]}
 
