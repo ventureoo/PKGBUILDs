@@ -5,6 +5,7 @@ pkgbase = tinywl
 	url = https://gitlab.freedesktop.org/wlroots/wlroots/-/tree/master/tinywl
 	arch = x86_64
 	license = CC0-1.0
+	makedepends = git
 	makedepends = wayland-protocols
 	depends = wlroots0.19
 	source = git+https://gitlab.freedesktop.org/wlroots/wlroots.git#tag=0.19.0

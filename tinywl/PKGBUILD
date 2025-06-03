@@ -7,7 +7,7 @@ license=('CC0-1.0')
 url='https://gitlab.freedesktop.org/wlroots/wlroots/-/tree/master/tinywl'
 arch=('x86_64')
 depends=('wlroots0.19')
-makedepends=('wayland-protocols')
+makedepends=('git' 'wayland-protocols')
 source=("git+https://gitlab.freedesktop.org/wlroots/wlroots.git#tag=${pkgver}")
 sha256sums=('6c5d9b1012769497aa9a0f03915582fdb3399ff8dbf1344ef03778e6a37f73cc')
 
