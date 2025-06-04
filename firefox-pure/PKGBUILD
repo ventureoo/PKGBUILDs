@@ -120,8 +120,8 @@ prepare() {
 
   cat >../mozconfig <<END
 ac_add_options --enable-application=browser
+ac_add_options MOZ_PGO=1
 mk_add_options MOZ_OBJDIR=${PWD@Q}/obj
-mk_add_options MOZ_PGO=1
 
 ac_add_options --prefix=/usr
 ac_add_options --enable-release
