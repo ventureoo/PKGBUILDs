@@ -223,7 +223,7 @@ build() {
 
   ./mach build
 
-  exec {VIRTWL[0]} {VIRTWL[1]} <&- >&-
+  exec {VIRTWL[0]}<&- {VIRTWL[1]}>&-
   rm -rf "${XDG_RUNTIME_DIR}"
 }
 
