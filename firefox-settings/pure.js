@@ -10,15 +10,38 @@ pref("browser.shell.checkDefaultBrowser", false);
 // Don't disable extensions in the application directory
 pref("extensions.autoDisableScopes", 11);
 
-// Enable WebRender
-pref("gfx.webrender.all", true);
-
-// Enable hardware accelerated video
+// Enable hardware acceleration
 pref("media.hardware-video-decoding.force-enabled", true);
 pref("media.webrtc.hw.h264.enabled", true);
-pref("media.gpu-process-decoder", true); // Needed for FF 141 hardware accel https://discord.com/channels/862292009423470592/871070647353233449/1378663451475312702
+pref("media.gpu-process-decoder", true);
 
-// Fuck mozilla garbage
+// Performance & Graphics Tweaks
+pref("gfx.canvas.accelerated", true);
+pref("gfx.canvas.accelerated.cache-items", 32768);
+pref("gfx.canvas.accelerated.cache-size", 4096);
+pref("gfx.content.skia-font-cache-size", 80);
+pref("gfx.webrender.all", true);
+pref("gfx.webrender.precache-shaders", true);
+pref("gfx.webrender.program-binary-disk", true);
+pref("layers.gpu-process.enabled", true); // Use dedicated GPU process
+
+// JavaScript & Process Tweaks
+pref("dom.ipc.forkserver.enable", true); // Enable Linux fork server for new processes
+pref("javascript.options.baselinejit.threshold", 50); // Lower JIT threshold
+pref("javascript.options.ion.threshold", 500); // Lower Ion threshold
+
+// Memory & Cache Tweaks (Non-Disk)
+pref("image.cache.size", 10485760); // Increase decoded image cache size (10MB)
+pref("image.mem.decode_bytes_at_a_time", 65536); // Increase image decode chunk size
+pref("image.mem.shared.unmap.min_expiration_ms", 120000);
+pref("media.cache_readahead_limit", 7200); // Increase media readahead
+pref("media.cache_resume_threshold", 3600); // Increase media resume threshold
+pref("media.memory_cache_max_size", 1048576); // Increase media memory cache (1GB)
+pref("media.memory_caches_combined_limit_kb", 3145728); // Increase combined media caches limit (3GB)
+pref("network.buffer.cache.size", 65535); // Network buffer size
+pref("network.ssl_tokens_cache_capacity", 32768); // Increase SSL token cache
+
+// Remove Mozilla stuff
 pref("app.normandy.api_url", "", locked);
 pref("app.normandy.enabled", false, locked);
 pref("breakpad.reportURL", "", locked);
@@ -67,7 +90,7 @@ pref("media.gmp-gmpopenh264.autoupdate", false, locked);
 pref("security.pki.crlite_mode", 0, locked);
 pref("security.remote_settings.crlite_filters.enabled", false, locked);
 
-// Fuck telemetry
+// Remove telemetry
 pref("browser.contentblocking.report.lockwise.enabled", false, locked);
 pref("browser.contentblocking.report.monitor.enabled", false, locked);
 pref("browser.discovery.enabled", false, locked);
@@ -111,7 +134,7 @@ pref("toolkit.telemetry.shutdownPingSender.enabled", false, locked);
 pref("toolkit.telemetry.unified", false, locked);
 pref("toolkit.telemetry.updatePing.enabled", false, locked);
 
-// Fuck Google safebrowsing
+// Remove Google safebrowsing
 pref("browser.safebrowsing.allowOverride", false, locked);
 pref("browser.safebrowsing.blockedURIs.enabled", false, locked);
 pref("browser.safebrowsing.debug", false, locked);
@@ -166,7 +189,6 @@ pref("network.http.max-persistent-connections-per-server", 10); //https://kb.moz
 pref("network.http.max-urgent-start-excessive-connections-per-host", 5); //Number of connections that we can open beyond the standard parallelism limit defined by max-persistent-connections-per-server/-proxy to handle urgent-start marked requests
 pref("network.http.pacing.requests.enabled", false); //Disable pacing requests
 
-
 // Privacy hardening
 pref("browser.contentblocking.category", "strict"); // https://blog.mozilla.org/security/2021/02/23/total-cookie-protection/
 pref("browser.download.autohideButton", false, locked); //do not hide download button automatically
@@ -182,3 +204,21 @@ pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com
 
 // Desktop integration
 pref("widget.use-xdg-desktop-portal.file-picker", 1);
+
+// UI/Behavior Tweaks
+pref("apz.overscroll.enabled", true); // Enable overscroll effect
+pref("general.smoothScroll", true); // Enable smooth scrolling
+pref("general.smoothScroll.msdPhysics.continuousMotionMaxDeltaMS", 12);
+pref("general.smoothScroll.msdPhysics.enabled", true); // Use physics-based smooth scrolling
+pref("general.smoothScroll.msdPhysics.motionBeginSpringConstant", 200);
+pref("general.smoothScroll.msdPhysics.regularSpringConstant", 250);
+pref("general.smoothScroll.msdPhysics.slowdownMinDeltaMS", 25);
+pref("general.smoothScroll.msdPhysics.slowdownMinDeltaRatio", "2.0"); // Ensure float format if needed
+pref("general.smoothScroll.msdPhysics.slowdownSpringConstant", 250);
+pref("general.smoothScroll.currentVelocityWeighting", "1.0"); // Ensure float format if needed
+pref("general.smoothScroll.stopDecelerationWeighting", "1.0"); // Ensure float format if needed
+pref("mousewheel.default.delta_multiplier_y", 300); // Adjust mouse wheel scroll speed
+pref("content.notify.interval", 100000); // Reduce frequency of certain notifications
+
+// Feature Enablement
+pref("layout.css.grid-template-masonry-value.enabled", true); // Enable CSS Masonry layout

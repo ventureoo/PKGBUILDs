@@ -1,7 +1,7 @@
 # Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
 pkgname=firefox-settings
-pkgver=20250601
-pkgrel=3
+pkgver=20250606
+pkgrel=1
 pkgdesc='My settings for Firefox browser'
 depends=('firefox' 'xdg-desktop-portal')
 arch=('any')
@@ -12,7 +12,7 @@ source=(
     policies.json
 )
 sha256sums=(
-    '3c2656a83bf7e2fad518e203f234d0196b935cb11670211562cca23b725d5015'
+    '186864d2f2e1988723238e2da8216f0a72e8f502389eef6e31749302c5a20245'
     'dae8cd53706d84b59512070c9c1ed82c3bd7a99f08c727c63809d26fdacbd322'
 )
 
