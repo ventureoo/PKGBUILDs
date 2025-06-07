@@ -47,7 +47,7 @@
     "3rdparty": {
       "Extensions": {
         "uBlock0@raymondhill.net": {
-          "adminSettings": {
+          "toAdd": {
             "selectedFilterLists": [
               "adguard-cookies",
               "adguard-generic",

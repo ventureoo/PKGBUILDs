@@ -16,7 +16,6 @@ pref("media.webrtc.hw.h264.enabled", true);
 pref("media.gpu-process-decoder", true);
 
 // Performance & Graphics Tweaks
-pref("gfx.canvas.accelerated", true);
 pref("gfx.canvas.accelerated.cache-items", 32768);
 pref("gfx.canvas.accelerated.cache-size", 4096);
 pref("gfx.content.skia-font-cache-size", 80);
@@ -87,8 +86,13 @@ pref("extensions.getAddons.showPane", false, locked);
 pref("extensions.htmlaboutaddons.recommendations.enabled", false, locked);
 pref("extensions.pocket.enabled", false, locked);
 pref("media.gmp-gmpopenh264.autoupdate", false, locked);
-pref("security.pki.crlite_mode", 0, locked);
-pref("security.remote_settings.crlite_filters.enabled", false, locked);
+
+// Reduces the CLRite base refresh period in the lack of a persistent
+// background push service
+pref("security.OCSP.enabled", 0);
+pref("security.pki.crlite_mode", 2, locked);
+pref("security.remote_settings.crlite_filters.enabled", true, locked);
+pref("services.settings.poll_interval", 300);
 
 // Remove telemetry
 pref("browser.contentblocking.report.lockwise.enabled", false, locked);
@@ -193,7 +197,6 @@ pref("network.http.pacing.requests.enabled", false); //Disable pacing requests
 pref("browser.contentblocking.category", "strict"); // https://blog.mozilla.org/security/2021/02/23/total-cookie-protection/
 pref("browser.download.autohideButton", false, locked); //do not hide download button automatically
 pref("browser.download.start_downloads_in_tmp_dir", true, locked); //start downloads in temp
-pref("browser.helperApps.deleteTempFileOnExit", true); // https://bugzilla.mozilla.org/show_bug.cgi?id=238789#c19
 pref("dom.security.https_only_mode", true, locked); // only allow https in all windows, including private browsing
 pref("network.predictor.enable-prefetch", false); // Disable speculative website loading
 pref("network.predictor.enabled", false); // Disable speculative website loading
@@ -206,8 +209,6 @@ pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com
 pref("widget.use-xdg-desktop-portal.file-picker", 1);
 
 // UI/Behavior Tweaks
-pref("apz.overscroll.enabled", true); // Enable overscroll effect
-pref("general.smoothScroll", true); // Enable smooth scrolling
 pref("general.smoothScroll.msdPhysics.continuousMotionMaxDeltaMS", 12);
 pref("general.smoothScroll.msdPhysics.enabled", true); // Use physics-based smooth scrolling
 pref("general.smoothScroll.msdPhysics.motionBeginSpringConstant", 200);
@@ -218,7 +219,6 @@ pref("general.smoothScroll.msdPhysics.slowdownSpringConstant", 250);
 pref("general.smoothScroll.currentVelocityWeighting", "1.0"); // Ensure float format if needed
 pref("general.smoothScroll.stopDecelerationWeighting", "1.0"); // Ensure float format if needed
 pref("mousewheel.default.delta_multiplier_y", 300); // Adjust mouse wheel scroll speed
-pref("content.notify.interval", 100000); // Reduce frequency of certain notifications
 
 // Feature Enablement
 pref("layout.css.grid-template-masonry-value.enabled", true); // Enable CSS Masonry layout
