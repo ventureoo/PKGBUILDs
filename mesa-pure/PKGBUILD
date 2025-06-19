@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.1.3
+pkgver=25.1.4
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -77,7 +77,7 @@ conflicts=(
     'mesa'
 )
 source=("https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz")
-sha256sums=('ffcb6cadb5fd356d56008e6308641dfe4b2929f30139f6585436ca6e3cddba7f')
+sha256sums=('164872a5e792408aa72fecd52b7be6409724c4ad81700798675a7d801d976704')
 
 prepare() {
   cd "mesa-$pkgver"
@@ -106,7 +106,6 @@ build() {
     -D b_ndebug=true
     -D gallium-drivers=radeonsi
     -D gallium-extra-hud=false
-    -D gallium-xa=disabled
     -D gallium-vdpau=disabled
     -D gles1=disabled
     -D glx=dri
