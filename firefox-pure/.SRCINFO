@@ -1,7 +1,7 @@
 pkgbase = firefox-pure
 	pkgdesc = Fast, Private & Safe Web Browser
 	pkgver = 140.0
-	pkgrel = 1
+	pkgrel = 2
 	url = https://www.mozilla.org/firefox/
 	arch = x86_64
 	license = MPL-2.0
@@ -57,7 +57,6 @@ pkgbase = firefox-pure
 	optdepends = xdg-desktop-portal: Screensharing with Wayland
 	provides = firefox=140.0
 	conflicts = firefox
-	replaces = firefox
 	options = !emptydirs
 	options = !lto
 	options = !makeflags

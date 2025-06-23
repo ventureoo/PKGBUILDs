@@ -6,7 +6,7 @@
 
 pkgname=firefox-pure
 pkgver=140.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -74,7 +74,6 @@ options=(
 )
 provides=("firefox=${pkgver}")
 conflicts=(firefox)
-replaces=(firefox)
 source=(
   "https://archive.mozilla.org/pub/firefox/releases/$pkgver/source/firefox-$pkgver.source.tar.xz"
   "firefox-symbolic.svg"
