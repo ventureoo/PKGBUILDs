@@ -6,7 +6,7 @@
 
 pkgname=firefox-pure
 pkgver=140.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -268,12 +268,6 @@ END
   # Replace duplicate binary with wrapper
   # https://bugzilla.mozilla.org/show_bug.cgi?id=658850
   ln -srfv "$pkgdir/usr/bin/firefox" "$pkgdir/usr/lib/firefox/firefox-bin"
-
-  # Use system certificates
-  local nssckbi="$pkgdir/usr/lib/firefox/libnssckbi.so"
-  if [[ -e $nssckbi ]]; then
-    ln -srfv "$pkgdir/usr/lib/libnssckbi.so" "$nssckbi"
-  fi
 }
 
 # vim:set sw=2 sts=-1 et:
