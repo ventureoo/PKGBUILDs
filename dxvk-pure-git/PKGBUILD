@@ -3,7 +3,7 @@
 # Maintainer: Adrià Cereto i Massagué <ssorgatem at gmail.com>
 
 pkgname=dxvk-pure-git
-pkgver=2.6.1.r316.g7b5c04d87
+pkgver=2.6.1.r350.g6847d0038
 pkgrel=1
 pkgdesc="A Vulkan-based compatibility layer for Direct3D 9/10/11 which allows running 3D applications on Linux using Wine. Windows DLL version)"
 arch=('x86_64')
@@ -50,7 +50,7 @@ prepare() {
     local march="${flags["-march"]:-"x86-64-v3"}"
     local mtune="${flags["-mtune"]:-"haswell"}"
 
-    export CFLAGS="-march=$march -mtune=$mtune -mfpmath=sse -fwrapv -fno-strict-aliasing -pipe"
+    export CFLAGS="-march=$march -mtune=$mtune -mfpmath=sse -mno-avx -fwrapv -fno-strict-aliasing -pipe"
     export CXXFLAGS="$CFLAGS -std=c++17"
     export LDFLAGS="-Wl,-O1,--sort-common,--as-needed -Wl,--file-alignment,4096"
 
