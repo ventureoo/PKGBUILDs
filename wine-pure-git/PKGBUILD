@@ -6,8 +6,8 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=10.11.r0.gcad35b3c811
-pkgrel=3
+pkgver=10.11.r63.g22d837fc4d0
+pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -112,9 +112,6 @@ prepare() {
   mkdir "$pkgname-build"
 
   cd wine
-
-  # Fixes major performance regression and MangoHud flickering for winewayland
-  git revert -n de0fc7fd95074cfdeb032d36246c56247d2bd82b
 
   # apply wine-staging patchset
   ../wine-staging/staging/patchinstall.py --backend=git-apply --all
