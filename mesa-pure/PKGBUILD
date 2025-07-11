@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.1.4
+pkgver=25.1.5
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -76,8 +76,10 @@ conflicts=(
     'mesa-libgl'
     'mesa'
 )
-source=("https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz")
-sha256sums=('164872a5e792408aa72fecd52b7be6409724c4ad81700798675a7d801d976704')
+source=("https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
+        anti-lag.patch)
+sha256sums=('3c4f6b10ff6ee950d0ec6ea733cc6e6d34c569454e3d39a9b276de9115a3b363'
+            '87055018b2bbea8dc22c758c97b96ab01e1b44e198885a533d794dd1b12c4a6a')
 
 prepare() {
   cd "mesa-$pkgver"
@@ -86,6 +88,9 @@ prepare() {
   # its GPU cache; otherwise it can cause pages to render incorrectly.
   # https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/2020604
   echo "$pkgver-pure.$pkgrel" >VERSION
+
+  # Add support for VK_AMD_anti_lag vulkan layer
+  patch -Np1 -i "${srcdir}/anti-lag.patch"
 }
 
 build() {
@@ -117,7 +122,7 @@ build() {
     -D valgrind=enabled
     -D video-codecs=all
     -D vulkan-drivers=amd
-    -D vulkan-layers=device-select,overlay,screenshot
+    -D vulkan-layers=device-select,overlay,screenshot,vram-report-limit,anti-lag
   )
 
   # Build only minimal debug info to reduce size
