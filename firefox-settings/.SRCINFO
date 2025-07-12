@@ -9,7 +9,7 @@ pkgbase = firefox-settings
 	backup = etc/firefox/policies/policies.json
 	source = pure.js
 	source = policies.json
-	sha256sums = 705a39cef81c40ac37faf95f0114a3cf2abc4fca20c404e4ee01e854810ab624
+	sha256sums = 19088bd10ad29450d09651fc592f71db8c7201099f61f26a94afd071f050e677
 	sha256sums = 8f1e4e27e867d59f56b120e02355dfa5ee8790ca02383a0b057f18e04f719196
 
 pkgname = firefox-settings

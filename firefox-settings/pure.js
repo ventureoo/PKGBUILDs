@@ -22,6 +22,7 @@ pref("gfx.content.skia-font-cache-size", 80);
 pref("gfx.webrender.all", true);
 pref("gfx.webrender.precache-shaders", true);
 pref("gfx.webrender.program-binary-disk", true);
+pref("gfx.wayland.hdr", true); // Enable HDR when available
 pref("layers.gpu-process.enabled", true); // Use dedicated GPU process
 
 // JavaScript & Process Tweaks
