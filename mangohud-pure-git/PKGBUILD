@@ -5,7 +5,7 @@
 _pkgname=MangoHud
 pkgname=mangohud-pure-git
 pkgver=0.8.1.r97.g8993601
-pkgrel=1
+pkgrel=2
 pkgdesc="A Vulkan overlay layer for monitoring FPS, temperatures, CPU/GPU load and more"
 url='https://github.com/flightlessmango/MangoHud'
 license=('MIT')
@@ -16,6 +16,7 @@ makedepends=(
     'dbus'
     'git'
     'glslang'
+    'clang'
     'python-mako'
     'meson'
     'nlohmann-json'
@@ -55,6 +56,10 @@ pkgver() {
 
 prepare() {
     cd $_pkgname
+
+    export CC="clang"
+    export CXX="clang++"
+
     patch -Np1 -i "${srcdir}/0001-Resize-present-modes-vector-to-fit-available-count.patch"
 }
 
