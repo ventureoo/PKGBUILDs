@@ -6,7 +6,7 @@
 
 pkgname=firefox-pure
 pkgver=141.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -216,7 +216,7 @@ build() {
   # Run tinywl compositor for PGO profiling
   coproc VIRTWL {
     WLR_RENDERER=pixman WLR_BACKENDS=headless \
-      exec tinywl -s 'echo $WAYLAND_DISPLAY; read _; kill $PPID'
+      exec dbus-run-session -- tinywl -s 'echo $WAYLAND_DISPLAY; read _; kill $PPID'
   }
   local -x WAYLAND_DISPLAY
   read WAYLAND_DISPLAY <&${VIRTWL[0]}
