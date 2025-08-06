@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.1.6
+pkgver=25.2.0
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -76,10 +76,14 @@ conflicts=(
     'mesa-libgl'
     'mesa'
 )
-source=("https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
-        anti-lag.patch)
-sha256sums=('9f2b69eb39d2d8717d30a9868fdda3e0c0d3708ba32778bbac8ddb044538ce84'
-            '87055018b2bbea8dc22c758c97b96ab01e1b44e198885a533d794dd1b12c4a6a')
+source=(
+  "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
+  anti-lag.patch
+)
+sha256sums=(
+  '7c726b21c074d14d31d253d638b741422f3c0a497ce7f1b4aaaa917d10bd8d4f'
+  '1e83a132618ebc2a2236779223ace94354f22b3372ce739ee6641e83f2d0f9e8'
+)
 
 prepare() {
   cd "mesa-$pkgver"
@@ -109,6 +113,7 @@ build() {
     -D amd-use-llvm=false
     -D android-libbacktrace=disabled
     -D b_ndebug=true
+    -D gallium-mediafoundation=disabled
     -D gallium-drivers=radeonsi
     -D gallium-extra-hud=false
     -D gallium-vdpau=disabled
