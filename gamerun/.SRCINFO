@@ -1,0 +1,17 @@
+pkgbase = gamerun
+	pkgdesc = Helper script to run games in Wine with sandbox isolation
+	pkgver = 1.0.0
+	pkgrel = 1
+	url = https://github.com/ventureoo/PKGBUILDs
+	arch = any
+	license = GPL-3.0
+	depends = wine
+	depends = firejail
+	optdepends = dxvk-pure-git: Recommended DXVK version
+	optdepends = vkd3d-proton-mingw-git: Recommended VKD3D-Proton version
+	optdepends = wine-pure-git: Recommended Wine version
+	optdepends = mangohud-pure-git: Recommended MangoHud version
+	source = gamerun
+	sha256sums = cec5a9076302683bbc97ecd97e081f7edbaf8adc15c1c5f69520737c33ea547f
+
+pkgname = gamerun

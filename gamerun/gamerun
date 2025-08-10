@@ -1,0 +1,324 @@
+#!/usr/bin/env bash
+# Copyright (C) 2025 Vasiliy Stelmachenok <ventureo@cachyos.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+set -euo pipefail
+
+if tput setaf 0 &>/dev/null; then
+    CL="$(tput sgr0)"
+    BL="$(tput bold)"
+    RED="${BL}$(tput setaf 1)"
+    GRN="${BL}$(tput setaf 2)"
+    YEL="${BL}$(tput setaf 3)"
+    BLUE="${BL}$(tput setaf 4)"
+fi
+readonly CL BL BLUE GRN RED YEL
+
+step() {
+    printf "${GRN}==>${CL}${BL} %b %s${CL}\n" "\0$1" "${@:2:$#}"
+}
+
+info() {
+    printf "${BLUE} -->${CL}${BL} %b %s${CL}\n" "\0$1" "${@:2:$#}"
+}
+
+warning() {
+    printf "${YEL}==> WARNING:${CL}${BL} %b %s${CL}\n" \
+        "\0$1" "${@:2:$#}" >&2
+}
+
+error() {
+    printf "${RED}==> ERROR:${CL}${BL} %b %s${CL}\n" \
+        "\0$1" "${@:2:$#}" >&2
+}
+
+fatal() {
+    error "$@"
+    exit 1
+}
+
+function usage() {
+    local progname
+
+    progname="$(basename "$0")"
+    cat << EOF
+$progname - Helper script to run games in Wine with sandbox isolation via Firejail.
+
+Usage: $progname [OPTIONS...] FILE [ARG...]
+
+Options:
+  -n, --allow-network-access   Allow network access in firejail sandbox
+  -e, --env VAR=VAL            Set environment variable VAR in firejail sandbox
+  -m, --no-mangohud            Disable usage MangoHud
+  -f, --fsync                  Enable usage Fsync in Wine if supported
+      --force                  Force install DXVK/VKD3D even if they are already installed
+      --esync                  Enable usage Esync in Wine if supported
+      --install-cnc-ddraw      Install cnc-ddraw in prefix and use it as ddraw implementation
+      --install-dgvoodoo       Install dgVoodoo2 in prefix and use it as ddraw implementation
+      --no-install-dxvk        Do not install DXVK in prefix and use it as D3D8-D3D11 implementation
+      --no-install-vkd3d       Do not install vkd3d in prefix and use it as DX12 implementation
+      --dxvk-path PATH         Use DXVK from the specified path
+      --dxvk-vkd3d PATH        Use VKD3D from the specified path
+      --dxvk-repo owner/repo   GitHub repository name to download DXVK if system-wide is not available
+      --vkd3d-repo owner/repo  GitHub repository name to download VKD3D-Proton if system-wide is not available
+  -h --help                    Show this message
+
+$progname 1.0.0, written by Vasiliy Stelmachenok <ventureo@cachyos.org>
+EOF
+    exit 0
+}
+
+function override_dlls() {
+    local prefix="$1"
+
+    step "Overriding DLLs..."
+    for dll in "${@:2:$#}"; do
+        info "Overriding $dll..."
+        firejail --no3d --novideo --env="WINEPREFIX=$prefix" --whitelist="$prefix" --profile=wine \
+            wine reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v "$dll" /d native,builtin /f \
+            &>/dev/null
+    done
+}
+
+function copy_dlls_in_prefix() {
+    local target="$1"
+    local prefix="$2"
+
+    step "Copying DLLs into prefix directory..."
+    while IFS= read -rd '' dll; do
+        library="${dll##*/}"
+        library="${library%.dll}"
+
+        case "$(LC_ALL=C file -L -b "$dll" 2>/dev/null)" in
+            'PE32+ executable for'*', x86-64'*)
+                destination="$prefix/drive_c/windows/system32/${library}.dll";;
+            'PE32 executable for'*', Intel i386'*)
+                destination="$prefix/drive_c/windows/syswow64/${library}.dll";;
+            *) warning "Unrecognized file format for $dll, skipping..." && continue;;
+        esac
+
+        [[ "$(md5sum "$destination" |& cut -f1 -d " ")" \
+            == "$(md5sum "$dll" |& cut -f1 -d " ")" ]] && continue
+        info "Installing $library into prefix..."
+
+        # Remove symlinks as they can be used to bypass sandbox environment
+        [[ -L "$destination" ]] && rm -f "$destination"
+
+        cp -vf "$dll" "$destination" || echo "Failed to install $library library" >&2
+    done < <(LC_ALL=C find "$target" -type f \
+        -regextype posix-extended \
+        -regex ".*/($(echo "${@:2:$#}" | tr " " "|")).dll" \
+        -print0)
+}
+
+function download_latest_release() {
+    local remote="$1"
+    local filter="${2:-"*.dll"}"
+    local destination
+
+    destination="$(mktemp -d --suffix="-wrapper")"
+    curl -sSL --retry 5 "https://api.github.com/repos/$remote/releases/latest" \
+        | grep -oP '"browser_download_url": "\K.*.(tar|zip).*(?=")' \
+        | head -n1 \
+        | curl -sSL -o /dev/stdout @- \
+        | bsdtar --include="$filter" -x -v -C "$destination" -f - \
+    || {
+        rm -rf "$destination"
+        error "Failed to download and extract $remote..."
+        return 1
+    }
+
+    echo "$destination"
+}
+
+function install_directx_wrapper() {
+    local prefix="$1"
+    local remote="$2"
+    local source="$3"
+    local -i force="$4"
+    local -a dlls; IFS=" " read -ra dlls <<< "${@:5:$#}"
+    local -i installed=1
+    local wrapper="${remote#*/}"
+
+    step "Installing $wrapper..."
+
+    if ((!force)); then
+        for dll in "${dlls[@]}"; do
+            if [[ "$(LC_ALL=C file -b "$prefix/drive_c/windows/syswow64/$dll.dll")" \
+                != "PE32 executable for MS Windows"* || \
+                "$(LC_ALL=C file -b "$prefix/drive_c/windows/system32/$dll.dll")" \
+                != "PE32+ executable for MS Windows"* ]]
+            then
+                installed=0
+                break
+            fi
+        done
+
+        if ((installed)); then
+            info "$wrapper already installed"
+            return 0
+        fi
+    fi
+
+    if [[ ! -e "$source" && ! -d "$source" ]]; then
+        info "System-wide $wrapper not found, trying to install latest Git release..."
+        source="$(download_latest_release "$remote")"
+        if [[ -z "$source" ]]; then
+            error "Failed to install $wrapper"
+            return 1
+        fi
+    fi
+
+    copy_dlls_in_prefix "$source" "$prefix" "${dlls[@]}"
+    override_dlls "$prefix" "${dlls[@]}"
+}
+
+function install_ddraw_wrapper() {
+    local prefix="$1"
+    local remote="$2"
+    local source
+
+    source="$(download_latest_release "$remote" "*[Dd][Dd]raw.dll")"
+    if [[ -z "$source" ]]; then
+        error "Failed to install ${remote#*/}..."
+        return 1
+    fi
+
+    copy_dlls_in_prefix "$source" "$prefix" ddraw
+    override_dlls "$prefix" ddraw
+}
+
+function isolate_prefix() {
+    local prefix="$1"
+    local symlink
+
+    step "Isolating prefix directory..."
+
+    # Isolate access to root directory
+    if [[ -e "$prefix/dosdevices/z:" && "$(realpath "$prefix/dosdevices/z:")" == "/" ]]; then
+        info "Removing access to root directory"
+        rm "$prefix/dosdevices/z:"
+    fi
+
+    # Isolate access to user directories
+    for xdg_dir in Desktop Documents Downloads Music Pictures Videos; do
+        symlink="$prefix/drive_c/users/$USER/$xdg_dir"
+        if [[ -e "$prefix" && -L "$symlink" ]]; then
+            info "Removing access to $xdg_dir directory"
+            rm "$symlink"
+            mkdir -p "$symlink"
+        fi
+    done
+}
+
+function take_argument() {
+    local -n ref="$1"
+    (($# < 3)) && fatal "Missed argument for $option"
+
+    local value="$2"
+    # shellcheck disable=SC2034
+    ref="$value"
+}
+
+function main() {
+    local -a firejail_options=()
+    local -i allow_network_access=0 \
+        no_mangohud=0 \
+        install_cnc_ddraw=0 \
+        install_dgvoodoo=0 \
+        skip_dxvk=0 \
+        skip_vkd3d=0 \
+        force_install=0
+    local dxvk_path="/usr/share/dxvk"
+    local vkd3d_path="/usr/share/vkd3d-proton"
+    local dxvk_repo="doitsujin/DXVK"
+    local vkd3d_repo="HansKristian-Work/VKD3D-Proton"
+    local env=""
+
+    while (($# > 0)); do
+        local option="$1"
+        case "$option" in
+            --dxvk-path) take_argument dxvk_path "$@"; shift;;
+            --vkd3d-path) take_argument vkd3d_path "$@"; shift;;
+            --dxvk-repo) take_argument dxvk_repo "$@"; shift;;
+            --vkd3d-repo) take_argument vkd3d_repo "$@"; shift;;
+            -e|--env) take_argument env "$@"; shift;;
+            --install-cnc-ddraw) install_cnc_ddraw=1;;
+            --install-dgvoodoo) install_dgvoodoo=1;;
+            --no-install-dxvk) skip_dxvk=1;;
+            --no-install-vkd3d) skip_vkd3d=1;;
+            --esync) firejail_options+=("--env=WINEESYNC=1");;
+            --force) force_install=1;;
+            -f|--fsync) firejail_options+=("--env=WINEFSYNC=1");;
+            -m|--no-mangohud) no_mangohud=1;;
+            -n|--allow-network-access) allow_network_access=1;;
+            -h|--help) usage;;
+            --) break;;
+            --*|-*) fatal "Unrecognized option: $1";;
+            *) break;;
+        esac
+        [[ -n "$env" ]] && firejail_options+=("--env=$env")
+        shift
+    done
+
+    ((!$#)) && usage
+
+    exe_path="$(realpath -- "$1")"
+    prefix="${exe_path%drive_c/*}"
+    # Remove trailing slash
+    prefix="${prefix%/}"
+
+    ((install_cnc_ddraw && install_dgvoodoo)) && \
+        fatal "cnc-ddraw and dgVoodoo2 cannot be installed simultaneously" \
+            "Select only one ddraw implementation"
+
+    if ! command -v firejail &>/dev/null; then
+        fatal "Firejail not found. Please install it."
+    fi
+
+    if [[ "$exe_path" == "$prefix" ]]; then
+        fatal "Executable file is not in prefix dir:" "$exe_path"
+    fi
+
+    isolate_prefix "$prefix"
+    ((!skip_dxvk)) && install_directx_wrapper "$prefix" "$dxvk_repo" "$dxvk_path" \
+        "$force_install" \
+        d3d8 d3d9 d3d10core d3d11 dxgi
+    ((!skip_vkd3d)) && install_directx_wrapper "$prefix" "$vkd3d_repo" "$vkd3d_path" \
+        "$force_install" \
+        d3d12core d3d12
+    ((install_cnc_ddraw)) && install_ddraw_wrapper "$prefix" "FunkyFr3sh/cnc-ddraw"
+    ((install_dgvoodoo)) && install_ddraw_wrapper "$prefix" "dege-diosg/dgVoodoo2"
+
+    firejail_options+=(
+        --whitelist="$prefix"
+        --env=WINEPREFIX="$prefix"
+    )
+
+    ((!allow_network_access)) && firejail_options+=(--net=none)
+    ((!no_mangohud)) && firejail_options+=(--env=MANGOHUD=1)
+
+    # Do not force use of nvidia driver if it is not loaded on laptops
+    if [[ -e /sys/module/nvidia_drm && -n "$(lspci -d "10de:*:0302")" ]]; then
+        firejail_options+=(--env=__VK_LAYER_NV_optimus=NVIDIA_only --env=__NV_PRIME_RENDER_OFFLOAD=1)
+    else
+        warning "NVIDIA driver seems to be not working, fallback to iGPU..." >&2
+    fi
+
+    step "Starting Wine..."
+    exec firejail --keep-dev-ntsync --profile=wine "${firejail_options[@]}" wine "$@"
+}
+
+main "$@"

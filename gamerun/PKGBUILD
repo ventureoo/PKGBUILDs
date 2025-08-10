@@ -1,0 +1,21 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@cachyos.org>
+pkgname=gamerun
+pkgver=1.0.0
+pkgrel=1
+pkgdesc='Helper script to run games in Wine with sandbox isolation'
+url='https://github.com/ventureoo/PKGBUILDs'
+license=(GPL-3.0)
+arch=(any)
+depends=(wine firejail)
+optdepends=(
+    'dxvk-pure-git: Recommended DXVK version'
+    'vkd3d-proton-mingw-git: Recommended VKD3D-Proton version'
+    'wine-pure-git: Recommended Wine version'
+    'mangohud-pure-git: Recommended MangoHud version'
+)
+source=(gamerun)
+sha256sums=('cec5a9076302683bbc97ecd97e081f7edbaf8adc15c1c5f69520737c33ea547f')
+
+package() {
+    install -Dm755 gamerun "$pkgdir/usr/bin/gamerun"
+}
