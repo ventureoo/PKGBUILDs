@@ -1,5 +1,6 @@
 {
   "policies": {
+    "DisableFirefoxAccounts": true,
     "DisableFeedbackCommands": true,
     "DisableFirefoxStudies": true,
     "DisablePocket": true,
