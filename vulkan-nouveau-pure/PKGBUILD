@@ -1,0 +1,107 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@cachyos.org
+## AUR maintainer:
+# Maintainer: Echo J. <aidas957 at gmail dot com>
+# shellcheck shell=bash disable=SC2034,SC2164
+
+pkgname=vulkan-nouveau-pure
+pkgdesc="Nouveau Vulkan (NVK) Mesa driver with some additions"
+pkgver=25.2.0
+pkgrel=1
+arch=('x86_64')
+depends=(
+    'libdisplay-info'
+    'libdrm'
+    'libx11'
+    'libxcb'
+    'libxshmfence'
+    'spirv-tools'
+    'systemd-libs'
+    'vulkan-icd-loader'
+    'wayland'
+    'zlib'
+    'zstd'
+)
+makedepends=(
+    'cbindgen'
+    'clang'
+    'elfutils'
+    'git'
+    'glslang'
+    'libclc'
+    'libunwind'
+    'libxrandr'
+    'llvm'
+    'meson>=1.3.0rc2'
+    'python-mako'
+    'python-packaging'
+    'python-yaml'
+    'rust'
+    'rust-bindgen'
+    'spirv-llvm-translator'
+    'systemd'
+    'valgrind'
+    'wayland-protocols'
+    'xorgproto'
+)
+optdepends=(
+    'vulkan-mesa-layers: Additional Vulkan layers'
+    'linux-pure: Minimum required kernel for new uAPI support'
+)
+provides=('vulkan-driver')
+conflicts=('vulkan-nouveau')
+url="https://gitlab.freedesktop.org/mesa/mesa"
+license=('MIT AND BSD-3-Clause AND SGI-B-2.0')
+source=(
+    "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
+    36450.patch
+)
+sha512sums=(
+    'f36e4f9f619becfc89f9cf3704d21f5f1532f1e658808fd30c0edce8c28cd65dc6578a21333e896aa5eaccf09da99efd9127a8d3d46681e8360f618cf63bab94'
+    '50aefe2f81ab7429aae14a21cf807f2df920c8c5c0f9b8fc9c25c69a1d7629c70685efe24b7b12d78ae2bf75eed1b9c680e124dec32249bf314427dc601203cb'
+)
+
+prepare() {
+    cd "mesa-$pkgver"
+
+    # NVK Compression support on Turing+
+    # Requires patched kernel
+    # https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/36450
+    patch -Np1 -i "${srcdir}/36450.patch"
+}
+
+build() {
+    arch-meson "mesa-$pkgver" build \
+        --reconfigure \
+        --wrap-mode=nofallback \
+        --force-fallback-for=paste,rustc-hash,syn \
+        -D android-libbacktrace=disabled \
+        -D b_ndebug=false \
+        -D egl=disabled \
+        -D expat=disabled \
+        -D gallium-drivers= \
+        -D gallium-extra-hud=false \
+        -D gallium-mediafoundation=disabled \
+        -D gallium-va=disabled \
+        -D gallium-vdpau=disabled \
+        -D gbm=disabled \
+        -D gles1=disabled \
+        -D gles2=disabled \
+        -D glvnd=disabled \
+        -D glx=disabled \
+        -D libunwind=enabled \
+        -D llvm=enabled \
+        -D lmsensors=disabled \
+        -D microsoft-clc=disabled \
+        -D platforms=x11,wayland \
+        -D valgrind=enabled \
+        -D vulkan-drivers=nouveau \
+        -D vulkan-layers= \
+        -D xmlconfig=disabled
+
+    meson compile -C build
+}
+
+package() {
+    meson install -C build --destdir "${pkgdir}"
+    install -Dm644 mesa-$pkgver/docs/license.rst -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}
