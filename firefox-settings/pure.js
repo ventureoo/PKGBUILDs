@@ -25,7 +25,6 @@ pref("gfx.webrender.program-binary-disk", true);
 pref("layers.gpu-process.enabled", true); // Use dedicated GPU process
 
 // JavaScript & Process Tweaks
-pref("dom.ipc.forkserver.enable", true); // Enable Linux fork server for new processes
 pref("javascript.options.baselinejit.threshold", 50); // Lower JIT threshold
 pref("javascript.options.ion.threshold", 500); // Lower Ion threshold
 
@@ -92,7 +91,7 @@ pref("media.gmp-gmpopenh264.autoupdate", false, locked);
 
 // Reduces the CLRite base refresh period in the lack of a persistent
 // background push service
-pref("security.OCSP.enabled", 0);
+pref("security.OCSP.enabled", 0, locked);
 pref("security.pki.crlite_mode", 2, locked);
 pref("security.remote_settings.crlite_filters.enabled", true, locked);
 pref("services.settings.poll_interval", 300);

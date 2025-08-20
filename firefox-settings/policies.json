@@ -8,6 +8,7 @@
     "NoDefaultBookmarks": true,
     "DontCheckDefaultBrowser": true,
     "NetworkPrediction": false,
+    "SkipTermsOfUse": true,
     "EnableTrackingProtection": {
       "Value": true,
       "Fingerprinting": true,
