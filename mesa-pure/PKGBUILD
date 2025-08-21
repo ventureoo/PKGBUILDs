@@ -7,81 +7,81 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.2.0
+pkgver=25.2.1
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
 arch=(x86_64)
 license=("MIT AND BSD-3-Clause AND SGI-B-2.0")
 makedepends=(
-    'xorgproto'
-    'libxml2'
-    'libvdpau'
-    'libva'
-    'elfutils'
-    'libxrandr'
-    'meson'
-    'ninja'
-    'glslang'
-    'python-mako'
-    'python-ply'
-    'cbindgen'
-    'wayland-protocols'
-    'cmake'
-    'valgrind'
-    'libpng'
-    'python-packaging'
-    'python-pyaml'
+  'xorgproto'
+  'libxml2'
+  'libvdpau'
+  'libva'
+  'elfutils'
+  'libxrandr'
+  'meson'
+  'ninja'
+  'glslang'
+  'python-mako'
+  'python-ply'
+  'cbindgen'
+  'wayland-protocols'
+  'cmake'
+  'valgrind'
+  'libpng'
+  'python-packaging'
+  'python-pyaml'
 )
 depends=(
-    'libdrm'
-    'libxxf86vm'
-    'libxdamage'
-    'libxshmfence'
-    'libelf'
-    'libunwind'
-    'libglvnd'
-    'wayland'
-    'lm_sensors'
-    'vulkan-icd-loader'
-    'zstd'
-    'expat'
-    'gcc-libs'
-    'libxfixes'
-    'libx11'
-    'systemd-libs'
-    'libxext'
-    'libxcb'
-    'glibc'
-    'zlib'
-    'python'
-    'xcb-util-keysyms'
+  'libdrm'
+  'libxxf86vm'
+  'libxdamage'
+  'libxshmfence'
+  'libelf'
+  'libunwind'
+  'libglvnd'
+  'wayland'
+  'lm_sensors'
+  'vulkan-icd-loader'
+  'zstd'
+  'expat'
+  'gcc-libs'
+  'libxfixes'
+  'libx11'
+  'systemd-libs'
+  'libxext'
+  'libxcb'
+  'glibc'
+  'zlib'
+  'python'
+  'xcb-util-keysyms'
 )
 optdepends=('opengl-man-pages: for the OpenGL API man pages')
 provides=(
-    'vulkan-mesa-layers'
-    'opencl-driver'
-    'opengl-driver'
-    'vulkan-driver'
-    'vulkan-radeon'
-    'libva-mesa-driver'
-    'mesa-libgl'
-    'mesa'
+  'vulkan-mesa-layers'
+  'opencl-driver'
+  'opengl-driver'
+  'vulkan-driver'
+  'vulkan-radeon'
+  'libva-mesa-driver'
+  'mesa-libgl'
+  'mesa'
 )
 conflicts=(
-    'vulkan-mesa-layers'
-    'opencl-clover-mesa'
-    'vulkan-radeon'
-    'libva-mesa-driver'
-    'mesa-libgl'
-    'mesa'
+  'vulkan-mesa-layers'
+  'opencl-clover-mesa'
+  'vulkan-radeon'
+  'libva-mesa-driver'
+  'mesa-libgl'
+  'mesa'
 )
 source=(
   "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
   anti-lag.patch
 )
 sha256sums=(
-  '7c726b21c074d14d31d253d638b741422f3c0a497ce7f1b4aaaa917d10bd8d4f'
+  'c124372189d35f48e049ee503029171c68962c580971cb86d968a6771c965ba4'
   '1e83a132618ebc2a2236779223ace94354f22b3372ce739ee6641e83f2d0f9e8'
 )
 
