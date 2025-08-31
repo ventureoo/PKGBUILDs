@@ -30,10 +30,11 @@ depends=(
   icu
   libevent
   libjpeg-turbo
+  libpipewire
+  libpng
   libpulse
   libvpx
   libwebp
-  libxss
   mime-types
   nspr
   nss
@@ -120,6 +121,7 @@ prepare() {
 
   cat >../mozconfig <<END
 ac_add_options --enable-application=browser
+ac_add_options --disable-artifact-builds
 ac_add_options MOZ_PGO=1
 mk_add_options MOZ_OBJDIR=${PWD@Q}/obj
 
@@ -129,9 +131,9 @@ ac_add_options --enable-hardening
 ac_add_options --enable-optimize
 ac_add_options --enable-rust-simd
 ac_add_options --enable-wasm-simd
+ac_add_options --enable-clang-plugin
 ac_add_options --enable-lto=cross,full
 ac_add_options --enable-linker=lld
-ac_add_options --disable-install-strip
 ac_add_options --disable-elf-hack
 ac_add_options --disable-bootstrap
 ac_add_options --with-wasi-sysroot=/usr/share/wasi-sysroot
@@ -146,13 +148,15 @@ ac_add_options --allow-addon-sideload
 export MOZ_APP_REMOTINGNAME=firefox
 
 # System libraries
+ac_add_options --with-system-libevent
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-webp
-ac_add_options --with-system-libevent
-ac_add_options --with-system-zlib
 ac_add_options --with-system-jpeg
+ac_add_options --with-system-png
+ac_add_options --with-system-zlib
+ac_add_options --with-system-pipewire
 
 # Optimization
 ac_add_options --enable-optimize=-O3
@@ -164,15 +168,24 @@ ac_add_options --enable-alsa
 ac_add_options --enable-jxl
 ac_add_options --enable-av1
 ac_add_options --disable-synth-speechd
-ac_add_options --disable-debug-symbols
-ac_add_options --disable-debug-js-modules
 ac_add_options --disable-necko-wifi
 ac_add_options --disable-webspeech
 ac_add_options --disable-webspeechtestbackend
 ac_add_options --disable-jack
+ac_add_options --disable-xcb
+ac_add_options --disable-xlib
+ac_add_options --disable-ps
+ac_add_options --disable-parental-controls
+ac_add_options --disable-update-agent
 ac_add_options --disable-crashreporter
 ac_add_options --disable-updater
 ac_add_options --disable-tests
+ac_add_options --disable-debug
+ac_add_options --disable-debug-mode
+ac_add_options --disable-debug-js-modules
+ac_add_options --disable-debug-symbols
+ac_add_options --enable-strip
+ac_add_options --enable-install-strip
 
 # Fuck telemetry
 mk_add_options MOZ_CRASHREPORTER=0
