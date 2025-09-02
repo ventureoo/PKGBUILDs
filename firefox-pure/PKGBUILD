@@ -176,7 +176,6 @@ ac_add_options --disable-xcb
 ac_add_options --disable-xlib
 ac_add_options --disable-ps
 ac_add_options --disable-parental-controls
-ac_add_options --disable-update-agent
 ac_add_options --disable-crashreporter
 ac_add_options --disable-updater
 ac_add_options --disable-tests
