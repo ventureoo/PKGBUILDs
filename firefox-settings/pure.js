@@ -50,6 +50,7 @@ pref("browser.discovery.enabled", false, locked);
 pref("browser.ml.chat.enabled", false, locked);
 pref("browser.ml.chat.page", false, locked);
 pref("browser.ml.enable", false, locked);
+pref("browser.ml.linkPreview.enabled", false, locked)
 pref("browser.newtabpage.enabled", false, locked);
 pref("browser.newtabpage.activity-stream.feeds.aboutpreferences", false, locked);
 pref("browser.newtabpage.activity-stream.feeds.adsfeed", false, locked);
