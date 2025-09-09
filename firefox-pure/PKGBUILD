@@ -133,6 +133,8 @@ ac_add_options --enable-wasm-simd
 ac_add_options --enable-clang-plugin
 ac_add_options --enable-lto=cross,full
 ac_add_options --enable-linker=lld
+ac_add_options --enable-jemalloc
+ac_add_options --disable-cargo-incremental
 ac_add_options --disable-elf-hack
 ac_add_options --disable-bootstrap
 ac_add_options --with-wasi-sysroot=/usr/share/wasi-sysroot
@@ -170,8 +172,6 @@ ac_add_options --disable-necko-wifi
 ac_add_options --disable-webspeech
 ac_add_options --disable-webspeechtestbackend
 ac_add_options --disable-jack
-ac_add_options --disable-xlib
-ac_add_options --disable-ps
 ac_add_options --disable-parental-controls
 ac_add_options --disable-crashreporter
 ac_add_options --disable-updater
