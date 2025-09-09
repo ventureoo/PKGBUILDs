@@ -170,7 +170,6 @@ ac_add_options --disable-necko-wifi
 ac_add_options --disable-webspeech
 ac_add_options --disable-webspeechtestbackend
 ac_add_options --disable-jack
-ac_add_options --disable-xcb
 ac_add_options --disable-xlib
 ac_add_options --disable-ps
 ac_add_options --disable-parental-controls
