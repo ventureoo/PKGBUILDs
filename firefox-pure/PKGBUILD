@@ -119,7 +119,7 @@ prepare() {
   export LLVM_PROFDATA="llvm-profdata"
 
   cat >../mozconfig <<END
-ac_add_options --enable-application=browser
+ac_add_options --enable-project=browser
 ac_add_options --disable-artifact-builds
 ac_add_options MOZ_PGO=1
 mk_add_options MOZ_OBJDIR=${PWD@Q}/obj
@@ -127,10 +127,8 @@ mk_add_options MOZ_OBJDIR=${PWD@Q}/obj
 ac_add_options --prefix=/usr
 ac_add_options --enable-release
 ac_add_options --enable-hardening
-ac_add_options --enable-optimize
 ac_add_options --enable-rust-simd
 ac_add_options --enable-wasm-simd
-ac_add_options --enable-clang-plugin
 ac_add_options --enable-lto=cross,full
 ac_add_options --enable-linker=lld
 ac_add_options --enable-jemalloc
@@ -165,8 +163,16 @@ ac_add_options RUSTC_OPT_LEVEL="3"
 
 # Features
 ac_add_options --enable-alsa
+ac_add_options --enable-pulseaudio
 ac_add_options --enable-jxl
 ac_add_options --enable-av1
+ac_add_options --disable-gecko-profiler
+ac_add_options --disable-real-time-tracing
+ac_add_options --disable-webdriver
+ac_add_options --disable-accessibility
+ac_add_options --disable-wmf
+ac_add_options --disable-legacy-profile-creation
+ac_add_options --disable-negotiateauth
 ac_add_options --disable-synth-speechd
 ac_add_options --disable-necko-wifi
 ac_add_options --disable-webspeech
@@ -176,6 +182,7 @@ ac_add_options --disable-parental-controls
 ac_add_options --disable-crashreporter
 ac_add_options --disable-updater
 ac_add_options --disable-tests
+ac_add_options --disable-rust-tests
 ac_add_options --disable-debug
 ac_add_options --disable-debug-js-modules
 ac_add_options --disable-debug-symbols
