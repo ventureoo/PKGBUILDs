@@ -11,6 +11,10 @@ on:
       - '**/PKGBUILD'
       - '.github/workflows/**'
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check-state:
     name: Check repository state
