@@ -5,7 +5,7 @@
 
 pkgname=vulkan-nouveau-pure
 pkgdesc="Nouveau Vulkan (NVK) Mesa driver with some additions"
-pkgver=25.2.0
+pkgver=25.2.2
 pkgrel=1
 arch=('x86_64')
 depends=(
@@ -56,8 +56,8 @@ source=(
     36450.patch
 )
 sha512sums=(
-    'f36e4f9f619becfc89f9cf3704d21f5f1532f1e658808fd30c0edce8c28cd65dc6578a21333e896aa5eaccf09da99efd9127a8d3d46681e8360f618cf63bab94'
-    '50aefe2f81ab7429aae14a21cf807f2df920c8c5c0f9b8fc9c25c69a1d7629c70685efe24b7b12d78ae2bf75eed1b9c680e124dec32249bf314427dc601203cb'
+    '69cd7ed33d0856e227a0219a9d09e5eb2fad28162276b5971bff4f7102cf58b0d914131ad6543562cba230ce6fb9b2076d3b156b1b8c375e74722a143aee5379'
+    '3d46735b5c334151a5f740da752883508a4f1f5683fe82406ea94eb179dddeeaca49c5f0bafc8931dedb49d4896a2f74c6072128f14a90048ed229bfa1752f11'
 )
 
 prepare() {

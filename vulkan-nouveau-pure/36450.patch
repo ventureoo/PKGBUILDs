@@ -1,4 +1,4 @@
-From 5b455e7b8dc020c6803b5ae44797fb2083413c3a Mon Sep 17 00:00:00 2001
+From a2212fd58648eb4ecb9e523a09741e8b1ebfca78 Mon Sep 17 00:00:00 2001
 From: Mohamed Ahmed <mohamedahmedegypt2001@gmail.com>
 Date: Tue, 22 Jul 2025 21:01:01 +0300
 Subject: [PATCH 1/6] nvk/nvkmd: Fix alignments
@@ -90,68 +90,86 @@ index 922215d88898f..539e5d31d5110 100644
 GitLab
 
 
-From ba404f8d7732d35c2aaf44051d35eaa26df1e5f2 Mon Sep 17 00:00:00 2001
-From: Mohamed Ahmed <mohamedahmedegypt2001@gmail.com>
-Date: Tue, 29 Jul 2025 19:41:21 +0300
-Subject: [PATCH 2/6] nil: Add missing compressible PTE kinds
+From 0804f74c33c51f0f62b9551e4596d67bf6a9652f Mon Sep 17 00:00:00 2001
+From: Faith Ekstrand <faith.ekstrand@collabora.com>
+Date: Fri, 29 Aug 2025 16:21:06 -0400
+Subject: [PATCH 2/6] nvk: Add a dedicated_image to nvk_device_memory
 
-We were missing compressible PTE kinds for generic on TU102 and GB202. Adds them
+Also refactor the dedicated image handling a tiny bit to make the next
+bit easier.
 ---
- src/nouveau/nil/image.rs | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ src/nouveau/vulkan/nvk_device_memory.c | 18 ++++++++++--------
+ src/nouveau/vulkan/nvk_device_memory.h |  3 +++
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/src/nouveau/nil/image.rs b/src/nouveau/nil/image.rs
-index 0643720817eeb..feb2fdb629ccc 100644
---- a/src/nouveau/nil/image.rs
-+++ b/src/nouveau/nil/image.rs
-@@ -753,8 +753,11 @@ impl Image {
-         }
-     }
+diff --git a/src/nouveau/vulkan/nvk_device_memory.c b/src/nouveau/vulkan/nvk_device_memory.c
+index 9f6aaa9f908d4..1712dbae5c0f4 100644
+--- a/src/nouveau/vulkan/nvk_device_memory.c
++++ b/src/nouveau/vulkan/nvk_device_memory.c
+@@ -130,6 +130,11 @@ nvk_AllocateMemory(VkDevice device,
+    struct nvk_device_memory *mem;
+    VkResult result = VK_SUCCESS;
  
--    fn gb202_choose_pte_kind(_format: Format, _compressed: bool) -> u8 {
-+    fn gb202_choose_pte_kind(_format: Format, compressed: bool) -> u8 {
-         use nvidia_headers::hwref::tu102::mmu::*;
-+        if compressed {
-+            return NV_MMU_PTE_KIND_GENERIC_MEMORY_COMPRESSIBLE_DISABLE_PLC.try_into().unwrap();
-+        }
-         return NV_MMU_PTE_KIND_GENERIC_MEMORY.try_into().unwrap();
-     }
++   mem = vk_device_memory_create(&dev->vk, pAllocateInfo,
++                                 pAllocator, sizeof(*mem));
++   if (!mem)
++      return vk_error(dev, VK_ERROR_OUT_OF_HOST_MEMORY);
++
+    const VkImportMemoryFdInfoKHR *fd_info =
+       vk_find_struct_const(pAllocateInfo->pNext, IMPORT_MEMORY_FD_INFO_KHR);
+    const VkExportMemoryAllocateInfo *export_info =
+@@ -152,10 +157,12 @@ nvk_AllocateMemory(VkDevice device,
+       alignment = (1ULL << 16);
  
-@@ -793,7 +796,13 @@ impl Image {
-                     NV_MMU_PTE_KIND_ZF32_X24S8
-                 }
-             }
--            PIPE_FORMAT_Z32_FLOAT => NV_MMU_PTE_KIND_GENERIC_MEMORY,
-+            PIPE_FORMAT_Z32_FLOAT => { 
-+                if compressed {
-+                    NV_MMU_PTE_KIND_GENERIC_MEMORY_COMPRESSIBLE_DISABLE_PLC
-+                } else {
-+                    NV_MMU_PTE_KIND_GENERIC_MEMORY
-+                }
-+            }
-             PIPE_FORMAT_S8_UINT => {
-                 if compressed {
-                     NV_MMU_PTE_KIND_S8_COMPRESSIBLE_DISABLE_PLC
-@@ -801,7 +810,13 @@ impl Image {
-                     NV_MMU_PTE_KIND_S8
-                 }
-             }
--            _ => NV_MMU_PTE_KIND_GENERIC_MEMORY,
-+            _ => { 
-+                if compressed {
-+                    NV_MMU_PTE_KIND_GENERIC_MEMORY_COMPRESSIBLE_DISABLE_PLC
-+                } else {
-+                    NV_MMU_PTE_KIND_GENERIC_MEMORY
-+                }
-+            }
-         }
-         .try_into()
-         .unwrap()
+    uint8_t pte_kind = 0, tile_mode = 0;
+-   if (dedicated_info != NULL) {
++   if (dedicated_info != NULL && dedicated_info->image != VK_NULL_HANDLE) {
+       VK_FROM_HANDLE(nvk_image, image, dedicated_info->image);
+-      if (image != NULL &&
+-          image->vk.tiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT) {
++
++      mem->dedicated_image = image;
++
++      if (image->vk.tiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT) {
+          /* This image might be shared with GL so we need to set the BO flags
+           * such that GL can bind and use it.
+           */
+@@ -169,11 +176,6 @@ nvk_AllocateMemory(VkDevice device,
+    const uint64_t aligned_size =
+       align64(pAllocateInfo->allocationSize, alignment);
+ 
+-   mem = vk_device_memory_create(&dev->vk, pAllocateInfo,
+-                                 pAllocator, sizeof(*mem));
+-   if (!mem)
+-      return vk_error(dev, VK_ERROR_OUT_OF_HOST_MEMORY);
+-
+    const bool is_import = fd_info && fd_info->handleType;
+    if (is_import) {
+       assert(fd_info->handleType ==
+diff --git a/src/nouveau/vulkan/nvk_device_memory.h b/src/nouveau/vulkan/nvk_device_memory.h
+index 4d2f751f11160..cfceeae5352c8 100644
+--- a/src/nouveau/vulkan/nvk_device_memory.h
++++ b/src/nouveau/vulkan/nvk_device_memory.h
+@@ -11,11 +11,14 @@
+ 
+ #include "util/list.h"
+ 
++struct nvk_image;
+ struct nvkmd_mem;
+ 
+ struct nvk_device_memory {
+    struct vk_device_memory vk;
+ 
++   struct nvk_image *dedicated_image;
++
+    struct nvkmd_mem *mem;
+ };
+ 
 -- 
 GitLab
 
 
-From 892410f96c5d2fda8cf2b8fcdc0d2a1c0ad6d670 Mon Sep 17 00:00:00 2001
+From 53de4a3d11bc2c9df418fbb6d10e8d033f195383 Mon Sep 17 00:00:00 2001
 From: Mohamed Ahmed <mohamedahmedegypt2001@gmail.com>
 Date: Tue, 29 Jul 2025 19:56:23 +0300
 Subject: [PATCH 3/6] nil, nvk: Add plumbing for compression
@@ -159,12 +177,12 @@ Subject: [PATCH 3/6] nil, nvk: Add plumbing for compression
 This lays the groundwork for enabling compression by adding a way to pass in
 whether the image will be compressed or not from NVK to NIL.
 ---
- src/nouveau/nil/image.rs       | 8 ++++++--
+ src/nouveau/nil/image.rs       | 3 ++-
  src/nouveau/vulkan/nvk_image.c | 5 +++++
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/src/nouveau/nil/image.rs b/src/nouveau/nil/image.rs
-index feb2fdb629ccc..1cec2a506e62f 100644
+index ecf137ce4bc22..01948c74e6914 100644
 --- a/src/nouveau/nil/image.rs
 +++ b/src/nouveau/nil/image.rs
 @@ -157,6 +157,7 @@ pub struct ImageInitInfo {
@@ -184,20 +202,8 @@ index feb2fdb629ccc..1cec2a506e62f 100644
              tile_mode: 0,
              pte_kind: 0,
              mip_tail_first_lod: 0,
-@@ -448,7 +449,10 @@ impl Image {
-             | (u16::from(image.levels[0].tiling.z_log2) << 8);
- 
-         image.align_B = std::cmp::max(image.align_B, 4096);
--        if image.pte_kind >= 0xb && image.pte_kind <= 0xe {
-+        if image.pte_kind >= 0x8 && image.pte_kind <= 0xe {
-+            // If the image is compressed, set minimum alignment to 64K.
-+            // NVK may increase this to 2M for perf.
-+            assert!(image.compressed);
-             image.align_B = std::cmp::max(image.align_B, 1 << 16);
-         }
- 
 diff --git a/src/nouveau/vulkan/nvk_image.c b/src/nouveau/vulkan/nvk_image.c
-index 73bc9594c4476..5bef2e79735a2 100644
+index f24766244fa47..515eaf5139eba 100644
 --- a/src/nouveau/vulkan/nvk_image.c
 +++ b/src/nouveau/vulkan/nvk_image.c
 @@ -775,6 +775,8 @@ nvk_image_init(struct nvk_device *dev,
@@ -237,7 +243,7 @@ index 73bc9594c4476..5bef2e79735a2 100644
 GitLab
 
 
-From 371f3d684f4162764b263e05b2cb9461c744c9d5 Mon Sep 17 00:00:00 2001
+From 3174d767c1d9b8cc57c67e6fb96cae9c4ab4fa4b Mon Sep 17 00:00:00 2001
 From: Mohamed Ahmed <mohamedahmedegypt2001@gmail.com>
 Date: Tue, 22 Jul 2025 21:00:20 +0300
 Subject: [PATCH 4/6] nvk: Enable compression
@@ -258,7 +264,7 @@ to use dedicated allocations for compression/larger pages.
  2 files changed, 71 insertions(+), 10 deletions(-)
 
 diff --git a/src/nouveau/vulkan/nvk_device_memory.c b/src/nouveau/vulkan/nvk_device_memory.c
-index 19a127a64ed92..6e15a94936829 100644
+index 1712dbae5c0f4..5334c322ef7ea 100644
 --- a/src/nouveau/vulkan/nvk_device_memory.c
 +++ b/src/nouveau/vulkan/nvk_device_memory.c
 @@ -41,11 +41,15 @@ const VkExternalMemoryProperties nvk_dma_buf_mem_props = {
@@ -288,7 +294,7 @@ index 19a127a64ed92..6e15a94936829 100644
  
        /* Flags required to be set on mem to be imported as type
         *
-@@ -145,11 +149,12 @@ nvk_AllocateMemory(VkDevice device,
+@@ -150,11 +154,12 @@ nvk_AllocateMemory(VkDevice device,
     if (fd_info != NULL)
        handle_types |= fd_info->handleType;
  
@@ -303,12 +309,12 @@ index 19a127a64ed92..6e15a94936829 100644
 -      alignment = (1ULL << 16);
  
     uint8_t pte_kind = 0, tile_mode = 0;
-    if (dedicated_info != NULL) {
-@@ -163,9 +168,26 @@ nvk_AllocateMemory(VkDevice device,
+    if (dedicated_info != NULL && dedicated_info->image != VK_NULL_HANDLE) {
+@@ -170,9 +175,26 @@ nvk_AllocateMemory(VkDevice device,
           alignment = MAX2(alignment, image->planes[0].nil.align_B);
           pte_kind = image->planes[0].nil.pte_kind;
           tile_mode = image->planes[0].nil.tile_mode;
-+      } else if (image != NULL && image->planes->nil.compressed) {
++      } else if (image->planes->nil.compressed) {
 +         /* If it's a dedicated alloc and it's not modifiers, then it's marked
 +          * for compression and larger pages, so we set the pinned bit and up
 +          * the alignment if the size is >= 2M. For smaller images, we increase
@@ -332,7 +338,7 @@ index 19a127a64ed92..6e15a94936829 100644
        align64(pAllocateInfo->allocationSize, alignment);
  
 diff --git a/src/nouveau/vulkan/nvk_image.c b/src/nouveau/vulkan/nvk_image.c
-index 5bef2e79735a2..9157409048ae5 100644
+index 515eaf5139eba..cf4555bcdfeb9 100644
 --- a/src/nouveau/vulkan/nvk_image.c
 +++ b/src/nouveau/vulkan/nvk_image.c
 @@ -775,7 +775,31 @@ nvk_image_init(struct nvk_device *dev,
@@ -378,7 +384,7 @@ index 5bef2e79735a2..9157409048ae5 100644
     } else {
        *align_B_out = plane->nil.align_B;
     }
-@@ -1244,10 +1272,21 @@ nvk_get_image_memory_requirements(struct nvk_device *dev,
+@@ -1238,10 +1266,21 @@ nvk_get_image_memory_requirements(struct nvk_device *dev,
        switch (ext->sType) {
        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS: {
           VkMemoryDedicatedRequirements *dedicated = (void *)ext;
@@ -408,18 +414,18 @@ index 5bef2e79735a2..9157409048ae5 100644
 GitLab
 
 
-From cac33a46e5bdaecc966b5129969385b8c3266861 Mon Sep 17 00:00:00 2001
+From 1632f27c9233d0d0fb67c971b85a99abc075352a Mon Sep 17 00:00:00 2001
 From: Mohamed Ahmed <mohamedahmedegypt2001@gmail.com>
 Date: Wed, 30 Jul 2025 23:34:30 +0300
 Subject: [PATCH 5/6] HACK nil: Have different PTE kinds for
  compressed/non-compressed
 
 ---
- src/nouveau/nil/image.rs | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ src/nouveau/nil/image.rs | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/src/nouveau/nil/image.rs b/src/nouveau/nil/image.rs
-index 1cec2a506e62f..418e3fb7fe11f 100644
+index 01948c74e6914..70feeaa3796f3 100644
 --- a/src/nouveau/nil/image.rs
 +++ b/src/nouveau/nil/image.rs
 @@ -185,6 +185,7 @@ pub struct Image {
@@ -446,33 +452,22 @@ index 1cec2a506e62f..418e3fb7fe11f 100644
              mip_tail_first_lod: 0,
          };
  
-@@ -434,6 +437,12 @@ impl Image {
+@@ -433,7 +436,9 @@ impl Image {
+             image.align_B = std::cmp::max(image.align_B, 1 << 16);
          }
  
-         image.pte_kind = Self::choose_pte_kind(
-+            dev,
-+            info.format,
-+            info.samples,
-+            false,
-+        );
+-        image.pte_kind = Self::choose_pte_kind(
++        image.pte_kind =
++            Self::choose_pte_kind(dev, info.format, info.samples, false);
 +        image.compressed_pte_kind = Self::choose_pte_kind(
              dev,
              info.format,
              info.samples,
-@@ -449,7 +458,7 @@ impl Image {
-             | (u16::from(image.levels[0].tiling.z_log2) << 8);
- 
-         image.align_B = std::cmp::max(image.align_B, 4096);
--        if image.pte_kind >= 0x8 && image.pte_kind <= 0xe {
-+        if image.compressed_pte_kind >= 0x8 && image.compressed_pte_kind <= 0xe {
-             // If the image is compressed, set minimum alignment to 64K.
-             // NVK may increase this to 2M for perf.
-             assert!(image.compressed);
 -- 
 GitLab
 
 
-From 6ffbd46c4f7a2d4d76d63bc82cddfbb5ab101d9c Mon Sep 17 00:00:00 2001
+From 1500e1f936485a722740ab24b48a7eb99e84a65c Mon Sep 17 00:00:00 2001
 From: Mohamed Ahmed <mohamedahmedegypt2001@gmail.com>
 Date: Wed, 30 Jul 2025 23:35:00 +0300
 Subject: [PATCH 6/6] HACK nvk: Switch PTE kind to compressed one at bind time
@@ -483,10 +478,10 @@ Subject: [PATCH 6/6] HACK nvk: Switch PTE kind to compressed one at bind time
  1 file changed, 10 insertions(+)
 
 diff --git a/src/nouveau/vulkan/nvk_image.c b/src/nouveau/vulkan/nvk_image.c
-index 9157409048ae5..eb5930f2fc123 100644
+index cf4555bcdfeb9..bdc7589230003 100644
 --- a/src/nouveau/vulkan/nvk_image.c
 +++ b/src/nouveau/vulkan/nvk_image.c
-@@ -1527,6 +1527,16 @@ nvk_image_plane_bind(struct nvk_device *dev,
+@@ -1521,6 +1521,16 @@ nvk_image_plane_bind(struct nvk_device *dev,
     *offset_B = align64(*offset_B, plane_align_B);
  
     if (plane->va != NULL) {
