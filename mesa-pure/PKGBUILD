@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.2.1
+pkgver=25.2.2
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -81,7 +81,7 @@ source=(
   anti-lag.patch
 )
 sha256sums=(
-  'c124372189d35f48e049ee503029171c68962c580971cb86d968a6771c965ba4'
+  '43d7abcd4aa8049d8fd75538344a374104765e81e17b4a6314cee2c0160e4412'
   '1e83a132618ebc2a2236779223ace94354f22b3372ce739ee6641e83f2d0f9e8'
 )
 
@@ -114,7 +114,7 @@ build() {
     -D android-libbacktrace=disabled
     -D b_ndebug=true
     -D gallium-mediafoundation=disabled
-    -D gallium-drivers=radeonsi
+    -D gallium-drivers=radeonsi,zink
     -D gallium-extra-hud=false
     -D gallium-vdpau=disabled
     -D gles1=disabled
