@@ -6,6 +6,11 @@ on:
       - '**/PKGBUILD'
       - '.github/workflows/**'
 
+  pull_request:
+    paths:
+      - '**/PKGBUILD'
+      - '.github/workflows/**'
+
 jobs:
   check-state:
     name: Check repository state
