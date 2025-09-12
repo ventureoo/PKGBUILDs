@@ -1,0 +1,98 @@
+# Maintainer: Vasiliy Stelmachenok <ventureo@cachyos.org>
+## AUR's package maintainer:
+# Maintainer: justapony <pony@just-a-pony.net>
+pkgname=yukigram-desktop
+pkgver=6.1.3
+pkgrel=1
+pkgdesc='Fork of 64Gram'
+arch=('x86_64')
+url="https://github.com/yukigram/yukigram/"
+license=('GPL3')
+depends=(
+  'abseil-cpp'
+  'ada'
+  'ffmpeg'
+  'glib2'
+  'hicolor-icon-theme'
+  'hunspell'
+  'kcoreaddons'
+  'libavif'
+  'libdispatch'
+  'libheif'
+  'libjxl'
+  'lz4'
+  'minizip'
+  'openal'
+  'openh264'
+  'openssl'
+  'pipewire'
+  'protobuf'
+  'qt6-imageformats'
+  'qt6-svg'
+  'qt6-wayland'
+  'rnnoise'
+  'xxhash'
+)
+makedepends=(
+  'boost'
+  'cmake'
+  'git'
+  'glib2-devel'
+  'gobject-introspection'
+  'gperf'
+  'libtg_owt'
+  'microsoft-gsl'
+  'ninja'
+  'python'
+  'range-v3'
+  'tl-expected'
+)
+optdepends=(
+  'xdg-desktop-portal: desktop integration'
+)
+
+_td_commit=6d74326c5ce53aeb52496f157f0080d9b8515970
+
+source=(
+    "yukigram::git+https://github.com/yukigram/yukigram.git#tag=yukigram-${pkgver}"
+    "git+https://github.com/tdlib/td.git#tag=${_td_commit}"
+)
+sha512sums=(
+    '256fef2e249ca8d6882a70d3ad0d1dfba25c9c47aaa9ddc8b43b0c279e14b5e94ceea039e3c755128de686917af7ce558b76a82174de49f4d63b8a0aa2e18db9'
+    '6dc6e684a0bf35bb83f6fa6579a0da82d604190b222f2cd2de9b8ef5b93f5f18ac9a8733e2c5cf2a64ed9933b346ea31e26a4bcc0039956280ec2deef9649457'
+)
+
+prepare() {
+    cd yukigram
+    git submodule update --init --recursive
+}
+
+build() {
+    CXXFLAGS+=' -ffat-lto-objects'
+
+    cmake -S td -B td/build \
+        -DCMAKE_BUILD_TYPE=None \
+        -DCMAKE_INSTALL_PREFIX="$PWD/td/install" \
+        -Wno-dev \
+        -DTD_E2E_ONLY=ON
+    cmake --build td/build
+    cmake --install td/build
+
+    cmake -B build -S yukigram -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6Quick=OFF \
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6QuickWidgets=OFF \
+        -DCMAKE_DISABLE_FIND_PACKAGE_Qt6WaylandCompositor=OFF \
+        -DCMAKE_INSTALL_PREFIX="/usr" \
+        -DCMAKE_VERBOSE_MAKEFILE=ON \
+        -DDESKTOP_APP_DISABLE_QT_PLUGINS=ON \
+        -DDESKTOP_APP_DISABLE_X11_INTEGRATION=OFF \
+        -DTDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c \
+        -DTDESKTOP_API_ID=611335 \
+        -Dtde2e_DIR="$PWD/td/install/lib/cmake/tde2e"
+    cmake --build build
+}
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+}
+
