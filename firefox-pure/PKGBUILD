@@ -6,7 +6,7 @@
 
 pkgname=firefox-pure
 pkgver=142.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -33,7 +33,6 @@ depends=(
   libpulse
   libvpx
   libwebp
-  libxss
   mime-types
   nspr
   nss
@@ -119,19 +118,20 @@ prepare() {
   export LLVM_PROFDATA="llvm-profdata"
 
   cat >../mozconfig <<END
-ac_add_options --enable-application=browser
+ac_add_options --enable-project=browser
+ac_add_options --disable-artifact-builds
 ac_add_options MOZ_PGO=1
 mk_add_options MOZ_OBJDIR=${PWD@Q}/obj
 
 ac_add_options --prefix=/usr
 ac_add_options --enable-release
 ac_add_options --enable-hardening
-ac_add_options --enable-optimize
 ac_add_options --enable-rust-simd
 ac_add_options --enable-wasm-simd
 ac_add_options --enable-lto=cross,full
 ac_add_options --enable-linker=lld
-ac_add_options --disable-install-strip
+ac_add_options --enable-jemalloc
+ac_add_options --disable-cargo-incremental
 ac_add_options --disable-elf-hack
 ac_add_options --disable-bootstrap
 ac_add_options --with-wasi-sysroot=/usr/share/wasi-sysroot
@@ -146,13 +146,13 @@ ac_add_options --allow-addon-sideload
 export MOZ_APP_REMOTINGNAME=firefox
 
 # System libraries
+ac_add_options --with-system-libevent
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-webp
-ac_add_options --with-system-libevent
-ac_add_options --with-system-zlib
 ac_add_options --with-system-jpeg
+ac_add_options --with-system-zlib
 
 # Optimization
 ac_add_options --enable-optimize=-O3
@@ -161,18 +161,31 @@ ac_add_options RUSTC_OPT_LEVEL="3"
 
 # Features
 ac_add_options --enable-alsa
+ac_add_options --enable-pulseaudio
 ac_add_options --enable-jxl
 ac_add_options --enable-av1
+ac_add_options --disable-gecko-profiler
+ac_add_options --disable-real-time-tracing
+ac_add_options --disable-webdriver
+ac_add_options --disable-accessibility
+ac_add_options --disable-wmf
+ac_add_options --disable-legacy-profile-creation
+ac_add_options --disable-negotiateauth
 ac_add_options --disable-synth-speechd
-ac_add_options --disable-debug-symbols
-ac_add_options --disable-debug-js-modules
 ac_add_options --disable-necko-wifi
 ac_add_options --disable-webspeech
 ac_add_options --disable-webspeechtestbackend
 ac_add_options --disable-jack
+ac_add_options --disable-parental-controls
 ac_add_options --disable-crashreporter
 ac_add_options --disable-updater
 ac_add_options --disable-tests
+ac_add_options --disable-rust-tests
+ac_add_options --disable-debug
+ac_add_options --disable-debug-js-modules
+ac_add_options --disable-debug-symbols
+ac_add_options --enable-strip
+ac_add_options --enable-install-strip
 
 # Fuck telemetry
 mk_add_options MOZ_CRASHREPORTER=0
