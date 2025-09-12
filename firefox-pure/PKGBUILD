@@ -30,7 +30,6 @@ depends=(
   icu
   libevent
   libjpeg-turbo
-  libpipewire
   libpulse
   libvpx
   libwebp
@@ -154,7 +153,6 @@ ac_add_options --with-system-libvpx
 ac_add_options --with-system-webp
 ac_add_options --with-system-jpeg
 ac_add_options --with-system-zlib
-ac_add_options --with-system-pipewire
 
 # Optimization
 ac_add_options --enable-optimize=-O3
