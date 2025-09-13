@@ -199,7 +199,6 @@ pref("network.http.pacing.requests.enabled", false); //Disable pacing requests
 
 // Privacy hardening
 pref("browser.contentblocking.category", "strict"); // https://blog.mozilla.org/security/2021/02/23/total-cookie-protection/
-pref("browser.download.autohideButton", false, locked); //do not hide download button automatically
 pref("browser.download.start_downloads_in_tmp_dir", true, locked); //start downloads in temp
 pref("dom.security.https_only_mode", true, locked); // only allow https in all windows, including private browsing
 pref("network.predictor.enable-prefetch", false); // Disable speculative website loading
