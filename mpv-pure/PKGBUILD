@@ -7,56 +7,127 @@
 
 pkgname=mpv-pure
 pkgver=0.40.0
-pkgrel=2
+pkgrel=3
 pkgdesc='a free, open source, and cross-platform media player'
 arch=('x86_64')
 license=('GPL-2.0-or-later AND LGPL-2.1-or-later')
 url='https://mpv.io/'
-depends=('alsa-lib' 'desktop-file-utils' 'ffmpeg' 'glibc' 'hicolor-icon-theme'
-         'lcms2' 'libarchive' 'libass' 'libdrm' 'libegl' 'libgl' 'libglvnd' 
-         'libjpeg-turbo' 'libplacebo' 'libva' 'libxkbcommon' 'libxss' 
-         'luajit' 'mesa' 'libpipewire' 'wayland' 'zlib')
-makedepends=('git' 'meson' 'python-docutils' 'ladspa' 'wayland-protocols'
-             'ffnvcodec-headers')
+depends=('desktop-file-utils' 'ffmpeg' 'glibc' 'hicolor-icon-theme'
+  'lcms2' 'libarchive' 'libass' 'libdrm' 'libegl' 'libgl' 'libglvnd'
+  'libjpeg-turbo' 'libpipewire' 'libplacebo' 'libva' 'libxkbcommon'
+  'luajit' 'mesa' 'uchardet' 'vulkan-icd-loader' 'wayland' 'zimg' 'zlib')
+makedepends=('ffnvcodec-headers' 'git' 'ladspa' 'meson'
+  'python-docutils' 'vulkan-headers' 'wayland-protocols')
 optdepends=('yt-dlp: for video-sharing websites playback')
 conflicts=('libmpv.so' 'mpv')
 provides=('libmpv.so' 'mpv')
 options=('!emptydirs')
-source=("$pkgname::git+https://github.com/mpv-player/mpv.git#tag=v${pkgver}"
+source=("https://github.com/mpv-player/mpv/archive/v${pkgver}/mpv-${pkgver}.tar.gz"
         "dynamically_generate_desktop_file_protocols.patch")
-sha256sums=('754d045dba7143b51dd6eb2d32ab3a9a483e6a337e685b581a876bc2e20eddf1'
+sha256sums=('10a0f4654f62140a6dd4d380dcf0bbdbdcf6e697556863dc499c296182f081a3'
             '88acf97cbc8e0fe745f09bd0bd7f65e0437adcb549dadf3588fd0724d01298e9')
 
 build() {
   local _meson_options=(
-    --auto-features auto
-    -Dcaca=disabled
+    -Dgpl=true
+    -Dcplayer=true
+    -Dlibmpv=true
+    -Dbuild-date=false
+    -Dtests=false
+    -Dfuzzers=false
+    -Ddisable-packet-pool=false
+
     -Dcdda=disabled
-    -Dcuda-hwaccel=enabled
-    -Dcuda-interop=enabled
+    -Dcplugins=auto
     -Ddvbin=disabled
     -Ddvdnav=disabled
-    -Dgl-x11=disabled
+    -Diconv=enabled
     -Djavascript=disabled
+    -Djpeg=enabled
+    -Dlcms2=enabled
     -Dlibarchive=enabled
+    -Dlibavdevice=enabled
     -Dlibbluray=disabled
-    -Dlibmpv=true
     -Dlua=luajit
-    -Dopenal=disabled
-    -Dpulse=disabled
+    -Dpthread-debug=disabled
     -Drubberband=disabled
-    -Dsdl2-audio=disabled
+    -Dsdl2=disabled
     -Dsdl2-gamepad=disabled
-    -Dsdl2-video=disabled
-    -Duchardet=disabled
+    -Duchardet=enabled
+    -Duwp=disabled
     -Dvapoursynth=disabled
+    -Dvector=enabled
+    -Dwin32-threads=disabled
+    -Dzimg=enabled
+    -Dzlib=enabled
+
+    -Dalsa=disabled
+    -Daudiounit=disabled
+    -Dcoreaudio=disabled
+    -Davfoundation=disabled
+    -Djack=disabled
+    -Dopenal=disabled
+    -Dopensles=disabled
+    -Doss-audio=disabled
+    -Dpipewire=enabled
+    -Dpulse=disabled
+    -Dsdl2-audio=disabled
+    -Dsndio=disabled
+    -Dwasapi=disabled
+
+    -Dcaca=disabled
+    -Dcocoa=disabled
+    -Dd3d11=disabled
+    -Ddirect3d=disabled
+    -Ddmabuf-wayland=disabled
+    -Ddrm=enabled
+    -Degl=enabled
+    -Degl-android=disabled
+    -Degl-angle=disabled
+    -Degl-angle-lib=disabled
+    -Degl-angle-win32=disabled
+    -Degl-drm=enabled
+    -Degl-wayland=enabled
+    -Degl-x11=disabled
+    -Dgbm=enabled
+    -Dgl=enabled
+    -Dgl-cocoa=disabled
+    -Dgl-dxinterop=disabled
+    -Dgl-win32=disabled
+    -Dgl-x11=disabled
+    -Dsdl2-video=disabled
+    -Dshaderc=disabled
+    -Dsixel=disabled
+    -Dspirv-cross=disabled
+    -Dplain-gl=disabled
     -Dvdpau=disabled
-    -Dvulkan=disabled
+    -Dvdpau-gl-x11=disabled
+    -Dvaapi=enabled
+    -Dvaapi-drm=enabled
+    -Dvaapi-wayland=enabled
+    -Dvaapi-win32=disabled
+    -Dvaapi-x11=disabled
+    -Dvulkan=enabled
+    -Dwayland=enabled
     -Dx11=disabled
     -Dxv=disabled
+
+    -Dandroid-media-ndk=disabled
+    -Dcuda-hwaccel=disabled
+    -Dcuda-interop=disabled
+    -Dd3d-hwaccel=disabled
+    -Dd3d9-hwaccel=disabled
+    -Dgl-dxinterop-d3d9=disabled
+    -Dios-gl=disabled
+    -Dvideotoolbox-gl=disabled
+    -Dvideotoolbox-pl=disabled
+
+    -Dhtml-build=disabled
+    -Dmanpage-build=enabled
+    -Dpdf-build=disabled
   )
 
-  arch-meson "${pkgname}" build "${_meson_options[@]}"
+  arch-meson "mpv-${pkgver}" build "${_meson_options[@]}"
 
   meson compile -C build
 }
@@ -66,19 +137,14 @@ check() {
 }
 
 package() {
-  depends+=('libasound.so' 'libavcodec.so' 'libavdevice.so' 'libavfilter.so'
-            'libavformat.so' 'libavutil.so' 'libswresample.so' 'libswscale.so'
-            'liblcms2.so' 'libarchive.so' 'libass.so' 'libjpeg.so' 'libplacebo.so'
-            'libva.so' 'libva-drm.so' 'libva-wayland.so' 'libxkbcommon.so')
-
   meson install -C build --destdir "${pkgdir}"
 
-  # delete private entries only required for static linking 
+  # delete private entries only required for static linking
   sed -i -e '/Requires.private/d' -e '/Libs.private/d' "${pkgdir}"/usr/lib/pkgconfig/mpv.pc
 
-  install -m0644 "${pkgname}"/DOCS/{encoding.rst,tech-overview.txt} \
+  install -m0644 "mpv-${pkgver}"/DOCS/{encoding.rst,tech-overview.txt} \
     "${pkgdir}"/usr/share/doc/mpv
 
-  install -m0644 "${pkgname}"/TOOLS/{umpv,mpv_identify.sh,stats-conv.py,idet.sh,lua/*} \
+  install -m0644 "mpv-${pkgver}"/TOOLS/{umpv,mpv_identify.sh,stats-conv.py,idet.sh,lua/*} \
     -D -t "${pkgdir}"/usr/share/mpv/scripts
 }
