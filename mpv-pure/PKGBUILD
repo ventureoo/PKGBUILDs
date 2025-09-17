@@ -13,7 +13,7 @@ arch=('x86_64')
 license=('GPL-2.0-or-later AND LGPL-2.1-or-later')
 url='https://mpv.io/'
 depends=('desktop-file-utils' 'ffmpeg' 'glibc' 'hicolor-icon-theme'
-  'lcms2' 'libarchive' 'libass' 'libdrm' 'libegl' 'libgl' 'libglvnd'
+  'lcms2' 'libarchive' 'libass' 'libdisplay-info' 'libdrm' 'libegl' 'libgl' 'libglvnd'
   'libjpeg-turbo' 'libpipewire' 'libplacebo' 'libva' 'libxkbcommon'
   'luajit' 'mesa' 'uchardet' 'vulkan-icd-loader' 'wayland' 'zimg' 'zlib')
 makedepends=('ffnvcodec-headers' 'git' 'ladspa' 'meson'
