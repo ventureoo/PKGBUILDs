@@ -1,6 +1,6 @@
 pkgbase = gamerun
 	pkgdesc = Helper script to run games in Wine with sandbox isolation
-	pkgver = 1.0.0
+	pkgver = 1.0.1
 	pkgrel = 1
 	url = https://github.com/ventureoo/PKGBUILDs
 	arch = any
@@ -12,6 +12,6 @@ pkgbase = gamerun
 	optdepends = wine-pure-git: Recommended Wine version
 	optdepends = mangohud-pure-git: Recommended MangoHud version
 	source = gamerun
-	sha256sums = cec5a9076302683bbc97ecd97e081f7edbaf8adc15c1c5f69520737c33ea547f
+	sha256sums = 0546e6c83c28d00df88ccc5df9f55cb6e231a86bf38d9fe2a1c8829c34f9bc9f
 
 pkgname = gamerun

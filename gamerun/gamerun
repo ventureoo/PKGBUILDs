@@ -75,7 +75,7 @@ Options:
       --vkd3d-repo owner/repo  GitHub repository name to download VKD3D-Proton if system-wide is not available
   -h --help                    Show this message
 
-$progname 1.0.0, written by Vasiliy Stelmachenok <ventureo@cachyos.org>
+$progname 1.0.1, written by Vasiliy Stelmachenok <ventureo@cachyos.org>
 EOF
     exit 0
 }
@@ -250,11 +250,11 @@ function main() {
     while (($# > 0)); do
         local option="$1"
         case "$option" in
-            --dxvk-path) take_argument dxvk_path "$@"; shift;;
-            --vkd3d-path) take_argument vkd3d_path "$@"; shift;;
-            --dxvk-repo) take_argument dxvk_repo "$@"; shift;;
-            --vkd3d-repo) take_argument vkd3d_repo "$@"; shift;;
-            -e|--env) take_argument env "$@"; shift;;
+            --dxvk-path) take_argument dxvk_path "${@:2:$#}"; shift;;
+            --vkd3d-path) take_argument vkd3d_path "${@:2:$#}"; shift;;
+            --dxvk-repo) take_argument dxvk_repo "${@:2:$#}"; shift;;
+            --vkd3d-repo) take_argument vkd3d_repo "${@:2:$#}"; shift;;
+            -e|--env) take_argument env "${@:2:$#}"; shift;;
             --install-cnc-ddraw) install_cnc_ddraw=1;;
             --install-dgvoodoo) install_dgvoodoo=1;;
             --no-install-dxvk) skip_dxvk=1;;
