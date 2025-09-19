@@ -1,4 +1,4 @@
-From 07d32c24cc264e2a746d8e5054159f9aa893edbc Mon Sep 17 00:00:00 2001
+From a5661f37077a4f1bd35464fbaeb1ae56b9f1f7f5 Mon Sep 17 00:00:00 2001
 From: Steven Noonan <steven@valvesoftware.com>
 Date: Wed, 17 Oct 2018 04:13:37 -0700
 Subject: [PATCH] ntdll/loader: add support for overriding
@@ -55,10 +55,10 @@ index 1ec2f5cce0d..10f6895478e 100644
          if (lpBuffer->dwTotalPhys > MAXLONG) lpBuffer->dwTotalPhys = MAXLONG;
          if (lpBuffer->dwAvailPhys > MAXLONG) lpBuffer->dwAvailPhys = MAXLONG;
 diff --git a/dlls/ntdll/ntdll.spec b/dlls/ntdll/ntdll.spec
-index 7c2e494e4ad..7dff2b6a0eb 100644
+index 64f35d0b54d..54f811e79fb 100644
 --- a/dlls/ntdll/ntdll.spec
 +++ b/dlls/ntdll/ntdll.spec
-@@ -1757,3 +1757,6 @@
+@@ -1759,3 +1759,6 @@
  @ cdecl wine_get_version()
  @ cdecl wine_get_build_id()
  @ cdecl wine_get_host_version(ptr ptr)
@@ -66,10 +66,10 @@ index 7c2e494e4ad..7dff2b6a0eb 100644
 +# Filesystem
 +@ stdcall -syscall __wine_needs_override_large_address_aware()
 diff --git a/dlls/ntdll/signal_arm64ec.c b/dlls/ntdll/signal_arm64ec.c
-index 0f4b55b60c4..001da1327a7 100644
+index a93aae89554..eaa448e54bc 100644
 --- a/dlls/ntdll/signal_arm64ec.c
 +++ b/dlls/ntdll/signal_arm64ec.c
-@@ -596,6 +596,7 @@ DEFINE_SYSCALL(NtWriteFileGather, (HANDLE file, HANDLE event, PIO_APC_ROUTINE ap
+@@ -597,6 +597,7 @@ DEFINE_SYSCALL(NtWriteFileGather, (HANDLE file, HANDLE event, PIO_APC_ROUTINE ap
  DEFINE_SYSCALL(NtWriteRequestData, (HANDLE handle, LPC_MESSAGE *request, ULONG id, void *buffer, ULONG len, ULONG *retlen))
  DEFINE_SYSCALL(NtWriteVirtualMemory, (HANDLE process, void *addr, const void *buffer, SIZE_T size, SIZE_T *bytes_written))
  DEFINE_SYSCALL(NtYieldExecution, (void))
@@ -78,21 +78,21 @@ index 0f4b55b60c4..001da1327a7 100644
  NTSTATUS SYSCALL_API NtAllocateVirtualMemory( HANDLE process, PVOID *ret, ULONG_PTR zero_bits,
                                                SIZE_T *size_ptr, ULONG type, ULONG protect )
 diff --git a/dlls/ntdll/unix/unix_private.h b/dlls/ntdll/unix/unix_private.h
-index fa38f4b87ca..e2f3a5d1e44 100644
+index d8db3842e9c..62d07086c3a 100644
 --- a/dlls/ntdll/unix/unix_private.h
 +++ b/dlls/ntdll/unix/unix_private.h
-@@ -590,4 +590,6 @@ static inline NTSTATUS map_section( HANDLE mapping, void **ptr, SIZE_T *size, UL
-                                0, NULL, size, ViewShare, 0, protect );
- }
+@@ -693,4 +693,6 @@ static inline int is_gdt_sel( WORD sel )
+ 
+ #endif  /* defined(__i386__) || defined(__x86_64__) */
  
 +BOOL WINAPI __wine_needs_override_large_address_aware(void);
 +
  #endif /* __NTDLL_UNIX_PRIVATE_H */
 diff --git a/dlls/ntdll/unix/virtual.c b/dlls/ntdll/unix/virtual.c
-index e733e3ffdd6..5fb33757d36 100644
+index 99ae256e872..8b1f2f905b6 100644
 --- a/dlls/ntdll/unix/virtual.c
 +++ b/dlls/ntdll/unix/virtual.c
-@@ -4890,6 +4890,24 @@ static void virtual_release_address_space(void)
+@@ -5016,6 +5016,24 @@ static void virtual_release_address_space(void)
  
  #endif  /* _WIN64 */
  
@@ -117,16 +117,12 @@ index e733e3ffdd6..5fb33757d36 100644
  
  /***********************************************************************
   *           virtual_set_large_address_space
-@@ -4901,7 +4919,7 @@ void virtual_set_large_address_space(void)
-     if (is_win64)
-     {
-         if (is_wow64())
--            user_space_wow_limit = ((main_image_info.ImageCharacteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE) ? limit_4g : limit_2g) - 1;
-+            user_space_wow_limit = (is_large_address_aware() ? limit_4g : limit_2g) - 1;
- #ifndef __APPLE__  /* don't free the zerofill section on macOS */
-         else if ((main_image_info.DllCharacteristics & IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA) &&
-                  (main_image_info.DllCharacteristics & IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE))
-@@ -4910,7 +4928,7 @@ void virtual_set_large_address_space(void)
+@@ -5035,11 +5053,11 @@ void virtual_set_large_address_space(void)
+                 free_reserved_memory( 0, (char *)0x7ffe0000 );
+ #endif
+         }
+-        else user_space_wow_limit = ((main_image_info.ImageCharacteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE) ? limit_4g : limit_2g) - 1;
++        else user_space_wow_limit = (is_large_address_aware() ? limit_4g : limit_2g) - 1;
      }
      else
      {
@@ -150,5 +146,5 @@ index fd10a0585ce..933a594f29b 100644
 +    return __wine_needs_override_large_address_aware();
 +}
 -- 
-2.50.1
+2.51.0
 
