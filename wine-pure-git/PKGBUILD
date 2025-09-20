@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=10.15.r96.g0abb419016e
+pkgver=10.15.r125.gfc70990d579
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -116,8 +116,7 @@ prepare() {
 
   # apply wine-staging patchset
   ../wine-staging/staging/patchinstall.py --backend=git-apply --all \
-    -W server-Signal_Thread \
-    -W d3dx11_43-D3DX11CreateTextureFromMemory
+    -W server-Signal_Thread
 
   # NTSync for Wine 10.15
   patch -Np1 -i "${srcdir}/ntsync-10.15.patch"

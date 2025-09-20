@@ -1,6 +1,6 @@
 pkgbase = wine-pure-git
 	pkgdesc = Bleeding-edge Wine build (Staging, WoW64, NTSync, Wayland)
-	pkgver = 10.15.r96.g0abb419016e
+	pkgver = 10.15.r125.gfc70990d579
 	pkgrel = 1
 	url = https://github.com/ventureoo/PKGBUILDs
 	install = wine.install
@@ -56,7 +56,7 @@ pkgbase = wine-pure-git
 	source = git+https://gitlab.winehq.org/wine/wine-staging.git
 	source = 30-win32-aliases.conf
 	source = wine-binfmt.conf
-	source = ntsync-10.14-staging.patch
+	source = ntsync-10.15.patch
 	source = winex11.drv-Recognize-the-keyboard-in-a-locale-indep.patch
 	source = 0001-HACK-wine.inf-Add-native-builtin-overrides-for-msvcr.patch
 	source = 0001-HACK-ws2_32-Block-first-internet-connection-for-some.patch
