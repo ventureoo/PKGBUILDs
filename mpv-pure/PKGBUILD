@@ -29,114 +29,43 @@ sha256sums=('10a0f4654f62140a6dd4d380dcf0bbdbdcf6e697556863dc499c296182f081a3'
 
 build() {
   local _meson_options=(
-    -Dgpl=true
-    -Dcplayer=true
-    -Dlibmpv=true
-    -Dbuild-date=false
-    -Dtests=false
-    -Dfuzzers=false
-    -Ddisable-packet-pool=false
+    --buildtype=release
+    --auto-features=disabled
+    -Dstrip=true
+    -Db_lto=true
+    -Db_lto_mode=default
 
-    -Dcdda=disabled
-    -Dcplugins=auto
-    -Ddvbin=disabled
-    -Ddvdnav=disabled
+    -Dbuild-date=false
+
+    -Dcplugins=enabled
     -Diconv=enabled
-    -Djavascript=disabled
     -Djpeg=enabled
     -Dlcms2=enabled
     -Dlibarchive=enabled
     -Dlibavdevice=enabled
-    -Dlibbluray=disabled
     -Dlua=luajit
-    -Dpthread-debug=disabled
-    -Drubberband=disabled
-    -Dsdl2=disabled
-    -Dsdl2-gamepad=disabled
     -Duchardet=enabled
-    -Duwp=disabled
-    -Dvapoursynth=disabled
     -Dvector=enabled
-    -Dwin32-threads=disabled
     -Dzimg=enabled
     -Dzlib=enabled
 
-    -Dalsa=disabled
-    -Daudiounit=disabled
-    -Dcoreaudio=disabled
-    -Davfoundation=disabled
-    -Djack=disabled
-    -Dopenal=disabled
-    -Dopensles=disabled
-    -Doss-audio=disabled
     -Dpipewire=enabled
-    -Dpulse=disabled
-    -Dsdl2-audio=disabled
-    -Dsndio=disabled
-    -Dwasapi=disabled
 
-    -Dcaca=disabled
-    -Dcocoa=disabled
-    -Dd3d11=disabled
-    -Ddirect3d=disabled
-    -Ddmabuf-wayland=disabled
+    -Ddmabuf-wayland=enabled
     -Ddrm=enabled
     -Degl=enabled
-    -Degl-android=disabled
-    -Degl-angle=disabled
-    -Degl-angle-lib=disabled
-    -Degl-angle-win32=disabled
     -Degl-drm=enabled
     -Degl-wayland=enabled
-    -Degl-x11=disabled
     -Dgbm=enabled
     -Dgl=enabled
-    -Dgl-cocoa=disabled
-    -Dgl-dxinterop=disabled
-    -Dgl-win32=disabled
-    -Dgl-x11=disabled
-    -Dsdl2-video=disabled
-    -Dshaderc=disabled
-    -Dsixel=disabled
-    -Dspirv-cross=disabled
-    -Dplain-gl=disabled
-    -Dvdpau=disabled
-    -Dvdpau-gl-x11=disabled
+    -Dsixel=enabled
     -Dvaapi=enabled
     -Dvaapi-drm=enabled
     -Dvaapi-wayland=enabled
-    -Dvaapi-win32=disabled
-    -Dvaapi-x11=disabled
     -Dvulkan=enabled
     -Dwayland=enabled
-    -Dx11=disabled
-    -Dxv=disabled
 
-    -Dandroid-media-ndk=disabled
-    -Dcuda-hwaccel=disabled
-    -Dcuda-interop=disabled
-    -Dd3d-hwaccel=disabled
-    -Dd3d9-hwaccel=disabled
-    -Dgl-dxinterop-d3d9=disabled
-    -Dios-gl=disabled
-    -Dvideotoolbox-gl=disabled
-    -Dvideotoolbox-pl=disabled
-
-    -Dmacos-10-15-4-features=disabled
-    -Dmacos-11-features=disabled
-    -Dmacos-11-3-features=disabled
-    -Dmacos-12-features=disabled
-    -Dmacos-cocoa-cb=disabled
-    -Dmacos-media-player=disabled
-    -Dmacos-touchbar=disabled
-    -Dswift-build=disabled
-    -Dswift-flags=disabled
-
-    -Dwin32-smtc=disabled
-
-    -Dhtml-build=disabled
     -Dmanpage-build=enabled
-    -Dpdf-build=disabled
   )
 
   arch-meson "mpv-${pkgver}" build "${_meson_options[@]}"
