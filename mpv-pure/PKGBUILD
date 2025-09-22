@@ -58,7 +58,6 @@ build() {
     -Degl-wayland=enabled
     -Dgbm=enabled
     -Dgl=enabled
-    -Dsixel=enabled
     -Dvaapi=enabled
     -Dvaapi-drm=enabled
     -Dvaapi-wayland=enabled
