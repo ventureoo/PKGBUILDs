@@ -1,4 +1,4 @@
-From 0f02bc722b992ab1e94d10774e55dcec9671c4c9 Mon Sep 17 00:00:00 2001
+From 94608af1870cb7a7841d3f30543403048bad0dc7 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Mon, 8 Mar 2021 18:07:23 -0600
 Subject: [PATCH 01/15] ntdll: Introduce a helper to wait on an server-side
@@ -89,24 +89,23 @@ index f514f61dd60..75c04e5ec15 100644
 2.51.0
 
 
-From cf6dabbcacda03cc36e9e6e6e0cb8f3fccf531c5 Mon Sep 17 00:00:00 2001
+From be62b0676b5ba2f1e81c6490cf39e608dca6f4e5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 26 Jun 2025 22:05:04 +0200
 Subject: [PATCH 02/15] win32u: Move server queue handle to ntuser_thread_info.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
- dlls/win32u/message.c        | 6 +++---
- dlls/win32u/ntuser_private.h | 1 -
- dlls/win32u/sysparams.c      | 4 +++-
- include/ntuser.h             | 1 +
- 4 files changed, 7 insertions(+), 5 deletions(-)
+ dlls/win32u/message.c   | 6 +++---
+ dlls/win32u/sysparams.c | 4 +++-
+ include/ntuser.h        | 1 +
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/dlls/win32u/message.c b/dlls/win32u/message.c
-index 3a3f79a2ee8..d96b99ff7d9 100644
+index d3ef83785bb..965998f1610 100644
 --- a/dlls/win32u/message.c
 +++ b/dlls/win32u/message.c
-@@ -3103,10 +3103,10 @@ static void process_sent_messages(void)
+@@ -3137,10 +3137,10 @@ static void process_sent_messages(void)
   */
  static HANDLE get_server_queue_handle(void)
  {
@@ -119,7 +118,7 @@ index 3a3f79a2ee8..d96b99ff7d9 100644
      {
          SERVER_START_REQ( get_msg_queue_handle )
          {
-@@ -3114,7 +3114,7 @@ static HANDLE get_server_queue_handle(void)
+@@ -3148,7 +3148,7 @@ static HANDLE get_server_queue_handle(void)
              ret = wine_server_ptr_handle( reply->handle );
          }
          SERVER_END_REQ;
@@ -128,18 +127,6 @@ index 3a3f79a2ee8..d96b99ff7d9 100644
          if (!ret) ERR( "Cannot get server thread queue\n" );
      }
      return ret;
-diff --git a/dlls/win32u/ntuser_private.h b/dlls/win32u/ntuser_private.h
-index 643a01c6fba..44b2eb807f9 100644
---- a/dlls/win32u/ntuser_private.h
-+++ b/dlls/win32u/ntuser_private.h
-@@ -101,7 +101,6 @@ static inline BOOL is_broadcast( HWND hwnd )
- struct user_thread_info
- {
-     struct ntuser_thread_info     client_info;            /* Data shared with client */
--    HANDLE                        server_queue;           /* Handle to server-side queue */
-     DWORD                         last_getmsg_time;       /* Get/PeekMessage last request time */
-     LONGLONG                      last_driver_time;       /* Get/PeekMessage driver event time */
-     WORD                          hook_call_depth;        /* Number of recursively called hook procs */
 diff --git a/dlls/win32u/sysparams.c b/dlls/win32u/sysparams.c
 index 3a0fbe4f87b..7d1bbede15b 100644
 --- a/dlls/win32u/sysparams.c
@@ -178,7 +165,7 @@ index ef09d7e97bb..1de2569bade 100644
 2.51.0
 
 
-From 46bec46dd30a89fe0f3065574fee80992a0bf05f Mon Sep 17 00:00:00 2001
+From b9b9f4e0100688e45a460c082ebb9dd5e8541b97 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:22:43 +0200
 Subject: [PATCH 03/15] server: Create an inproc sync for message queue
@@ -374,10 +361,10 @@ index 203734a565f..46e4ac7e78d 100644
  /* serial functions */
  
 diff --git a/server/protocol.def b/server/protocol.def
-index 0c8be12314a..38c53859b2c 100644
+index 4c9ba8243cb..cd06162557d 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
-@@ -1102,6 +1102,7 @@ typedef volatile struct
+@@ -1114,6 +1114,7 @@ typedef volatile struct
  @REPLY
      thread_id_t  tid;          /* thread id */
      obj_handle_t handle;       /* thread handle (in the current process) */
@@ -385,7 +372,7 @@ index 0c8be12314a..38c53859b2c 100644
  @END
  
  
-@@ -1137,6 +1138,7 @@ typedef volatile struct
+@@ -1149,6 +1150,7 @@ typedef volatile struct
      timeout_t    server_start; /* server start time */
      unsigned int session_id;   /* process session id */
      obj_handle_t inproc_device;/* inproc device fd in flight with this handle */
@@ -394,10 +381,10 @@ index 0c8be12314a..38c53859b2c 100644
      VARARG(machines,ushorts);  /* array of supported machines */
  @END
 diff --git a/server/queue.c b/server/queue.c
-index b6cff69f38f..211c198fa61 100644
+index 3f06c15d006..109048b1e86 100644
 --- a/server/queue.c
 +++ b/server/queue.c
-@@ -328,7 +328,7 @@ static struct msg_queue *create_msg_queue( struct thread *thread, struct thread_
+@@ -326,7 +326,7 @@ static struct msg_queue *create_msg_queue( struct thread *thread, struct thread_
          list_init( &queue->expired_timers );
          for (i = 0; i < NB_MSG_KINDS; i++) list_init( &queue->msg_list[i] );
  
@@ -497,7 +484,7 @@ index 1418e4c5039..ea4c4dad4da 100644
 2.51.0
 
 
-From a9bcb83837c68aee4e916f79b15d746cb9637170 Mon Sep 17 00:00:00 2001
+From b301d6e59540e670b2ff3ad45c21d94dccde32f6 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 9 Sep 2025 17:12:34 +0200
 Subject: [PATCH 04/15] ntdll: Add a reference count to inproc_sync objects.
@@ -542,7 +529,7 @@ index dd18c948d22..8c04628fbc6 100644
 2.51.0
 
 
-From 0f9c420769c162fe96e25dd2eee5eae419ac5ec0 Mon Sep 17 00:00:00 2001
+From f53afcc039435a5dd681edac7f565826d8f569f3 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 2 Sep 2025 21:02:00 +0200
 Subject: [PATCH 05/15] ntdll: Notify wineserver when waiting on inproc queue.
@@ -551,10 +538,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  dlls/ntdll/unix/sync.c | 48 ++++++++++++++++++++++++++++++++++++++----
  server/inproc_sync.c   | 21 ++++++++++++------
- server/protocol.def    |  7 ++++++
+ server/protocol.def    |  7 +++++-
  server/queue.c         | 10 +++++++++
  server/user.h          |  2 ++
- 5 files changed, 77 insertions(+), 11 deletions(-)
+ 5 files changed, 76 insertions(+), 12 deletions(-)
 
 diff --git a/dlls/ntdll/unix/sync.c b/dlls/ntdll/unix/sync.c
 index 8c04628fbc6..e72067056b4 100644
@@ -706,25 +693,25 @@ index ccaf492321d..9fa819bdb14 100644
 +    if (req->signaled) thread_queue_satisfied( current );
 +}
 diff --git a/server/protocol.def b/server/protocol.def
-index 38c53859b2c..96ad183c5b4 100644
+index cd06162557d..526d2687839 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
-@@ -4138,3 +4138,10 @@ enum inproc_sync_type
-     int           type;         /* inproc sync type */
-     unsigned int access;        /* handle access rights */
- @END
+@@ -4158,4 +4158,9 @@ enum inproc_sync_type
+ @REPLY
+     d3dkmt_handle_t     global;         /* global d3dkmt handle */
+     obj_handle_t        handle;         /* internal handle of the server object */
+-@END
 +
 +
 +/* Begin/end a client-side wait on a message queue */
 +@REQ(select_inproc_queue)
 +    int          select;          /* 1: begin waiting, 0: end waiting */
 +    int          signaled;        /* was the queue signaled? */
-+@END
 diff --git a/server/queue.c b/server/queue.c
-index 211c198fa61..0a7b0c50a47 100644
+index 109048b1e86..45c84192d96 100644
 --- a/server/queue.c
 +++ b/server/queue.c
-@@ -1351,6 +1351,16 @@ static void msg_queue_satisfied( struct object *obj, struct wait_queue_entry *en
+@@ -1350,6 +1350,16 @@ static void msg_queue_satisfied( struct object *obj, struct wait_queue_entry *en
      reset_queue_sync( queue );
  }
  
@@ -758,7 +745,7 @@ index 35bd396f859..7fab631173a 100644
 2.51.0
 
 
-From 392229ae23ee925feb609c7518d7a848a9eac1e8 Mon Sep 17 00:00:00 2001
+From fe08a2149d9e41851a1cfbbaff0a84a1b3be1467 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 14:51:29 +0200
 Subject: [PATCH 06/15] server: Create an inproc sync for user APC signaling.
@@ -864,10 +851,10 @@ index 8b8d4220046..99ae256e872 100644
      list_add_head( &teb_list, &thread_data->entry );
      return teb;
 diff --git a/server/protocol.def b/server/protocol.def
-index 96ad183c5b4..701b2362f8e 100644
+index 526d2687839..fc59a6a1980 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
-@@ -1103,6 +1103,7 @@ typedef volatile struct
+@@ -1115,6 +1115,7 @@ typedef volatile struct
      thread_id_t  tid;          /* thread id */
      obj_handle_t handle;       /* thread handle (in the current process) */
      obj_handle_t queue_handle; /* inproc queue fd in flight with this handle */
@@ -875,7 +862,7 @@ index 96ad183c5b4..701b2362f8e 100644
  @END
  
  
-@@ -1138,6 +1139,7 @@ typedef volatile struct
+@@ -1150,6 +1151,7 @@ typedef volatile struct
      timeout_t    server_start; /* server start time */
      unsigned int session_id;   /* process session id */
      obj_handle_t inproc_device;/* inproc device fd in flight with this handle */
@@ -981,7 +968,7 @@ index ea4c4dad4da..b10ff82690d 100644
 2.51.0
 
 
-From b4e62d01ecf8491e9247f55a271bf28ce027a876 Mon Sep 17 00:00:00 2001
+From 23d4b835e114123bc705d751915133da621f8bb3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Wed, 18 Jun 2025 18:59:51 +0200
 Subject: [PATCH 07/15] server: Move signal access checks outside of the
@@ -1399,10 +1386,10 @@ index ddcf03accb2..27cccc9b249 100644
      default_get_sync,                /* get_sync */
      default_map_access,              /* map_access */
 diff --git a/server/hook.c b/server/hook.c
-index e53ba4514bf..3ca96a44f7d 100644
+index fe3c0459651..e1f90191451 100644
 --- a/server/hook.c
 +++ b/server/hook.c
-@@ -81,7 +81,7 @@ static const struct object_ops hook_table_ops =
+@@ -77,7 +77,7 @@ static const struct object_ops hook_table_ops =
      NULL,                         /* remove_queue */
      NULL,                         /* signaled */
      NULL,                         /* satisfied */
@@ -1697,10 +1684,10 @@ index b9bc02b6469..d34a1af8acc 100644
      job_get_sync,                  /* get_sync */
      default_map_access,            /* map_access */
 diff --git a/server/queue.c b/server/queue.c
-index 0a7b0c50a47..fa882fc73e2 100644
+index 45c84192d96..54ab3abf112 100644
 --- a/server/queue.c
 +++ b/server/queue.c
-@@ -169,7 +169,7 @@ static const struct object_ops msg_queue_ops =
+@@ -168,7 +168,7 @@ static const struct object_ops msg_queue_ops =
      msg_queue_remove_queue,    /* remove_queue */
      msg_queue_signaled,        /* signaled */
      msg_queue_satisfied,       /* satisfied */
@@ -1709,7 +1696,7 @@ index 0a7b0c50a47..fa882fc73e2 100644
      no_get_fd,                 /* get_fd */
      default_get_sync,          /* get_sync */
      default_map_access,        /* map_access */
-@@ -207,7 +207,7 @@ static const struct object_ops thread_input_ops =
+@@ -206,7 +206,7 @@ static const struct object_ops thread_input_ops =
      NULL,                         /* remove_queue */
      NULL,                         /* signaled */
      NULL,                         /* satisfied */
@@ -1984,7 +1971,7 @@ index bfcd4a53613..a747af51162 100644
 2.51.0
 
 
-From 6786aef299a6bc876c58c186cb9bafa297d75e27 Mon Sep 17 00:00:00 2001
+From 3dc7cba34e17686e359481deb8bb9f3a0861aedc Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:30:38 +0200
 Subject: [PATCH 08/15] server: Move the signal object op to object syncs.
@@ -2197,7 +2184,7 @@ index 23b3d98dd10..78543047a34 100644
 2.51.0
 
 
-From b5cef82144be125c1b048b267cd4ace8453ad5d5 Mon Sep 17 00:00:00 2001
+From 90e2364453240a03a1c78eea3aefb11a1917d8ab Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:31:23 +0200
 Subject: [PATCH 09/15] server: Use the signal ops to signal event and inproc
@@ -2415,7 +2402,7 @@ index 78543047a34..5975c517bfc 100644
 2.51.0
 
 
-From ee94f917660caa0fb1b34138ebf49ce97be92569 Mon Sep 17 00:00:00 2001
+From b2f72fc807c4a87246a608658cd2a0dfa4ef3042 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:39:05 +0200
 Subject: [PATCH 10/15] server: Use struct object pointers for object syncs.
@@ -2879,7 +2866,7 @@ index 619e4894d1d..f7188627abc 100644
      process_id_t         parent_id;       /* parent process id (at the time of creation) */
      struct list          thread_list;     /* thread list */
 diff --git a/server/queue.c b/server/queue.c
-index fa882fc73e2..f9a6e5261d3 100644
+index 54ab3abf112..b9e8c895023 100644
 --- a/server/queue.c
 +++ b/server/queue.c
 @@ -116,7 +116,7 @@ struct msg_queue
@@ -2891,7 +2878,7 @@ index fa882fc73e2..f9a6e5261d3 100644
      int                    signaled;        /* queue is signaled from fd POLLIN or masks */
      int                    paint_count;     /* pending paint messages count */
      int                    hotkey_count;    /* pending hotkey messages count */
-@@ -328,7 +328,7 @@ static struct msg_queue *create_msg_queue( struct thread *thread, struct thread_
+@@ -326,7 +326,7 @@ static struct msg_queue *create_msg_queue( struct thread *thread, struct thread_
          list_init( &queue->expired_timers );
          for (i = 0; i < NB_MSG_KINDS; i++) list_init( &queue->msg_list[i] );
  
@@ -2900,7 +2887,7 @@ index fa882fc73e2..f9a6e5261d3 100644
          if (!(queue->shared = alloc_shared_object())) goto error;
  
          SHARED_WRITE_BEGIN( queue->shared, queue_shm_t )
-@@ -719,13 +719,13 @@ static void signal_queue_sync( struct msg_queue *queue )
+@@ -718,13 +718,13 @@ static void signal_queue_sync( struct msg_queue *queue )
      if (queue->signaled) return;
      queue->signaled = 1;
      wake_up( &queue->obj, 0 );
@@ -3111,7 +3098,7 @@ index 4d2adf18672..3911db647f3 100644
 2.51.0
 
 
-From 942c8292bb28b7bc029a1b46e73433f4b98935b4 Mon Sep 17 00:00:00 2001
+From 07a5514ad9363945e484f6b21031423aa83d2f9d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Tue, 2 Sep 2025 20:57:32 +0200
 Subject: [PATCH 11/15] ntdll: Validate expected inproc sync type in
@@ -3306,10 +3293,10 @@ index af0b790210b..9fd24e1ef9a 100644
  
      if (signal) signal_sync_fd( sync );
 diff --git a/server/protocol.def b/server/protocol.def
-index 701b2362f8e..835d4e060d4 100644
+index fc59a6a1980..72f45c60e77 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
-@@ -4131,6 +4131,9 @@ enum inproc_sync_type
+@@ -4143,6 +4143,9 @@ enum inproc_sync_type
  {
      INPROC_SYNC_UNKNOWN   = 0,
      INPROC_SYNC_INTERNAL  = 1,
@@ -3323,7 +3310,7 @@ index 701b2362f8e..835d4e060d4 100644
 2.51.0
 
 
-From fcdc82893034fbc7c696ef4e55ab0272d1a66144 Mon Sep 17 00:00:00 2001
+From aed294fb65f91b52264e2c6b1c981c3318864cb9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:20:40 +0200
 Subject: [PATCH 12/15] server: Use a separate helper to create internal event
@@ -3561,7 +3548,7 @@ index 3911db647f3..481beeccdd4 100644
 2.51.0
 
 
-From 03406d09ff5b2d926a76724cd2f6991b7506405c Mon Sep 17 00:00:00 2001
+From 1d171d4744540486706e6686bbd6545541313bc6 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 2 Sep 2025 01:02:42 +0200
 Subject: [PATCH 13/15] ntdll: Use in-process synchronization objects.
@@ -4126,7 +4113,7 @@ index 91dfaced21e..8a350c67603 100644
 2.51.0
 
 
-From 0b835ed340851375f96a6a411df4e949c6238e9e Mon Sep 17 00:00:00 2001
+From 6ad8629f663e738da83e4414d8e059d9dcab3578 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 20 Apr 2021 17:55:59 -0500
 Subject: [PATCH 14/15] ntdll: Use server_wait_for_object() when waiting on
@@ -4163,7 +4150,7 @@ index 630b2199443..a14f68f012a 100644
 2.51.0
 
 
-From 2fb0c22fc8ee454d939b0f94b247a779b7ecdeea Mon Sep 17 00:00:00 2001
+From 304d9083a03d49bbf3a1fc5b4d5c90418a971b40 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Tue, 2 Sep 2025 20:59:13 +0200
 Subject: [PATCH 15/15] ntdll: Cache in-process synchronization objects.
