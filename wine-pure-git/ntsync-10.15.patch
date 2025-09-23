@@ -1,7 +1,7 @@
 From 94608af1870cb7a7841d3f30543403048bad0dc7 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Mon, 8 Mar 2021 18:07:23 -0600
-Subject: [PATCH 01/15] ntdll: Introduce a helper to wait on an server-side
+Subject: [PATCH 01/16] ntdll: Introduce a helper to wait on an server-side
  sync object.
 
 Some objects like async or completion waits are internal only, and their
@@ -92,7 +92,7 @@ index f514f61dd60..75c04e5ec15 100644
 From be62b0676b5ba2f1e81c6490cf39e608dca6f4e5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 26 Jun 2025 22:05:04 +0200
-Subject: [PATCH 02/15] win32u: Move server queue handle to ntuser_thread_info.
+Subject: [PATCH 02/16] win32u: Move server queue handle to ntuser_thread_info.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
@@ -168,7 +168,7 @@ index ef09d7e97bb..1de2569bade 100644
 From b9b9f4e0100688e45a460c082ebb9dd5e8541b97 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:22:43 +0200
-Subject: [PATCH 03/15] server: Create an inproc sync for message queue
+Subject: [PATCH 03/16] server: Create an inproc sync for message queue
  signaling.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
@@ -487,7 +487,7 @@ index 1418e4c5039..ea4c4dad4da 100644
 From b301d6e59540e670b2ff3ad45c21d94dccde32f6 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 9 Sep 2025 17:12:34 +0200
-Subject: [PATCH 04/15] ntdll: Add a reference count to inproc_sync objects.
+Subject: [PATCH 04/16] ntdll: Add a reference count to inproc_sync objects.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
@@ -532,7 +532,7 @@ index dd18c948d22..8c04628fbc6 100644
 From 618f09d2f88b8086779890acb29e6b885e2bf136 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 2 Sep 2025 21:02:00 +0200
-Subject: [PATCH 05/15] ntdll: Notify wineserver when waiting on inproc queue.
+Subject: [PATCH 05/16] ntdll: Notify wineserver when waiting on inproc queue.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
@@ -748,7 +748,7 @@ index 35bd396f859..7fab631173a 100644
 From 895b904f4a897e0d992e6ae92760102423ae6a17 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 14:51:29 +0200
-Subject: [PATCH 06/15] server: Create an inproc sync for user APC signaling.
+Subject: [PATCH 06/16] server: Create an inproc sync for user APC signaling.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
@@ -971,7 +971,7 @@ index ea4c4dad4da..b10ff82690d 100644
 From 1cb4abf46645c3e46a90ddc06af55b0a4be523ae Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Wed, 18 Jun 2025 18:59:51 +0200
-Subject: [PATCH 07/15] server: Move signal access checks outside of the
+Subject: [PATCH 07/16] server: Move signal access checks outside of the
  objects.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
@@ -1974,7 +1974,7 @@ index bfcd4a53613..a747af51162 100644
 From b7b84c285322ef0e829be34affbe494b63d2829d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:30:38 +0200
-Subject: [PATCH 08/15] server: Move the signal object op to object syncs.
+Subject: [PATCH 08/16] server: Move the signal object op to object syncs.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
@@ -2187,7 +2187,7 @@ index 23b3d98dd10..78543047a34 100644
 From dbb26f9f882d32cdfd936eca688450fa48fa46f0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:31:23 +0200
-Subject: [PATCH 09/15] server: Use the signal ops to signal event and inproc
+Subject: [PATCH 09/16] server: Use the signal ops to signal event and inproc
  syncs.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
@@ -2405,7 +2405,7 @@ index 78543047a34..5975c517bfc 100644
 From 043480891f2f3d78aaeddbca446991a515d861e9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:39:05 +0200
-Subject: [PATCH 10/15] server: Use struct object pointers for object syncs.
+Subject: [PATCH 10/16] server: Use struct object pointers for object syncs.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
@@ -3101,7 +3101,7 @@ index 4d2adf18672..3911db647f3 100644
 From ad657fc5d3803131d64ae1ac526764f32a679cb2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Tue, 2 Sep 2025 20:57:32 +0200
-Subject: [PATCH 11/15] ntdll: Validate expected inproc sync type in
+Subject: [PATCH 11/16] ntdll: Validate expected inproc sync type in
  get_inproc_sync.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
@@ -3313,7 +3313,7 @@ index e77fd72e890..6500cb5aa6a 100644
 From 2ec415f9854d025c20e553527adb611c28069d6d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:20:40 +0200
-Subject: [PATCH 12/15] server: Use a separate helper to create internal event
+Subject: [PATCH 12/16] server: Use a separate helper to create internal event
  syncs.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
@@ -3551,7 +3551,7 @@ index 3911db647f3..481beeccdd4 100644
 From 0a1890d1817aef63f554c79109ab30fccf5088e0 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 2 Sep 2025 01:02:42 +0200
-Subject: [PATCH 13/15] ntdll: Use in-process synchronization objects.
+Subject: [PATCH 13/16] ntdll: Use in-process synchronization objects.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
@@ -4116,7 +4116,7 @@ index 91dfaced21e..8a350c67603 100644
 From 35f833f6b3cea7a856def9dffaa9bf996c87ca3a Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 20 Apr 2021 17:55:59 -0500
-Subject: [PATCH 14/15] ntdll: Use server_wait_for_object() when waiting on
+Subject: [PATCH 14/16] ntdll: Use server_wait_for_object() when waiting on
  only the queue object.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
@@ -4153,7 +4153,7 @@ index 630b2199443..a14f68f012a 100644
 From 1fd4dd339ec97227cc4cfc7c01f7a0f38f728b49 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Tue, 2 Sep 2025 20:59:13 +0200
-Subject: [PATCH 15/15] ntdll: Cache in-process synchronization objects.
+Subject: [PATCH 15/16] ntdll: Cache in-process synchronization objects.
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
@@ -4684,6 +4684,33 @@ index d783a547850..d8db3842e9c 100644
  extern NTSTATUS call_user_apc_dispatcher( CONTEXT *context_ptr, unsigned int flags, ULONG_PTR arg1, ULONG_PTR arg2,
                                            ULONG_PTR arg3, PNTAPCFUNC func, NTSTATUS status );
  extern NTSTATUS call_user_exception_dispatcher( EXCEPTION_RECORD *rec, CONTEXT *context );
+-- 
+2.51.0
+
+
+From 64eea1fb50ffbde00c10faaf054cff97702a9f3d Mon Sep 17 00:00:00 2001
+From: Vasiliy Stelmachenok <ventureo@cachyos.org>
+Date: Tue, 23 Sep 2025 14:07:13 +0300
+Subject: [PATCH 16/16] Fixup ntsync changes with d3dkmt
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
+---
+ server/d3dkmt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/server/d3dkmt.c b/server/d3dkmt.c
+index b99fabd3292..2cdb22b703a 100644
+--- a/server/d3dkmt.c
++++ b/server/d3dkmt.c
+@@ -54,7 +54,7 @@ static const struct object_ops d3dkmt_object_ops =
+     NULL,                           /* remove_queue */
+     NULL,                           /* signaled */
+     NULL,                           /* satisfied */
+-    no_signal,                      /* signal */
++    NULL,                           /* signal */
+     no_get_fd,                      /* get_fd */
+     default_get_sync,               /* get_sync */
+     default_map_access,             /* map_access */
 -- 
 2.51.0
 
