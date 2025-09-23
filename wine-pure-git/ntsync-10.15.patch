@@ -529,7 +529,7 @@ index dd18c948d22..8c04628fbc6 100644
 2.51.0
 
 
-From f53afcc039435a5dd681edac7f565826d8f569f3 Mon Sep 17 00:00:00 2001
+From 618f09d2f88b8086779890acb29e6b885e2bf136 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 2 Sep 2025 21:02:00 +0200
 Subject: [PATCH 05/15] ntdll: Notify wineserver when waiting on inproc queue.
@@ -538,10 +538,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  dlls/ntdll/unix/sync.c | 48 ++++++++++++++++++++++++++++++++++++++----
  server/inproc_sync.c   | 21 ++++++++++++------
- server/protocol.def    |  7 +++++-
+ server/protocol.def    |  7 ++++++
  server/queue.c         | 10 +++++++++
  server/user.h          |  2 ++
- 5 files changed, 76 insertions(+), 12 deletions(-)
+ 5 files changed, 77 insertions(+), 11 deletions(-)
 
 diff --git a/dlls/ntdll/unix/sync.c b/dlls/ntdll/unix/sync.c
 index 8c04628fbc6..e72067056b4 100644
@@ -693,20 +693,20 @@ index ccaf492321d..9fa819bdb14 100644
 +    if (req->signaled) thread_queue_satisfied( current );
 +}
 diff --git a/server/protocol.def b/server/protocol.def
-index cd06162557d..526d2687839 100644
+index cd06162557d..66903b400aa 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
-@@ -4158,4 +4158,9 @@ enum inproc_sync_type
- @REPLY
+@@ -4159,3 +4159,10 @@ enum inproc_sync_type
      d3dkmt_handle_t     global;         /* global d3dkmt handle */
      obj_handle_t        handle;         /* internal handle of the server object */
--@END
+ @END
 +
 +
 +/* Begin/end a client-side wait on a message queue */
 +@REQ(select_inproc_queue)
 +    int          select;          /* 1: begin waiting, 0: end waiting */
 +    int          signaled;        /* was the queue signaled? */
++@END
 diff --git a/server/queue.c b/server/queue.c
 index 109048b1e86..45c84192d96 100644
 --- a/server/queue.c
@@ -745,7 +745,7 @@ index 35bd396f859..7fab631173a 100644
 2.51.0
 
 
-From fe08a2149d9e41851a1cfbbaff0a84a1b3be1467 Mon Sep 17 00:00:00 2001
+From 895b904f4a897e0d992e6ae92760102423ae6a17 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 14:51:29 +0200
 Subject: [PATCH 06/15] server: Create an inproc sync for user APC signaling.
@@ -851,7 +851,7 @@ index 8b8d4220046..99ae256e872 100644
      list_add_head( &teb_list, &thread_data->entry );
      return teb;
 diff --git a/server/protocol.def b/server/protocol.def
-index 526d2687839..fc59a6a1980 100644
+index 66903b400aa..e77fd72e890 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
 @@ -1115,6 +1115,7 @@ typedef volatile struct
@@ -968,7 +968,7 @@ index ea4c4dad4da..b10ff82690d 100644
 2.51.0
 
 
-From 23d4b835e114123bc705d751915133da621f8bb3 Mon Sep 17 00:00:00 2001
+From 1cb4abf46645c3e46a90ddc06af55b0a4be523ae Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Wed, 18 Jun 2025 18:59:51 +0200
 Subject: [PATCH 07/15] server: Move signal access checks outside of the
@@ -1971,7 +1971,7 @@ index bfcd4a53613..a747af51162 100644
 2.51.0
 
 
-From 3dc7cba34e17686e359481deb8bb9f3a0861aedc Mon Sep 17 00:00:00 2001
+From b7b84c285322ef0e829be34affbe494b63d2829d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:30:38 +0200
 Subject: [PATCH 08/15] server: Move the signal object op to object syncs.
@@ -2184,7 +2184,7 @@ index 23b3d98dd10..78543047a34 100644
 2.51.0
 
 
-From 90e2364453240a03a1c78eea3aefb11a1917d8ab Mon Sep 17 00:00:00 2001
+From dbb26f9f882d32cdfd936eca688450fa48fa46f0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:31:23 +0200
 Subject: [PATCH 09/15] server: Use the signal ops to signal event and inproc
@@ -2402,7 +2402,7 @@ index 78543047a34..5975c517bfc 100644
 2.51.0
 
 
-From b2f72fc807c4a87246a608658cd2a0dfa4ef3042 Mon Sep 17 00:00:00 2001
+From 043480891f2f3d78aaeddbca446991a515d861e9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:39:05 +0200
 Subject: [PATCH 10/15] server: Use struct object pointers for object syncs.
@@ -3098,7 +3098,7 @@ index 4d2adf18672..3911db647f3 100644
 2.51.0
 
 
-From 07a5514ad9363945e484f6b21031423aa83d2f9d Mon Sep 17 00:00:00 2001
+From ad657fc5d3803131d64ae1ac526764f32a679cb2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Tue, 2 Sep 2025 20:57:32 +0200
 Subject: [PATCH 11/15] ntdll: Validate expected inproc sync type in
@@ -3293,7 +3293,7 @@ index af0b790210b..9fd24e1ef9a 100644
  
      if (signal) signal_sync_fd( sync );
 diff --git a/server/protocol.def b/server/protocol.def
-index fc59a6a1980..72f45c60e77 100644
+index e77fd72e890..6500cb5aa6a 100644
 --- a/server/protocol.def
 +++ b/server/protocol.def
 @@ -4143,6 +4143,9 @@ enum inproc_sync_type
@@ -3310,7 +3310,7 @@ index fc59a6a1980..72f45c60e77 100644
 2.51.0
 
 
-From aed294fb65f91b52264e2c6b1c981c3318864cb9 Mon Sep 17 00:00:00 2001
+From 2ec415f9854d025c20e553527adb611c28069d6d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Thu, 4 Sep 2025 23:20:40 +0200
 Subject: [PATCH 12/15] server: Use a separate helper to create internal event
@@ -3548,7 +3548,7 @@ index 3911db647f3..481beeccdd4 100644
 2.51.0
 
 
-From 1d171d4744540486706e6686bbd6545541313bc6 Mon Sep 17 00:00:00 2001
+From 0a1890d1817aef63f554c79109ab30fccf5088e0 Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 2 Sep 2025 01:02:42 +0200
 Subject: [PATCH 13/15] ntdll: Use in-process synchronization objects.
@@ -4113,7 +4113,7 @@ index 91dfaced21e..8a350c67603 100644
 2.51.0
 
 
-From 6ad8629f663e738da83e4414d8e059d9dcab3578 Mon Sep 17 00:00:00 2001
+From 35f833f6b3cea7a856def9dffaa9bf996c87ca3a Mon Sep 17 00:00:00 2001
 From: Elizabeth Figura <zfigura@codeweavers.com>
 Date: Tue, 20 Apr 2021 17:55:59 -0500
 Subject: [PATCH 14/15] ntdll: Use server_wait_for_object() when waiting on
@@ -4150,7 +4150,7 @@ index 630b2199443..a14f68f012a 100644
 2.51.0
 
 
-From 304d9083a03d49bbf3a1fc5b4d5c90418a971b40 Mon Sep 17 00:00:00 2001
+From 1fd4dd339ec97227cc4cfc7c01f7a0f38f728b49 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?R=C3=A9mi=20Bernon?= <rbernon@codeweavers.com>
 Date: Tue, 2 Sep 2025 20:59:13 +0200
 Subject: [PATCH 15/15] ntdll: Cache in-process synchronization objects.
