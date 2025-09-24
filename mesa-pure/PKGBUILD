@@ -7,81 +7,82 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.2.2
+pkgver=25.2.3
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
 arch=(x86_64)
 license=("MIT AND BSD-3-Clause AND SGI-B-2.0")
 makedepends=(
-  'xorgproto'
-  'libxml2'
-  'libvdpau'
-  'libva'
+  'cbindgen'
+  'cmake'
   'elfutils'
+  'glslang'
+  'libpng'
+  'libva'
+  'libxml2'
   'libxrandr'
   'meson'
   'ninja'
-  'glslang'
   'python-mako'
-  'python-ply'
-  'cbindgen'
-  'wayland-protocols'
-  'cmake'
-  'valgrind'
-  'libpng'
   'python-packaging'
+  'python-ply'
   'python-pyaml'
+  'valgrind'
+  'wayland-protocols'
+  'xorgproto'
 )
 depends=(
-  'libdrm'
-  'libxxf86vm'
-  'libxdamage'
-  'libxshmfence'
-  'libelf'
-  'libunwind'
-  'libglvnd'
-  'wayland'
-  'lm_sensors'
-  'vulkan-icd-loader'
-  'zstd'
   'expat'
   'gcc-libs'
-  'libxfixes'
-  'libx11'
-  'systemd-libs'
-  'libxext'
-  'libxcb'
   'glibc'
-  'zlib'
+  'libdrm'
+  'libelf'
+  'libglvnd'
+  'libunwind'
+  'libx11'
+  'libxcb'
+  'libxdamage'
+  'libxext'
+  'libxfixes'
+  'libxshmfence'
+  'libxxf86vm'
+  'lm_sensors'
   'python'
+  'systemd-libs'
+  'vulkan-icd-loader'
+  'wayland'
   'xcb-util-keysyms'
+  'zlib'
+  'zstd'
 )
 optdepends=('opengl-man-pages: for the OpenGL API man pages')
 provides=(
-  'vulkan-mesa-layers'
+  'libva-mesa-driver'
+  'mesa'
+  'mesa-libgl'
   'opencl-driver'
   'opengl-driver'
   'vulkan-driver'
+  'vulkan-mesa-device-select'
+  'vulkan-mesa-layers'
   'vulkan-radeon'
-  'libva-mesa-driver'
-  'mesa-libgl'
-  'mesa'
 )
 conflicts=(
-  'vulkan-mesa-layers'
-  'opencl-clover-mesa'
-  'vulkan-radeon'
   'libva-mesa-driver'
-  'mesa-libgl'
   'mesa'
+  'mesa-libgl'
+  'opencl-clover-mesa'
+  'vulkan-mesa-device-select'
+  'vulkan-mesa-layers'
+  'vulkan-radeon'
 )
 source=(
   "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
   anti-lag.patch
 )
 sha256sums=(
-  '43d7abcd4aa8049d8fd75538344a374104765e81e17b4a6314cee2c0160e4412'
+  'f2d6b28562f1d6cb9c17ee8e58eeade7aa5faf927ae71065eadb41e17f92b4f8'
   '1e83a132618ebc2a2236779223ace94354f22b3372ce739ee6641e83f2d0f9e8'
 )
 
