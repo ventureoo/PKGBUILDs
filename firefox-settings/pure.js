@@ -76,6 +76,7 @@ pref("browser.newtabpage.activity-stream.feeds.recommendationprovider", false, l
 pref("browser.newtabpage.activity-stream.feeds.system.topsites", false, locked);
 pref("browser.newtabpage.activity-stream.feeds.system.topstories", false, locked);
 pref("browser.newtabpage.activity-stream.feeds.topsites", false, locked);
+pref("browser.newtabpage.activity-stream.showSponsoredCheckboxes", false, locked);
 pref("browser.newtabpage.activity-stream.system.showSponsored", false, locked);
 pref("browser.newtabpage.activity-stream.telemetry.structuredIngestion.endpoint", 0, locked);
 pref("browser.newtabpage.activity-stream.telemetry.ut.event", false, locked);
@@ -94,6 +95,7 @@ pref("browser.promo.pin.enabled", false, locked);
 pref("browser.protections_panel.infoMessage.seen", true);
 pref("browser.send_to_device_locales", "");
 pref("browser.tabs.crashReporting.sendReport", false, locked);
+pref("browser.tabs.groups.smart.userEnabled", false, locked);
 pref("browser.uitour.enabled", false, locked);
 pref("browser.uitour.url", "", locked);
 pref("browser.urlbar.quicksuggest.enabled", false);
