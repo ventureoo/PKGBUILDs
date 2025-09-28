@@ -6,7 +6,7 @@
 
 pkgname=firefox-pure
 pkgver=143.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.mozilla.org/firefox/"
 arch=(x86_64)
@@ -79,7 +79,7 @@ source=(
   "firefox.desktop"
   "org.mozilla.firefox.metainfo.xml"
   "0001-Install-under-remoting-name.patch"
-  "https://dev.gentoo.org/~juippis/mozilla/patchsets/firefox-143-patches-01t.tar.xz"
+  "https://dev.gentoo.org/~juippis/mozilla/patchsets/firefox-143-patches-02t.tar.xz"
 )
 
 sha256sums=(
@@ -88,7 +88,7 @@ sha256sums=(
   '71fe797430198ac8c00b538dce537284cf526e48be0496698cf5a980d70c16da'
   '23f557fa7989adcae03cc9458d94716981dbcf0e9d6d52a289a2426e50b4b785'
   '883ca2fa723a7572269d18559d5b82412782ad63e5dd3820eeb0540e3fe34314'
-  '84aae3a8ab1499790f9b0b8b4741f329e31d7e0a55d6de5d69920ab36dcfc246'
+  'b7248e11c1126d5b550ec4c4d59ddf443135fbd3b5502b04487862c526ff7b14'
 )
 
 prepare() {
