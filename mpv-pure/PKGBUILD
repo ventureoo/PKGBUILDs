@@ -22,10 +22,15 @@ optdepends=('yt-dlp: for video-sharing websites playback')
 conflicts=('libmpv.so' 'mpv')
 provides=('libmpv.so' 'mpv')
 options=('!emptydirs')
-source=("https://github.com/mpv-player/mpv/archive/v${pkgver}/mpv-${pkgver}.tar.gz"
-        "dynamically_generate_desktop_file_protocols.patch")
-sha256sums=('10a0f4654f62140a6dd4d380dcf0bbdbdcf6e697556863dc499c296182f081a3'
-            '88acf97cbc8e0fe745f09bd0bd7f65e0437adcb549dadf3588fd0724d01298e9')
+source=("$pkgname-$pkgver::git+https://github.com/mpv-player/mpv.git#tag=v${pkgver}")
+sha256sums=('754d045dba7143b51dd6eb2d32ab3a9a483e6a337e685b581a876bc2e20eddf1')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+
+  # Fix build with ffmpeg 8
+  git cherry-pick -n 26b29fba02a2782f68e2906f837d21201fc6f1b9
+}
 
 build() {
   local _meson_options=(
@@ -67,7 +72,7 @@ build() {
     -Dmanpage-build=enabled
   )
 
-  arch-meson "mpv-${pkgver}" build "${_meson_options[@]}"
+  arch-meson "${pkgname}-${pkgver}" build "${_meson_options[@]}"
 
   meson compile -C build
 }
@@ -82,9 +87,9 @@ package() {
   # delete private entries only required for static linking
   sed -i -e '/Requires.private/d' -e '/Libs.private/d' "${pkgdir}"/usr/lib/pkgconfig/mpv.pc
 
-  install -m0644 "mpv-${pkgver}"/DOCS/{encoding.rst,tech-overview.txt} \
+  install -m0644 "${pkgname}-${pkgver}"/DOCS/{encoding.rst,tech-overview.txt} \
     "${pkgdir}"/usr/share/doc/mpv
 
-  install -m0644 "mpv-${pkgver}"/TOOLS/{umpv,mpv_identify.sh,stats-conv.py,idet.sh,lua/*} \
+  install -m0644 "${pkgname}-${pkgver}"/TOOLS/{umpv,mpv_identify.sh,stats-conv.py,idet.sh,lua/*} \
     -D -t "${pkgdir}"/usr/share/mpv/scripts
 }
