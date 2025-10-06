@@ -1,7 +1,7 @@
 pkgbase = firefox-pure
 	pkgdesc = Fast, Private & Safe Web Browser
 	pkgver = 143.0.4
-	pkgrel = 1
+	pkgrel = 2
 	url = https://www.mozilla.org/firefox/
 	arch = x86_64
 	license = MPL-2.0
@@ -29,7 +29,7 @@ pkgbase = firefox-pure
 	depends = bash
 	depends = cairo
 	depends = dbus
-	depends = ffmpeg
+	depends = ffmpeg4.4
 	depends = firefox-settings
 	depends = fontconfig
 	depends = freetype2
