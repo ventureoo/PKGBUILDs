@@ -75,10 +75,10 @@ prepare() {
     git submodule update --init --recursive
 
     # Fix build with glib2 2.86
-    patch -d "tdesktop-$pkgver-full" -Np1 -i "${srcdir}/glib2.86.patch"
+    patch -Np1 -i "${srcdir}/glib2.86.patch"
 
     # Fix compatibility with ffmpeg 8
-    patch -d "tdesktop-$pkgver-full" -Np1 -i "${srcdir}/0001-Fix-compatibility-with-ffmpeg-8.patch"
+    patch -Np1 -i "${srcdir}/0001-Fix-compatibility-with-ffmpeg-8.patch"
 }
 
 build() {
