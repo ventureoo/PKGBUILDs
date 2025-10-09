@@ -6,7 +6,7 @@
 # Contributor: Michael Kanis <mkanis_at_gmx_dot_de>
 
 pkgname=mutter-pure
-pkgver=48.4
+pkgver=49.0
 pkgrel=1
 pkgdesc="Window manager and compositor for GNOME"
 url="https://gitlab.gnome.org/GNOME/mutter"
@@ -22,6 +22,7 @@ depends=(
   fontconfig
   fribidi
   gcc-libs
+  glycin
   gdk-pixbuf2
   glib2
   glibc
@@ -67,6 +68,7 @@ depends=(
   pipewire
   pixman
   python
+  python-dbus
   python-argcomplete
   python-gobject
   startup-notification
@@ -85,7 +87,7 @@ makedepends=(
   sysprof
   wayland-protocols
 )
-provides=(libmutter-16.so mutter)
+provides=(libmutter-17.so mutter)
 conflicts=(mutter)
 optdepends=('bash-completion: Bash completions for gdctl')
 source=(
@@ -95,9 +97,9 @@ source=(
   "Add-support-for-tearing.patch"
 )
 b2sums=(
-  '71d2b818f5ac016a708c59c06ca3d4bd1bd87645455c56461140aa4474ba895fec19da1af19f2c3e7f718cfe9357e4df505908141c776cffc8063d89c45fdde4'
+  '99defeefd72cc366cfa5c433a22d855400cc14c1f41d7cfe08008fd98a0b7a36295e3591dead6e7ebec489a526f8cd9af5471031d36becb4de6b441391bd9e07'
   'c25796ff54fee353c5fc7a0815c25255b399490148d2bad1f37932d2da66d80561d6e262a5f256c89d142419a504c23eff69f7ef4e65e349f2dea3e0ac0bac1a'
-  '69ee3768c385d014a97ef23fcf633458605f78ee51ae603028cbb4c7d4afb863a2cb8d529d0e38540aa950bf8949c9ef815ec0fbed90ff8666e1e50903d382e7'
+  'e3c7e004c249dd7399855b912ff6bed90c556c39d8e83ada9d7630384769b6e84eba45543dcba04cc4567a6fb1e66394e1f3fd7273589ea36af1da9bfce3ff44'
 )
 
 prepare() {
@@ -105,16 +107,35 @@ prepare() {
 
   # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2660
   patch -Np1 -i "${srcdir}/Add-support-for-tearing.patch"
+
+  # Fix focus problems
+  # https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/8640
+  # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/4667
+  git cherry-pick -n 353b03b689216d7e1c5ebd0acaf2c433d712294c
+
+  # Crash fixes
+  # https://gitlab.gnome.org/GNOME/mutter/-/issues/4340
+  # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/4676
+  git cherry-pick -n d9410c0ec6923016d0fc5c4abb9ea41061a93ae4
+  # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/4679
+  git cherry-pick -n 85216f2db006a5f51703c0bcd519e9d630e9b7eb
+
+  # Caps lock fixes
+  # https://gitlab.gnome.org/GNOME/mutter/-/issues/4351
+  # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/4686
+  git cherry-pick -n c0fd2d95568e36a9c96011ff98d6c5beba2c8879 \
+                     0828fd6169c17ca54633f76936f03ac496f6b01e
+
 }
 
 build() {
   local meson_options=(
     -D docs=false
     -D egl_device=true
+    -D devkit=disabled
     -D installed_tests=false
     -D tests=disabled
     -D wayland_eglstream=true
-    -D x11=false
   )
 
   CFLAGS="${CFLAGS/-O2/-O3} -fno-semantic-interposition"

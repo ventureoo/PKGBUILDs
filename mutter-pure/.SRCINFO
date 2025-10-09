@@ -1,6 +1,6 @@
 pkgbase = mutter-pure
 	pkgdesc = Window manager and compositor for GNOME
-	pkgver = 48.4
+	pkgver = 49.0
 	pkgrel = 1
 	url = https://gitlab.gnome.org/GNOME/mutter
 	arch = x86_64
@@ -22,6 +22,7 @@ pkgbase = mutter-pure
 	depends = fontconfig
 	depends = fribidi
 	depends = gcc-libs
+	depends = glycin
 	depends = gdk-pixbuf2
 	depends = glib2
 	depends = glibc
@@ -67,6 +68,7 @@ pkgbase = mutter-pure
 	depends = pipewire
 	depends = pixman
 	depends = python
+	depends = python-dbus
 	depends = python-argcomplete
 	depends = python-gobject
 	depends = startup-notification
@@ -74,16 +76,16 @@ pkgbase = mutter-pure
 	depends = wayland
 	depends = xorg-xwayland
 	optdepends = bash-completion: Bash completions for gdctl
-	provides = libmutter-16.so
+	provides = libmutter-17.so
 	provides = mutter
 	conflicts = mutter
 	options = !strip
 	options = debug
-	source = git+https://gitlab.gnome.org/GNOME/mutter.git#tag=48.4
+	source = git+https://gitlab.gnome.org/GNOME/mutter.git#tag=49.0
 	source = git+https://gitlab.gnome.org/GNOME/gvdb.git#commit=466fc22016cf0981424e7121557611942191992f
 	source = Add-support-for-tearing.patch
-	b2sums = 71d2b818f5ac016a708c59c06ca3d4bd1bd87645455c56461140aa4474ba895fec19da1af19f2c3e7f718cfe9357e4df505908141c776cffc8063d89c45fdde4
+	b2sums = 99defeefd72cc366cfa5c433a22d855400cc14c1f41d7cfe08008fd98a0b7a36295e3591dead6e7ebec489a526f8cd9af5471031d36becb4de6b441391bd9e07
 	b2sums = c25796ff54fee353c5fc7a0815c25255b399490148d2bad1f37932d2da66d80561d6e262a5f256c89d142419a504c23eff69f7ef4e65e349f2dea3e0ac0bac1a
-	b2sums = 69ee3768c385d014a97ef23fcf633458605f78ee51ae603028cbb4c7d4afb863a2cb8d529d0e38540aa950bf8949c9ef815ec0fbed90ff8666e1e50903d382e7
+	b2sums = e3c7e004c249dd7399855b912ff6bed90c556c39d8e83ada9d7630384769b6e84eba45543dcba04cc4567a6fb1e66394e1f3fd7273589ea36af1da9bfce3ff44
 
 pkgname = mutter-pure
