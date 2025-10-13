@@ -1,0 +1,54 @@
+From c6d3da8ce0b1e8b45bf0f6dd8279160592b555db Mon Sep 17 00:00:00 2001
+From: KosmX <kosmx.mc@gmail.com>
+Date: Fri, 30 May 2025 17:48:50 +0000
+Subject: [PATCH] Fix wayland event loop overflow after only a few hundred
+ millisecond
+
+This is needed on higher-end systems, because if I use a high polling
+rate mice (1kHz), and the app stops receiving events for 200 ms, that is
+enough to overflow the event buffer, and crashes the app.
+
+With this patch, the buffer can be increased, and these apps can have
+more time handling inputs
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
+---
+ Cargo.toml  | 4 ++++
+ src/main.rs | 6 +++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index c1dc6dc1..0ea66aad 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -36,6 +36,10 @@ default-features = false
+ git = "https://github.com/Smithay/smithay.git"
+ # path = "../smithay/smithay-drm-extras"
+ 
++[patch.crates-io]
++wayland-sys = { path = "../wayland-rs/wayland-sys" }
++wayland-backend = { path = "../wayland-rs/wayland-backend" }
++
+ [package]
+ name = "niri"
+ version.workspace = true
+diff --git a/src/main.rs b/src/main.rs
+index 995960ee..55f7ae3f 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -168,7 +168,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
+     niri::utils::signals::listen(&event_loop.handle());
+ 
+     // Create the compositor.
+-    let display = Display::new().unwrap();
++    let mut display = Display::new().unwrap();
++
++    // Increase buffer size
++    display.backend().set_max_buffer_size(1024 * 1024);
++
+     let mut state = State::new(
+         config,
+         event_loop.handle(),
+-- 
+2.51.0
+
