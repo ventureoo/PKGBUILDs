@@ -17,6 +17,8 @@ pref("media.webrtc.hw.h264.enabled", true);
 pref("media.gpu-process-decoder", true);
 
 // Performance & Graphics Tweaks
+pref("browser.cache.disk.enable", false);
+pref("browser.cache.memory.capacity", 1048576);
 pref("gfx.canvas.accelerated.cache-items", 32768);
 pref("gfx.canvas.accelerated.cache-size", 4096);
 pref("gfx.content.skia-font-cache-size", 80);
