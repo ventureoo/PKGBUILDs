@@ -1,0 +1,26 @@
+diff --git a/dlls/ntdll/unix/sync.c b/dlls/ntdll/unix/sync.c
+index 1660478b0e1..e120734863c 100644
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -1913,7 +1913,7 @@ NTSTATUS WINAPI NtOpenDirectoryObject( HANDLE *handle, ACCESS_MASK access, const
+ /**************************************************************************
+  *           NtQueryDirectoryObject   (NTDLL.@)
+  */
+-NTSTATUS WINAPI NtQueryDirectoryObject( HANDLE handle, DIRECTORY_BASIC_INFORMATION *buffer,
++__attribute__ ((optnone)) NTSTATUS WINAPI NtQueryDirectoryObject( HANDLE handle, DIRECTORY_BASIC_INFORMATION *buffer,
+                                         ULONG size, BOOLEAN single_entry, BOOLEAN restart,
+                                         ULONG *context, ULONG *ret_size )
+ {
+diff --git a/dlls/ntdll/exception.c b/dlls/ntdll/exception.c
+index 2284333668a..18a380e34e2 100644
+--- a/dlls/ntdll/exception.c
++++ b/dlls/ntdll/exception.c
+@@ -144,7 +144,7 @@ static ULONG remove_vectored_handler( struct list *handler_list, VECTORED_HANDLE
+  *
+  * Call the vectored handlers chain.
+  */
+-static LONG call_vectored_handlers( EXCEPTION_RECORD *rec, CONTEXT *context )
++__attribute__((noinline)) static LONG call_vectored_handlers( EXCEPTION_RECORD *rec, CONTEXT *context )
+ {
+     struct list *ptr;
+     LONG ret = EXCEPTION_CONTINUE_SEARCH;

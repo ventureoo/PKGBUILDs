@@ -7,7 +7,7 @@
 
 pkgname=wine-pure-git
 pkgver=10.17.r0.gd62035da4aa
-pkgrel=1
+pkgrel=2
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -20,11 +20,12 @@ source=(
   0003-wineboot-On-prefix-upgrade-update-win10-build-number.patch
   0004-wineboot-Generate-better-DigitalProductId.patch
   0005-wineboot-Load-root-certificates-on-prefix-update.patch
-  kernelbase-Fix-uninitialized-structs-in-OpenThread.patch
   winecfg-Add-tweaks-tab-page.patch
   ntdll-loader-add-support-for-overriding-IMAGE_FILE_L.patch
   Add-workarounds-for-game-launchers.patch
   Do-not-handle-IMAGE_FILE_LARGE_ADDRESS_AWARE-on-WoW64.patch
+  Disable-optimization-of-some-functions.patch
+  Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch
 )
 
 sha256sums=(
@@ -39,11 +40,12 @@ sha256sums=(
   '69b120ed11e07270db4e4378c8ad42d1bae418a6f8a10d98dc031ab9af0d1130'
   '236d3f562d1ce05ae9d372cd606acb0dab545579fcecae9cf14df1c253fff574'
   '771777eb4d60ef99588ed33657270533893de9a3f0c010d1fc6898ba3ec8ed74'
-  'ab84b21a5b2ee097ff19c6ccf029fc25d2e43f04987e8e0e24a8ef7aeb1af322'
   '27e451af4e7d512c6247cf5d1b7ec4b31f67768469e707e37ac741468fde1d7f'
   '906f5dab93dd61f0b74cf3e83adeec1509dd1f610366c903b628c962ff48399a'
   '07b0cbe87d08ce9272c15870acfc4f8a467990fc1b4405329e96d76c23f0fc58'
   'ce5a5c7ca21d748ab1ae92730456023d00d7f90ec27d0fcd28836a8bc16000ba'
+  '5a9aef19726f22af31f0f373c528c95b8552e76cc8c4477c8b61abd56545686b'
+  'cc2dce94d6d34b63dab273d9293c7644a6d4677f7b234e1551f64db35238bef0'
 )
 
 pkgdesc="Bleeding-edge Wine build (Staging, WoW64, Wayland)"
@@ -78,7 +80,9 @@ makedepends=(
   sdl2
   vulkan-headers
   vulkan-icd-loader
-  mingw-w64-gcc
+  clang
+  llvm
+  lld
   "linux-api-headers>=6.14"
 )
 optdepends=(
@@ -127,9 +131,10 @@ prepare() {
   # https://bugs.winehq.org/show_bug.cgi?id=30984
   patch -Np1 -i "${srcdir}/winex11.drv-Recognize-the-keyboard-in-a-locale-indep.patch"
 
-  # Fixes struct alignment inside kernelbase.OpenThread()
-  # Fixes: Hogwarts Legacy
-  patch -Np1 -i "${srcdir}/kernelbase-Fix-uninitialized-structs-in-OpenThread.patch"
+  # Disable optimization of some functions on Clang, as this breaks some games
+  # TODO: Understand root causes and check latest Clang
+  # Fixes: Hogwarts Legacy by Empress
+  patch -Np1 -i "${srcdir}/Disable-optimization-of-some-functions.patch"
 
   # Add tweaks tab page in winecfg
   patch -Np1 -i "${srcdir}/winecfg-Add-tweaks-tab-page.patch"
@@ -148,6 +153,9 @@ prepare() {
   # Patch by @NelloKudo
   patch -Np1 -i "${srcdir}/0001-HACK-ws2_32-Block-first-internet-connection-for-some.patch"
 
+  # Clang specific fix
+  patch -Np1 -i "${srcdir}/Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch"
+
   ./dlls/winevulkan/make_vulkan
   ./tools/make_requests
   ./tools/make_specfiles
@@ -163,15 +171,16 @@ build() {
 
   # Apply flags for cross-compilation (from Proton)
   export CFLAGS="-O2 -march=$march -mtune=$mtune -mfpmath=sse -fwrapv -pipe"
+  export CC="clang"
+  export CXX="clang++"
   export CROSSCFLAGS="$CFLAGS"
   export CROSSCXXFLAGS="$CROSSCFLAGS"
-  export CROSSLDFLAGS="-Wl,-O1"
-  export LDFLAGS="-Wl,-O1,--sort-common,--as-needed"
+  export CROSSLDFLAGS="-Wl,/FILEALIGN:4096,/OPT:REF,/OPT:ICF"
+  export LDFLAGS="-Wl,-O1,--sort-common,--as-needed -fuse-ld=lld"
 
   cd "$pkgname-build"
   ../wine/configure \
     --disable-tests \
-    --disable-win16 \
     --prefix=/usr \
     --libdir=/usr/lib \
     --with-x \
@@ -187,6 +196,7 @@ build() {
     --without-pcsclite \
     --without-xxf86vm \
     --without-pcap \
+    --with-mingw=clang \
     --enable-archs=x86_64,i386
 
   make
@@ -202,8 +212,8 @@ package() {
   ln -sf /usr/bin/wine "$pkgdir"/usr/bin/wine64
 
   # Strip Windows binaries
-  i686-w64-mingw32-strip --strip-debug "$pkgdir"/usr/lib/wine/i386-windows/*.dll
-  x86_64-w64-mingw32-strip --strip-debug "$pkgdir"/usr/lib/wine/x86_64-windows/*.dll
+  llvm-strip --strip-unneeded "$pkgdir"/usr/lib/wine/i386-windows/*.{dll,exe}
+  llvm-strip --strip-unneeded "$pkgdir"/usr/lib/wine/x86_64-windows/*.{dll,exe}
 
   # Font aliasing settings for Win32 applications
   install -d "$pkgdir"/usr/share/fontconfig/conf.{avail,default}
