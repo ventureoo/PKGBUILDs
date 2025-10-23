@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.2.4
+pkgver=25.2.5
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -81,10 +81,8 @@ source=(
   "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
   anti-lag.patch
 )
-sha256sums=(
-  'a370b4c549cbfbe646b319e34d73edb50ed883978f5e95133f282f0eae39ab52'
-  '1e83a132618ebc2a2236779223ace94354f22b3372ce739ee6641e83f2d0f9e8'
-)
+sha256sums=('bb6243e7a6f525febfa1e6ab50827ca4d4bfdad73812377b0ca9b6c50998b03e'
+            '1e83a132618ebc2a2236779223ace94354f22b3372ce739ee6641e83f2d0f9e8')
 
 prepare() {
   cd "mesa-$pkgver"
