@@ -44,7 +44,7 @@ build() {
 
   export PATH="/usr/lib/jvm/java-17-openjdk/bin/:$PATH"
 
-  cmake -DCMAKE_BUILD_TYPE= \
+  cmake -DCMAKE_BUILD_TYPE=release \
     -DCMAKE_INSTALL_PREFIX="/usr" \
     -DLauncher_QT_VERSION_MAJOR="6" \
     -DLauncher_ENABLE_JAVA_DOWNLOADER=ON \
