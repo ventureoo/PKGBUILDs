@@ -123,6 +123,9 @@ jobs:
           # Setup packager name
           sed -i 's/#PACKAGER=".*"/PACKAGER="Vasiliy Stelmachenok <ventureo@yandex.ru>"/g' /etc/makepkg.conf
 
+          # Compress packages more aggressively to save space
+          sed -i 's/COMPRESSZST=(.*)/COMPRESSZST=(zstd -c -T0 --ultra -20)/g' /etc/makepkg.conf
+
       - name: Build package
         run: |
           cd "${{ matrix.package }}"
