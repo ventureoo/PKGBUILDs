@@ -6,8 +6,8 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=10.17.r0.gd62035da4aa
-pkgrel=2
+pkgver=10.17.r231.gedfc7b57af7
+pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -26,6 +26,7 @@ source=(
   Do-not-handle-IMAGE_FILE_LARGE_ADDRESS_AWARE-on-WoW64.patch
   Disable-optimization-of-some-functions.patch
   Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch
+  9032.patch
 )
 
 sha256sums=(
@@ -46,6 +47,7 @@ sha256sums=(
   'ce5a5c7ca21d748ab1ae92730456023d00d7f90ec27d0fcd28836a8bc16000ba'
   '5a9aef19726f22af31f0f373c528c95b8552e76cc8c4477c8b61abd56545686b'
   'cc2dce94d6d34b63dab273d9293c7644a6d4677f7b234e1551f64db35238bef0'
+  '1ce5854cecae2c4f9159c7f1cfea0647ef2b40d33cd7672d80b2f1329956847e'
 )
 
 pkgdesc="Bleeding-edge Wine build (Staging, WoW64, Wayland)"
@@ -155,6 +157,10 @@ prepare() {
 
   # Clang specific fix
   patch -Np1 -i "${srcdir}/Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch"
+
+  # Fix OpenGL performance while using new WoW64 mode via Vulkan interop
+  # See: https://gitlab.winehq.org/wine/wine/-/merge_requests/9032
+  patch -Np1 -i "${srcdir}/9032.patch"
 
   ./dlls/winevulkan/make_vulkan
   ./tools/make_requests
