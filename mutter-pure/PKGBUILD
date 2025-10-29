@@ -7,7 +7,7 @@
 
 pkgname=mutter-pure
 pkgver=49.1.1
-pkgrel=2
+pkgrel=3
 pkgdesc="Window manager and compositor for GNOME"
 url="https://gitlab.gnome.org/GNOME/mutter"
 arch=(x86_64)
@@ -109,7 +109,7 @@ prepare() {
   cd mutter
 
   # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2660
-  patch -Np1 -i "${srcdir}/Add-support-for-tearing.patch"
+  #patch -Np1 -i "${srcdir}/Add-support-for-tearing.patch"
 
   # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/4725
   patch -Np1 -i "${srcdir}/4725.patch"
