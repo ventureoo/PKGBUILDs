@@ -1,6 +1,6 @@
 pkgbase = wine-pure-git
 	pkgdesc = Bleeding-edge Wine build (Staging, WoW64, Wayland)
-	pkgver = 10.17.r231.gedfc7b57af7
+	pkgver = 10.18.r0.g1e998672cff
 	pkgrel = 1
 	url = https://github.com/ventureoo/PKGBUILDs
 	install = wine.install
@@ -51,7 +51,7 @@ pkgbase = wine-pure-git
 	provides = wine-staging
 	provides = wine
 	provides = wine-wow64
-	provides = wine=10.17
+	provides = wine=10.18
 	conflicts = wine
 	options = !lto
 	source = git+https://gitlab.winehq.org/wine/wine.git
@@ -71,7 +71,6 @@ pkgbase = wine-pure-git
 	source = Do-not-handle-IMAGE_FILE_LARGE_ADDRESS_AWARE-on-WoW64.patch
 	source = Disable-optimization-of-some-functions.patch
 	source = Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch
-	source = 9032.patch
 	sha256sums = SKIP
 	sha256sums = SKIP
 	sha256sums = 9901a5ee619f24662b241672a7358364617227937d5f6d3126f70528ee5111e7
@@ -89,6 +88,5 @@ pkgbase = wine-pure-git
 	sha256sums = ce5a5c7ca21d748ab1ae92730456023d00d7f90ec27d0fcd28836a8bc16000ba
 	sha256sums = 5a9aef19726f22af31f0f373c528c95b8552e76cc8c4477c8b61abd56545686b
 	sha256sums = cc2dce94d6d34b63dab273d9293c7644a6d4677f7b234e1551f64db35238bef0
-	sha256sums = 1ce5854cecae2c4f9159c7f1cfea0647ef2b40d33cd7672d80b2f1329956847e
 
 pkgname = wine-pure-git
