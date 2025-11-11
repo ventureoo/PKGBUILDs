@@ -61,9 +61,15 @@ jobs:
               for ((i=0; i < size; i++)); do
                 ((i == 0)) && json+="{\"$1\": ["
                 pkgname="$(dirname "${MAPFILE[$i]}")"
-                [[ -e "$pkgname/.ci-skip" ]] && continue
-                json+="\"$pkgname\""
-                ((i == size - 1)) && json+="]}" || json+=", "
+                [[ ! -e "$pkgname/.ci-skip" ]] && json+="\"$pkgname\""
+                if ((i == size - 1)); then
+                    json+="]}"
+                else
+                  next="$(dirname "${MAPFILE[$i+1]}")"
+                  if [ ! -e "$next/.ci-skip" ]; then
+                    json+=", "
+                  fi
+                fi
               done
             fi
 
