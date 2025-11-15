@@ -10,6 +10,7 @@ pkgbase = mesa-pure
 	makedepends = cmake
 	makedepends = elfutils
 	makedepends = glslang
+	makedepends = libdisplay-info
 	makedepends = libpng
 	makedepends = libva
 	makedepends = libxml2

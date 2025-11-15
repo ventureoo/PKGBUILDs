@@ -19,6 +19,7 @@ makedepends=(
   'cmake'
   'elfutils'
   'glslang'
+  'libdisplay-info'
   'libpng'
   'libva'
   'libxml2'
