@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.2.6
+pkgver=25.3.0
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -80,14 +80,8 @@ conflicts=(
   'vulkan-mesa-layers'
   'vulkan-radeon'
 )
-source=(
-  "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
-  anti-lag.patch
-)
-sha256sums=(
-  '361c97e8afa5fe20141c5362c5b489040751e12861c186a16c621a2fb182fc42'
-  '1e83a132618ebc2a2236779223ace94354f22b3372ce739ee6641e83f2d0f9e8'
-)
+source=("https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz")
+sha256sums=('0fd54fea7dbbddb154df05ac752b18621f26d97e27863db3be951417c6abe8ae')
 
 prepare() {
   cd "mesa-$pkgver"
@@ -96,9 +90,6 @@ prepare() {
   # its GPU cache; otherwise it can cause pages to render incorrectly.
   # https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/2020604
   echo "$pkgver-pure.$pkgrel" >VERSION
-
-  # Add support for VK_AMD_anti_lag vulkan layer
-  patch -Np1 -i "${srcdir}/anti-lag.patch"
 }
 
 build() {
@@ -127,7 +118,6 @@ build() {
     -D gallium-mediafoundation=disabled
     -D gallium-drivers=radeonsi,zink
     -D gallium-extra-hud=false
-    -D gallium-vdpau=disabled
     -D gles1=disabled
     -D glx=dri
     -D html-docs=disabled
