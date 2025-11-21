@@ -95,6 +95,7 @@ pref("browser.promo.cookiebanners.enabled", false, locked);
 pref("browser.promo.focus.enabled", false, locked);
 pref("browser.promo.pin.enabled", false, locked);
 pref("browser.protections_panel.infoMessage.seen", true);
+pref("browser.search.visualSearch.featureGate", false, locked);
 pref("browser.send_to_device_locales", "");
 pref("browser.tabs.crashReporting.sendReport", false, locked);
 pref("browser.tabs.groups.smart.userEnabled", false, locked);
