@@ -7,8 +7,8 @@
 # Contributor: Florian Pritz <bluewind@xinu.at>
 
 pkgname=transmission-pure
-pkgver=4.1.0_beta.2
-pkgrel=2
+pkgver=4.1.0_beta.4
+pkgrel=1
 arch=(x86_64)
 url="http://www.transmissionbt.com/"
 license=(GPL)
@@ -80,10 +80,6 @@ build() {
 package() {
     cd transmission
     DESTDIR="$pkgdir" ninja -C build install
-
-    install -d "$pkgdir"/usr/share/transmission
-    install -Dm644 daemon/transmission-daemon.service \
-        "$pkgdir/usr/lib/systemd/system/transmission.service"
 
     install -Dm644 "$srcdir/transmission-cli.sysusers" \
         "$pkgdir/usr/lib/sysusers.d/transmission.conf"
