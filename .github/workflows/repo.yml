@@ -89,6 +89,8 @@ jobs:
     container: archlinux:base-devel
     if: needs.get-changed-packages.outputs.changed != ''
     needs: get-changed-packages
+    env:
+      CCACHE_DIR: /home/builder/.ccache
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -109,7 +111,7 @@ jobs:
           pacman-key --init
           pacman-key --keyserver hkps://keyserver.ubuntu.com --recv-keys 7E8BBA85FD77B760
           pacman-key --lsign-key  7E8BBA85FD77B760
-          pacman -Syu --noconfirm
+          pacman -Syu --noconfirm ccache
 
           # Setup builder user
           useradd builder -m
@@ -132,11 +134,20 @@ jobs:
           # Compress packages more aggressively to save space
           sed -i 's/COMPRESSZST=(.*)/COMPRESSZST=(zstd -c -T0 --ultra -20)/g' /etc/makepkg.conf
 
+          # Setup ccache
+          sed -i 's|!ccache|ccache|' /etc/makepkg.conf
+          sudo -u builder mkdir -p ${{ env.CCACHE_DIR }}
       - name: Build package
         run: |
           cd "${{ matrix.package }}"
           sudo -H -E -u builder makepkg --syncdeps --noconfirm
-
+      - name: Setup ccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ matrix.package }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ matrix.package }}
       - name: Signing package
         if: github.ref == 'refs/heads/main'
         env:
