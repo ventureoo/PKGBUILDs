@@ -70,7 +70,6 @@ options=(
   !emptydirs
   !lto
   !makeflags
-  !ccache
 )
 provides=("firefox" "firefox=${pkgver}")
 conflicts=(firefox)
