@@ -60,6 +60,7 @@ pkgbase = firefox-pure
 	options = !emptydirs
 	options = !lto
 	options = !makeflags
+	options = !ccache
 	source = https://archive.mozilla.org/pub/firefox/releases/146.0/source/firefox-146.0.source.tar.xz
 	source = firefox-symbolic.svg
 	source = firefox.desktop
