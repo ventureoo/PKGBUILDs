@@ -1,10 +1,9 @@
 pkgbase = firefox-settings
 	pkgdesc = My settings for Firefox browser
-	pkgver = 20251121
+	pkgver = 20251210
 	pkgrel = 1
 	url = https://github.com/ventureoo/PKGBUILDs
 	arch = any
-	depends = firefox
 	depends = xdg-desktop-portal
 	backup = etc/firefox/policies/policies.json
 	source = pure.js
