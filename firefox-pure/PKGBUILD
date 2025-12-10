@@ -18,7 +18,7 @@ depends=(
   cairo
   dbus
   ffmpeg
-  firefox-settings
+  #firefox-settings
   fontconfig
   freetype2
   gcc-libs
