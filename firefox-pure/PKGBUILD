@@ -17,7 +17,7 @@ depends=(
   bash
   cairo
   dbus
-  ffmpeg4.4
+  ffmpeg
   firefox-settings
   fontconfig
   freetype2
