@@ -137,10 +137,7 @@ jobs:
           # Setup ccache
           sed -i 's|!ccache|ccache|' /etc/makepkg.conf
           sudo -u builder mkdir -p ${{ env.CCACHE_DIR }}
-      - name: Build package
-        run: |
-          cd "${{ matrix.package }}"
-          sudo -H -E -u builder makepkg --syncdeps --noconfirm
+
       - name: Setup ccache
         uses: actions/cache@v4
         with:
@@ -148,6 +145,12 @@ jobs:
           key: ccache-${{ matrix.package }}-${{ github.run_id }}
           restore-keys: |
             ccache-${{ matrix.package }}
+
+      - name: Build package
+        run: |
+          cd "${{ matrix.package }}"
+          sudo -H -E -u builder makepkg --syncdeps --noconfirm
+
       - name: Signing package
         if: github.ref == 'refs/heads/main'
         env:
