@@ -140,6 +140,7 @@ jobs:
 
       - name: Setup ccache
         uses: actions/cache@v4
+        if: github.ref == 'refs/heads/main'
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ matrix.package }}-${{ github.run_id }}
