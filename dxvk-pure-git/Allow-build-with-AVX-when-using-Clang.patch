@@ -1,0 +1,26 @@
+From ee0d6e1b6199e2fc77b148f6bb248f24603e2a62 Mon Sep 17 00:00:00 2001
+From: Vasiliy Stelmachenok <ventureo@cachyos.org>
+Date: Sun, 21 Dec 2025 23:39:45 +0300
+Subject: [PATCH] Allow build with AVX when using Clang
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
+---
+ src/util/util_bit.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/util/util_bit.h b/src/util/util_bit.h
+index 75ecb23ff..8d6e57245 100644
+--- a/src/util/util_bit.h
++++ b/src/util/util_bit.h
+@@ -12,7 +12,7 @@
+ 
+ #ifdef DXVK_ARCH_X86
+   #ifndef _MSC_VER
+-    #if defined(_WIN32) && (defined(__AVX__) || defined(__AVX2__))
++    #if defined(_WIN32) && !defined(__clang__) && (defined(__AVX__) || defined(__AVX2__))
+       #error "AVX-enabled builds not supported due to stack alignment issues."
+     #endif
+     #if defined(__WINE__) && defined(__clang__)
+-- 
+2.52.0
+

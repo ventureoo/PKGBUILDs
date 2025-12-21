@@ -1,0 +1,364 @@
+From 5f87e40f14107bfde77c1ee466af1525fb676fc8 Mon Sep 17 00:00:00 2001
+From: Marin Baron <marin.baron.pro@gmail.com>
+Date: Sat, 6 Dec 2025 20:02:35 +0100
+Subject: [PATCH 1/4] Build clang support w64-mingw32
+
+---
+ README.md                              |  8 ++++++--
+ build-win32-clang.txt                  | 17 +++++++++++++++++
+ build-win32.txt => build-win32-gcc.txt |  0
+ build-win64-clang.txt                  | 17 +++++++++++++++++
+ build-win64.txt => build-win64-gcc.txt |  0
+ meson.build                            |  2 +-
+ package-release.sh                     | 10 +++++++---
+ src/d3d10/meson.build                  |  4 +++-
+ 8 files changed, 51 insertions(+), 7 deletions(-)
+ create mode 100644 build-win32-clang.txt
+ rename build-win32.txt => build-win32-gcc.txt (100%)
+ create mode 100644 build-win64-clang.txt
+ rename build-win64.txt => build-win64-gcc.txt (100%)
+
+diff --git a/README.md b/README.md
+index 03c2f7d28f6..8f31daa9350 100644
+--- a/README.md
++++ b/README.md
+@@ -131,17 +131,21 @@ cd /your/target/directory/build.64
+ ninja install
+ ```
+ 
++To build with clang, add `--clang-compiler` to package-release.sh call.
++
+ #### Compiling manually
+ ```
+ # 64-bit build. For 32-bit builds, replace
+-# build-win64.txt with build-win32.txt
+-meson setup --cross-file build-win64.txt --buildtype release --prefix /your/dxvk/directory build.w64
++# build-win64-gcc.txt with build-win32-gcc.txt
++meson setup --cross-file build-win64-gcc.txt --buildtype release --prefix /your/dxvk/directory build.w64
+ cd build.w64
+ ninja install
+ ```
+ 
+ The D3D8, D3D9, D3D10, D3D11 and DXGI DLLs will be located in `/your/dxvk/directory/bin`.
+ 
++To build with clang, use build-win64-clang.txt instead of build-win64-gcc.txt
++
+ ### Build troubleshooting
+ DXVK requires threading support from your mingw-w64 build environment. If you
+ are missing this, you may see "error: ‘std::cv_status’ has not been declared"
+diff --git a/build-win32-clang.txt b/build-win32-clang.txt
+new file mode 100644
+index 00000000000..0e839a2a6c8
+--- /dev/null
++++ b/build-win32-clang.txt
+@@ -0,0 +1,17 @@
++[binaries]
++c = [ 'clang', '--target=i686-w64-mingw32' ]
++cpp = [ 'clang++', '--target=i686-w64-mingw32' ]
++ar = 'llvm-ar'
++strip = 'llvm-strip'
++windres = [ 'llvm-windres', '--target=i686-w64-mingw32' ]
++c_ld = [ 'lld', '--target=i686-w64-mingw32' ]
++cpp_ld = [ 'lld', '--target=i686-w64-mingw32' ]
++
++[properties]
++needs_exe_wrapper = true
++
++[host_machine]
++system = 'windows'
++cpu_family = 'x86'
++cpu = 'x86'
++endian = 'little'
+diff --git a/build-win32.txt b/build-win32-gcc.txt
+similarity index 100%
+rename from build-win32.txt
+rename to build-win32-gcc.txt
+diff --git a/build-win64-clang.txt b/build-win64-clang.txt
+new file mode 100644
+index 00000000000..2bcfee2d8a3
+--- /dev/null
++++ b/build-win64-clang.txt
+@@ -0,0 +1,17 @@
++[binaries]
++c = [ 'clang', '--target=x86_64-w64-mingw32' ]
++cpp = [ 'clang++', '--target=x86_64-w64-mingw32' ]
++ar = 'llvm-ar'
++strip = 'llvm-strip'
++windres = [ 'llvm-windres', '--target=x86_64-w64-mingw32' ]
++c_ld = [ 'lld', '--target=x86_64-w64-mingw32' ]
++cpp_ld = [ 'lld', '--target=x86_64-w64-mingw32' ]
++
++[properties]
++needs_exe_wrapper = true
++
++[host_machine]
++system = 'windows'
++cpu_family = 'x86_64'
++cpu = 'x86_64'
++endian = 'little'
+diff --git a/build-win64.txt b/build-win64-gcc.txt
+similarity index 100%
+rename from build-win64.txt
+rename to build-win64-gcc.txt
+diff --git a/meson.build b/meson.build
+index f3c81aed14a..4b4728826fd 100644
+--- a/meson.build
++++ b/meson.build
+@@ -70,7 +70,7 @@ if platform == 'windows'
+       '-static-libstdc++',
+       # We need to set the section alignment for debug symbols to
+       # work properly as well as avoiding a memcpy from the Wine loader.
+-      '-Wl,--file-alignment=4096',
++      '-Wl,--file-alignment,4096',
+     ]
+ 
+     # Wine's built-in back traces only work with dwarf4 symbols
+diff --git a/package-release.sh b/package-release.sh
+index 23a4c6bb1f8..8478a45412f 100755
+--- a/package-release.sh
++++ b/package-release.sh
+@@ -27,6 +27,7 @@ opt_devbuild=0
+ opt_buildid=false
+ opt_64_only=0
+ opt_32_only=0
++opt_compiler=gcc
+ 
+ crossfile="build-win"
+ 
+@@ -48,6 +49,9 @@ while [ $# -gt 0 ]; do
+   "--32-only")
+     opt_32_only=1
+     ;;
++  "--clang-compiler")
++    opt_compiler=clang
++    ;;
+   *)
+     echo "Unrecognized option: $1" >&2
+     exit 1
+@@ -66,7 +70,7 @@ function build_arch {
+     opt_strip=--strip
+   fi
+ 
+-  meson setup --cross-file "$DXVK_SRC_DIR/$crossfile$1.txt" \
++  meson setup --cross-file "$DXVK_SRC_DIR/$crossfile$1-$2.txt" \
+         --buildtype "release"                               \
+         --prefix "$DXVK_BUILD_DIR"                          \
+         $opt_strip                                          \
+@@ -93,10 +97,10 @@ function package {
+ }
+ 
+ if [ $opt_32_only -eq 0 ]; then
+-  build_arch 64
++  build_arch 64 $opt_compiler
+ fi
+ if [ $opt_64_only -eq 0 ]; then
+-  build_arch 32
++  build_arch 32 $opt_compiler
+ fi
+ 
+ if [ $opt_nopackage -eq 0 ]; then
+diff --git a/src/d3d10/meson.build b/src/d3d10/meson.build
+index 6a690c435fb..9b1f528eabf 100644
+--- a/src/d3d10/meson.build
++++ b/src/d3d10/meson.build
+@@ -15,8 +15,10 @@ else
+   d3d10_d3d11_dep = d3d11_dep
+ endif
+ 
++d3d10_core_dependencies = [ dependency('threads'), d3d10_d3d11_dep ]
++
+ d3d10_core_dll = shared_library(dxvk_name_prefix+'d3d10core', d3d10_core_src, d3d10_core_res,
+-  dependencies        : [ d3d10_d3d11_dep ],
++  dependencies        : d3d10_core_dependencies,
+   include_directories : dxvk_include_path,
+   install             : true,
+   vs_module_defs      : 'd3d10core'+def_spec_ext,
+
+From 08908c45bc0193000c4e2d9307599b2a40707c9a Mon Sep 17 00:00:00 2001
+From: Marin Baron <marin.baron.pro@gmail.com>
+Date: Sun, 7 Dec 2025 13:41:21 +0100
+Subject: [PATCH 2/4] CI duplicate gcc pipeline into clang
+
+---
+ .github/workflows/clang-artifacts.yml | 83 +++++++++++++++++++++++++++
+ 1 file changed, 83 insertions(+)
+ create mode 100644 .github/workflows/clang-artifacts.yml
+
+diff --git a/.github/workflows/clang-artifacts.yml b/.github/workflows/clang-artifacts.yml
+new file mode 100644
+index 00000000000..f61cecfc24e
+--- /dev/null
++++ b/.github/workflows/clang-artifacts.yml
+@@ -0,0 +1,83 @@
++name: Artifacts (Package)
++
++on: [push, pull_request, workflow_dispatch]
++
++jobs:
++  artifacts-mingw-w64:
++    runs-on: ubuntu-latest
++
++    steps:
++    - name: Checkout code
++      id: checkout-code
++      uses: actions/checkout@v4
++      with:
++        submodules: recursive
++        fetch-depth: 0
++
++    - name: Setup problem matcher
++      uses: Joshua-Ashton/gcc-problem-matcher@v3
++
++    - name: Build release
++      id: build-release
++      uses: Joshua-Ashton/arch-mingw-github-action@v8
++      with:
++        command: |
++          export VERSION_NAME="${GITHUB_REF##*/}-${GITHUB_SHA##*/}"
++          ./package-release.sh ${VERSION_NAME} build --no-package
++          echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
++
++    - name: Upload artifacts
++      id: upload-artifacts
++      uses: actions/upload-artifact@v4
++      with:
++        name: dxvk-win-${{ env.VERSION_NAME }}
++        path: build/dxvk-${{ env.VERSION_NAME }}
++        if-no-files-found: error
++
++  artifacts-steamrt-sniper:
++    runs-on: ubuntu-latest
++    container: registry.gitlab.steamos.cloud/steamrt/sniper/sdk:beta
++
++    steps:
++    - name: Checkout code
++      id: checkout-code
++      uses: actions/checkout@v4
++      with:
++        submodules: recursive
++        fetch-depth: 0
++
++    - name: Setup problem matcher
++      uses: Joshua-Ashton/gcc-problem-matcher@v3
++
++    - name: Build release
++      id: build-release
++      shell: bash
++      run: |
++        export VERSION_NAME="${GITHUB_REF##*/}-${GITHUB_SHA##*/}"
++        ./package-native.sh ${VERSION_NAME} build
++        echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
++
++    - name: Upload artifacts
++      id: upload-artifacts
++      uses: actions/upload-artifact@v4
++      with:
++        name: dxvk-native-${{ env.VERSION_NAME }}
++        path: build/dxvk-native-${{ env.VERSION_NAME }}.tar.gz
++        if-no-files-found: error
++
++  merge-artifacts:
++    runs-on: ubuntu-latest
++    needs: [artifacts-mingw-w64, artifacts-steamrt-sniper]
++    steps:
++      - name: Get version
++        id: get-version
++        shell: bash
++        run: |
++          echo "VERSION_NAME=${GITHUB_REF##*/}-${GITHUB_SHA##*/}" >> $GITHUB_ENV
++
++      - name: Merge Artifacts
++        uses: actions/upload-artifact/merge@v4
++        with:
++          name: dxvk-${{ env.VERSION_NAME }}
++          pattern: dxvk*
++          delete-merged: true
+
+From 7cc5d5eb214c934107ff2762e38e1fae020ad85c Mon Sep 17 00:00:00 2001
+From: Marin Baron <marin.baron.pro@gmail.com>
+Date: Sun, 7 Dec 2025 13:41:55 +0100
+Subject: [PATCH 3/4] CI implement clang pipeline
+
+---
+ .github/workflows/clang-artifacts.yml | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/.github/workflows/clang-artifacts.yml b/.github/workflows/clang-artifacts.yml
+index f61cecfc24e..b242dfb55bc 100644
+--- a/.github/workflows/clang-artifacts.yml
++++ b/.github/workflows/clang-artifacts.yml
+@@ -1,9 +1,9 @@
+-name: Artifacts (Package)
++name: Clang Artifacts (Package)
+ 
+ on: [push, pull_request, workflow_dispatch]
+ 
+ jobs:
+-  artifacts-mingw-w64:
++  clang-artifacts-mingw-w64:
+     runs-on: ubuntu-latest
+ 
+     steps:
+@@ -23,7 +23,7 @@ jobs:
+       with:
+         command: |
+           export VERSION_NAME="${GITHUB_REF##*/}-${GITHUB_SHA##*/}"
+-          ./package-release.sh ${VERSION_NAME} build --no-package
++          ./package-release.sh ${VERSION_NAME} build --no-package --clang-compiler
+           echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
+ 
+     - name: Upload artifacts
+@@ -34,7 +34,7 @@ jobs:
+         path: build/dxvk-${{ env.VERSION_NAME }}
+         if-no-files-found: error
+ 
+-  artifacts-steamrt-sniper:
++  clang-artifacts-steamrt-sniper:
+     runs-on: ubuntu-latest
+     container: registry.gitlab.steamos.cloud/steamrt/sniper/sdk:beta
+ 
+@@ -52,6 +52,9 @@ jobs:
+     - name: Build release
+       id: build-release
+       shell: bash
++      env:
++        CC: clang
++        CXX: clang++
+       run: |
+         export VERSION_NAME="${GITHUB_REF##*/}-${GITHUB_SHA##*/}"
+         ./package-native.sh ${VERSION_NAME} build
+@@ -65,9 +68,9 @@ jobs:
+         path: build/dxvk-native-${{ env.VERSION_NAME }}.tar.gz
+         if-no-files-found: error
+ 
+-  merge-artifacts:
++  clang-merge-artifacts:
+     runs-on: ubuntu-latest
+-    needs: [artifacts-mingw-w64, artifacts-steamrt-sniper]
++    needs: [clang-artifacts-mingw-w64, clang-artifacts-steamrt-sniper]
+     steps:
+       - name: Get version
+         id: get-version
+
+From b4c14847bd3bbcf8b659d460dec225a9be7bb40c Mon Sep 17 00:00:00 2001
+From: Marin Baron <marin.baron.pro@gmail.com>
+Date: Sun, 7 Dec 2025 14:24:29 +0100
+Subject: [PATCH 4/4] CI clang upgrade steamrt to v4
+
+---
+ .github/workflows/clang-artifacts.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/.github/workflows/clang-artifacts.yml b/.github/workflows/clang-artifacts.yml
+index b242dfb55bc..46584b93307 100644
+--- a/.github/workflows/clang-artifacts.yml
++++ b/.github/workflows/clang-artifacts.yml
+@@ -36,7 +36,7 @@ jobs:
+ 
+   clang-artifacts-steamrt-sniper:
+     runs-on: ubuntu-latest
+-    container: registry.gitlab.steamos.cloud/steamrt/sniper/sdk:beta
++    container: registry.gitlab.steamos.cloud/steamrt/steamrt4/sdk:beta
+ 
+     steps:
+     - name: Checkout code

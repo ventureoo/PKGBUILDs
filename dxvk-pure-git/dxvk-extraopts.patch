@@ -1,7 +1,7 @@
-diff --git a/build-win32.txt b/build-win32.txt
+diff --git a/build-win32-gcc.txt b/build-win32-gcc.txt
 index a1406832..748f5c1e 100644
---- a/build-win32.txt
-+++ b/build-win32.txt
+--- a/build-win32-gcc.txt
++++ b/build-win32-gcc.txt
 @@ -4,6 +4,12 @@ cpp = 'i686-w64-mingw32-g++'
  ar = 'i686-w64-mingw32-ar'
  strip = 'i686-w64-mingw32-strip'
@@ -15,13 +15,47 @@ index a1406832..748f5c1e 100644
  [properties]
  needs_exe_wrapper = true
  
-diff --git a/build-win64.txt b/build-win64.txt
+diff --git a/build-win64-gcc.txt b/build-win64-gcc.txt
 index 1aee4626..7d2e84f4 100644
---- a/build-win64.txt
-+++ b/build-win64.txt
+--- a/build-win64-gcc.txt
++++ b/build-win64-gcc.txt
 @@ -4,6 +4,12 @@ cpp = 'x86_64-w64-mingw32-g++'
  ar = 'x86_64-w64-mingw32-ar'
  strip = 'x86_64-w64-mingw32-strip'
+ 
++[built-in options]
++c_args=[@CARGS@]
++cpp_args=[@CXXARGS@]
++c_link_args = [@LDARGS@]
++cpp_link_args = [@LDARGS@]
++
+ [properties]
+ needs_exe_wrapper = true
+
+diff --git a/build-win32-clang.txt b/build-win32-clang.txt
+index 0e839a2a6..0d4bc6d21 100644
+--- a/build-win32-clang.txt
++++ b/build-win32-clang.txt
+@@ -7,6 +7,12 @@ windres = [ 'llvm-windres', '--target=i686-w64-mingw32' ]
+ c_ld = [ 'lld', '--target=i686-w64-mingw32' ]
+ cpp_ld = [ 'lld', '--target=i686-w64-mingw32' ]
+ 
++[built-in options]
++c_args=[@CARGS@]
++cpp_args=[@CXXARGS@]
++c_link_args = [@LDARGS@]
++cpp_link_args = [@LDARGS@]
++
+ [properties]
+ needs_exe_wrapper = true
+ 
+diff --git a/build-win64-clang.txt b/build-win64-clang.txt
+index 2bcfee2d8..b560da95c 100644
+--- a/build-win64-clang.txt
++++ b/build-win64-clang.txt
+@@ -7,6 +7,12 @@ windres = [ 'llvm-windres', '--target=x86_64-w64-mingw32' ]
+ c_ld = [ 'lld', '--target=x86_64-w64-mingw32' ]
+ cpp_ld = [ 'lld', '--target=x86_64-w64-mingw32' ]
  
 +[built-in options]
 +c_args=[@CARGS@]
