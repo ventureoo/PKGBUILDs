@@ -21,6 +21,7 @@ pkgbase = dxvk-pure-git
 	conflicts = dxvk-bin
 	options = !strip
 	options = !buildflags
+	options = !ccache
 	options = staticlibs
 	source = git+https://github.com/doitsujin/dxvk.git
 	source = git+https://github.com/Joshua-Ashton/mingw-directx-headers.git
