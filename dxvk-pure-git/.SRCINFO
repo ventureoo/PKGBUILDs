@@ -12,6 +12,7 @@ pkgbase = dxvk-pure-git
 	makedepends = lld
 	makedepends = llvm
 	makedepends = git
+	makedepends = mingw-w64-gcc
 	depends = vulkan-icd-loader
 	provides = dxvk
 	provides = d9vk
