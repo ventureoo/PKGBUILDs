@@ -9,6 +9,8 @@ pkgbase = dxvk-pure-git
 	makedepends = meson>=0.43
 	makedepends = glslang
 	makedepends = clang
+	makedepends = lld
+	makedepends = llvm
 	makedepends = git
 	depends = vulkan-icd-loader
 	provides = dxvk
