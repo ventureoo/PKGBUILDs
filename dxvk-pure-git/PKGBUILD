@@ -13,7 +13,7 @@ depends=('vulkan-icd-loader')
 provides=('dxvk' 'd9vk' "dxvk=$pkgver")
 conflicts=('d9vk'  "dxvk" 'dxvk-bin')
 makedepends=('ninja' 'meson>=0.43' 'glslang' 'clang' 'lld' 'llvm' 'git' 'mingw-w64-gcc')
-options=(!strip !buildflags !ccache staticlibs)
+options=(!strip !buildflags staticlibs)
 source=(
     "git+https://github.com/doitsujin/dxvk.git"
     "git+https://github.com/Joshua-Ashton/mingw-directx-headers.git"
