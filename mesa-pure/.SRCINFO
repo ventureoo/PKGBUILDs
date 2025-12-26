@@ -1,6 +1,6 @@
 pkgbase = mesa-pure
 	pkgdesc = A purely personal Mesa build
-	pkgver = 25.3.0
+	pkgver = 25.3.2
 	pkgrel = 1
 	url = https://www.mesa3d.org/
 	arch = x86_64
@@ -65,7 +65,7 @@ pkgbase = mesa-pure
 	conflicts = vulkan-mesa-device-select
 	conflicts = vulkan-mesa-layers
 	conflicts = vulkan-radeon
-	source = https://mesa.freedesktop.org/archive/mesa-25.3.0.tar.xz
-	sha256sums = 0fd54fea7dbbddb154df05ac752b18621f26d97e27863db3be951417c6abe8ae
+	source = https://mesa.freedesktop.org/archive/mesa-25.3.2.tar.xz
+	sha256sums = e69dab0d0ea03e3e8cb141b032f58ea9fcf3b9c1f61b31f6592cb4bbd8d0185d
 
 pkgname = mesa-pure

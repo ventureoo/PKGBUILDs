@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.3.0
+pkgver=25.3.2
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -82,7 +82,7 @@ conflicts=(
   'vulkan-radeon'
 )
 source=("https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz")
-sha256sums=('0fd54fea7dbbddb154df05ac752b18621f26d97e27863db3be951417c6abe8ae')
+sha256sums=('e69dab0d0ea03e3e8cb141b032f58ea9fcf3b9c1f61b31f6592cb4bbd8d0185d')
 
 prepare() {
   cd "mesa-$pkgver"
