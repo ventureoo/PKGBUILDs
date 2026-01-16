@@ -1,0 +1,147 @@
+From 17e6e3829ff59537d1d47ddde2ab71b83f68593a Mon Sep 17 00:00:00 2001
+From: Vasiliy Stelmachenok <ventureo@cachyos.org>
+Date: Fri, 16 Jan 2026 00:05:03 +0300
+Subject: [PATCH] Revert "wsi/wayland: Add support for PresentWait2"
+
+This reverts commit 3023f31cadc9a384f0d72832bfca5e05ce0ce89c.
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
+---
+ src/vulkan/wsi/wsi_common_wayland.c | 93 -----------------------------
+ 1 file changed, 93 deletions(-)
+
+diff --git a/src/vulkan/wsi/wsi_common_wayland.c b/src/vulkan/wsi/wsi_common_wayland.c
+index cf3749be6d4..6a7b2fa8a1e 100644
+--- a/src/vulkan/wsi/wsi_common_wayland.c
++++ b/src/vulkan/wsi/wsi_common_wayland.c
+@@ -1786,27 +1786,6 @@ wsi_wl_surface_get_capabilities(VkIcdSurfaceBase *icd_surface,
+    return VK_SUCCESS;
+ }
+ 
+-static VkResult
+-wsi_wl_surface_check_presentation(VkIcdSurfaceBase *icd_surface,
+-                                  struct wsi_device *wsi_device,
+-                                  bool *has_wp_presentation)
+-{
+-   VkIcdSurfaceWayland *surface = (VkIcdSurfaceWayland *)icd_surface;
+-   struct wsi_wayland *wsi =
+-      (struct wsi_wayland *)wsi_device->wsi[VK_ICD_WSI_PLATFORM_WAYLAND];
+-   struct wsi_wl_display display;
+-
+-   if (wsi_wl_display_init(wsi, &display, surface->display, true,
+-                           wsi_device->sw, "mesa check wp_presentation"))
+-      return VK_ERROR_SURFACE_LOST_KHR;
+-
+-   *has_wp_presentation = !!display.wp_presentation_notwrapped;
+-
+-   wsi_wl_display_finish(&display);
+-
+-   return VK_SUCCESS;
+-}
+-
+ static VkResult
+ wsi_wl_surface_get_capabilities2(VkIcdSurfaceBase *surface,
+                                  struct wsi_device *wsi_device,
+@@ -1815,8 +1794,6 @@ wsi_wl_surface_get_capabilities2(VkIcdSurfaceBase *surface,
+ {
+    assert(caps->sType == VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR);
+ 
+-   struct wsi_wl_surface *wsi_wl_surface =
+-      wl_container_of((VkIcdSurfaceWayland *)surface, wsi_wl_surface, base);
+    const VkSurfacePresentModeEXT *present_mode = vk_find_struct_const(info_next, SURFACE_PRESENT_MODE_EXT);
+ 
+    VkResult result =
+@@ -1888,32 +1865,6 @@ wsi_wl_surface_get_capabilities2(VkIcdSurfaceBase *surface,
+          break;
+       }
+ 
+-      case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_ID_2_KHR: {
+-         VkSurfaceCapabilitiesPresentId2KHR *pid2 = (void *)ext;
+-         bool has_feedback;
+-
+-         result = wsi_wl_surface_check_presentation(surface, wsi_device,
+-                                                    &has_feedback);
+-         if (result != VK_SUCCESS)
+-            return result;
+-
+-         pid2->presentId2Supported = has_feedback;
+-         break;
+-      }
+-
+-      case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_WAIT_2_KHR: {
+-         VkSurfaceCapabilitiesPresentWait2KHR *pwait2 = (void *)ext;
+-         bool has_feedback;
+-
+-         result = wsi_wl_surface_check_presentation(surface, wsi_device,
+-                                                    &has_feedback);
+-         if (result != VK_SUCCESS)
+-            return result;
+-
+-         pwait2->presentWait2Supported = has_feedback;
+-         break;
+-      }
+-
+       default:
+          /* Ignored */
+          break;
+@@ -2656,49 +2607,6 @@ already_dispatching:
+    return ret;
+ }
+ 
+-static VkResult
+-wsi_wl_swapchain_wait_for_present2(struct wsi_swapchain *wsi_chain,
+-                                   uint64_t present_id,
+-                                   uint64_t timeout)
+-{
+-   struct wsi_wl_swapchain *chain = (struct wsi_wl_swapchain *)wsi_chain;
+-   struct timespec end_time;
+-   VkResult ret;
+-   int err;
+-
+-   MESA_TRACE_FUNC();
+-
+-   uint64_t atimeout;
+-   if (timeout == 0 || timeout == UINT64_MAX)
+-      atimeout = timeout;
+-   else
+-      atimeout = os_time_get_absolute_timeout(timeout);
+-   timespec_from_nsec(&end_time, atimeout);
+-
+-   /* Need to observe that the swapchain semaphore has been unsignalled,
+-    * as this is guaranteed when a present is complete. */
+-   VkResult result = wsi_swapchain_wait_for_present_semaphore(
+-         &chain->base, present_id, timeout);
+-   if (result != VK_SUCCESS)
+-      return result;
+-
+-   while (1) {
+-      err = pthread_mutex_lock(&chain->present_ids.lock);
+-      if (err != 0)
+-         return VK_ERROR_OUT_OF_DATE_KHR;
+-
+-      bool completed = chain->present_ids.max_completed >= present_id;
+-      pthread_mutex_unlock(&chain->present_ids.lock);
+-
+-      if (completed)
+-         return VK_SUCCESS;
+-
+-      ret = dispatch_present_id_queue(wsi_chain, &end_time);
+-      if (ret != VK_SUCCESS)
+-         return ret;
+-   }
+-}
+-
+ static VkResult
+ wsi_wl_swapchain_acquire_next_image_explicit(struct wsi_swapchain *wsi_chain,
+                                              const VkAcquireNextImageInfoKHR *info,
+@@ -3607,7 +3515,6 @@ wsi_wl_surface_create_swapchain(VkIcdSurfaceBase *icd_surface,
+    chain->base.release_images = wsi_wl_swapchain_release_images;
+    chain->base.set_present_mode = wsi_wl_swapchain_set_present_mode;
+    chain->base.wait_for_present = wsi_wl_swapchain_wait_for_present;
+-   chain->base.wait_for_present2 = wsi_wl_swapchain_wait_for_present2;
+    chain->base.present_mode = present_mode;
+    chain->base.image_count = num_images;
+    chain->base.set_hdr_metadata = wsi_wl_swapchain_set_hdr_metadata;
+-- 
+2.52.0
+

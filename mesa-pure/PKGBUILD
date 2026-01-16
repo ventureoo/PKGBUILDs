@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=25.3.2
+pkgver=25.3.3
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -69,6 +69,7 @@ provides=(
   'opengl-driver'
   'vulkan-driver'
   'vulkan-mesa-device-select'
+  'vulkan-mesa-implicit-layers'
   'vulkan-mesa-layers'
   'vulkan-radeon'
 )
@@ -78,11 +79,18 @@ conflicts=(
   'mesa-libgl'
   'opencl-clover-mesa'
   'vulkan-mesa-device-select'
+  'vulkan-mesa-implicit-layers'
   'vulkan-mesa-layers'
   'vulkan-radeon'
 )
-source=("https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz")
-sha256sums=('e69dab0d0ea03e3e8cb141b032f58ea9fcf3b9c1f61b31f6592cb4bbd8d0185d')
+source=(
+  "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"
+  "Revert-wsi-wayland-Add-support-for-PresentWait2.patch"
+)
+sha256sums=(
+  '05328b3891c000e6a110a3e7321d8bfbb21631d132bf86bd3d4a8f45c535ef6b'
+  '670a8084248d76b6714caf2f741b179deb07d9f2930d4b256b5a1318106796d6'
+)
 
 prepare() {
   cd "mesa-$pkgver"
@@ -91,6 +99,9 @@ prepare() {
   # its GPU cache; otherwise it can cause pages to render incorrectly.
   # https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/2020604
   echo "$pkgver-pure.$pkgrel" >VERSION
+
+  # Fixes regression performance on Wayland
+  patch -Np1 -i "${srcdir}/Revert-wsi-wayland-Add-support-for-PresentWait2.patch"
 }
 
 build() {
@@ -117,7 +128,7 @@ build() {
     -D android-libbacktrace=disabled
     -D b_ndebug=true
     -D gallium-mediafoundation=disabled
-    -D gallium-drivers=radeonsi,zink
+    -D gallium-drivers=radeonsi
     -D gallium-extra-hud=false
     -D gles1=disabled
     -D glx=dri
