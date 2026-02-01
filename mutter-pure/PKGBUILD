@@ -1,4 +1,4 @@
-# Maintainer: Vasiliy Stelmachenok <ventureo@yandex.ru>
+# Maintainer: Vasiliy Stelmachenok <ventureo@cachyos.org>
 # Arch Linux's maintainers:
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 # Maintainer: Fabian Bornschein <fabiscafe@archlinux.org>
@@ -6,8 +6,8 @@
 # Contributor: Michael Kanis <mkanis_at_gmx_dot_de>
 
 pkgname=mutter-pure
-pkgver=49.1.1
-pkgrel=3
+pkgver=49.3
+pkgrel=1
 pkgdesc="Window manager and compositor for GNOME"
 url="https://gitlab.gnome.org/GNOME/mutter"
 arch=(x86_64)
@@ -98,18 +98,17 @@ source=(
   "4725.patch"
 )
 b2sums=(
-  '6eea0a3ab42827fb2a556727460a55209810b01dc67388486e648694457368a7637cd6b6c698c51cec34f06bdf589a13574a21ad015fb894095619d3453325ac'
+  '9b58dd2d47d46a067665b044d21ba630c1de8b03b442f2a693c9e5181a8c326527d141512791450c95b80ee15d8a20cf00cce3e820563ab479f97df9085797af'
   'c25796ff54fee353c5fc7a0815c25255b399490148d2bad1f37932d2da66d80561d6e262a5f256c89d142419a504c23eff69f7ef4e65e349f2dea3e0ac0bac1a'
-  'e3c7e004c249dd7399855b912ff6bed90c556c39d8e83ada9d7630384769b6e84eba45543dcba04cc4567a6fb1e66394e1f3fd7273589ea36af1da9bfce3ff44'
+  'a1a9f45057f17067ae1431fbb02b38bbe5cef3eb706f211c67626a1dd1ebb0ce95cabd6895bf7656598dab305cc0f0cf6c4e32461f9dfb75a16bf4733e65b895'
   'aadacca53c8ec7dcb130e073b347dc3c3eaa54f3678d88b5ab6ad5cb2cdad588307f4c2034b92c872e52ead3160e6a418d335e44cbd78a6995cc89e646a74753'
 )
-
 
 prepare() {
   cd mutter
 
   # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2660
-  #patch -Np1 -i "${srcdir}/Add-support-for-tearing.patch"
+  patch -Np1 -i "${srcdir}/Add-support-for-tearing.patch"
 
   # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/4725
   patch -Np1 -i "${srcdir}/4725.patch"

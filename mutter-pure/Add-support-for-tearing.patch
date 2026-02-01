@@ -1,14 +1,15 @@
-From d318ef60a4ebded89b24e790004ec6f6f1a36ae4 Mon Sep 17 00:00:00 2001
+From ee41be90bd0af42ebfb9d98a56601eca368ac397 Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Mon, 26 May 2025 14:55:01 +0000
-Subject: [PATCH 1/7] build: Bump libdrm requirement to >= 2.4.120
+Subject: [PATCH 1/8] build: Bump libdrm requirement to >= 2.4.120
 
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  meson.build | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/meson.build b/meson.build
-index e3ff57f6359..7cde22b3638 100644
+index 201f29664a..820085beea 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -53,7 +53,7 @@ wayland_protocols_req = '>= 1.45'
@@ -21,15 +22,17 @@ index e3ff57f6359..7cde22b3638 100644
  # screen cast version requirements
  libpipewire_req = '>= 1.2.7'
 -- 
-GitLab
+2.52.0
 
 
-From 1fdd80a724ae69ce46517d9243255223ef0f7454 Mon Sep 17 00:00:00 2001
+From 65c260523e8931c83c2531ebdabbe34955dcec8f Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Thu, 10 Apr 2025 04:27:46 +0000
-Subject: [PATCH 2/7] atomic: Check for atomic tearing capability
+Subject: [PATCH 2/8] atomic: Check for atomic tearing capability
 
 Verify if the DRM device supports atomic async page flips.
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  src/backends/native/meta-kms-device.c      | 6 ++++++
  src/backends/native/meta-kms-device.h      | 3 +++
@@ -38,7 +41,7 @@ Verify if the DRM device supports atomic async page flips.
  4 files changed, 16 insertions(+)
 
 diff --git a/src/backends/native/meta-kms-device.c b/src/backends/native/meta-kms-device.c
-index 4dec048d085..0ce4ccd0bde 100644
+index 4dec048d08..0ce4ccd0bd 100644
 --- a/src/backends/native/meta-kms-device.c
 +++ b/src/backends/native/meta-kms-device.c
 @@ -140,6 +140,12 @@ meta_kms_device_uses_monotonic_clock (MetaKmsDevice *device)
@@ -55,7 +58,7 @@ index 4dec048d085..0ce4ccd0bde 100644
  meta_kms_device_get_connectors (MetaKmsDevice *device)
  {
 diff --git a/src/backends/native/meta-kms-device.h b/src/backends/native/meta-kms-device.h
-index 6dfa5a76ac0..49d68b19c02 100644
+index 6dfa5a76ac..49d68b19c0 100644
 --- a/src/backends/native/meta-kms-device.h
 +++ b/src/backends/native/meta-kms-device.h
 @@ -51,6 +51,9 @@ gboolean meta_kms_device_prefers_shadow_buffer (MetaKmsDevice *device);
@@ -69,7 +72,7 @@ index 6dfa5a76ac0..49d68b19c02 100644
  GList * meta_kms_device_get_connectors (MetaKmsDevice *device);
  
 diff --git a/src/backends/native/meta-kms-impl-device.c b/src/backends/native/meta-kms-impl-device.c
-index 4a53915deac..a936334ddb9 100644
+index 4a53915dea..a936334ddb 100644
 --- a/src/backends/native/meta-kms-impl-device.c
 +++ b/src/backends/native/meta-kms-impl-device.c
 @@ -558,6 +558,7 @@ init_caps (MetaKmsImplDevice *impl_device)
@@ -93,7 +96,7 @@ index 4a53915deac..a936334ddb9 100644
  
  static void
 diff --git a/src/backends/native/meta-kms-impl-device.h b/src/backends/native/meta-kms-impl-device.h
-index 22396dba680..20eb5d1e621 100644
+index 22396dba68..20eb5d1e62 100644
 --- a/src/backends/native/meta-kms-impl-device.h
 +++ b/src/backends/native/meta-kms-impl-device.h
 @@ -39,6 +39,7 @@ typedef struct _MetaKmsDeviceCaps
@@ -105,19 +108,21 @@ index 22396dba680..20eb5d1e621 100644
  
  
 -- 
-GitLab
+2.52.0
 
 
-From 7c89e52c33d4e8851bdbbdea461060e614d31f2f Mon Sep 17 00:00:00 2001
+From 30b9296526fb648b459c4eb515e4d9e6ceee99f6 Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Mon, 14 Oct 2024 08:26:52 +0000
-Subject: [PATCH 3/7] settings: Add experimental feature for tearing
+Subject: [PATCH 3/8] settings: Add experimental feature for tearing
 
 Introduce an experimental feature for tearing, which can be
 enabled by adding the "tearing" keyword under the "experimental-features"
 GSetting. This requirement will be removed once the tearing design
 is approved for general use and adequately addresses all common
 use cases.
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  data/org.gnome.mutter.gschema.xml.in       | 7 +++++++
  src/backends/meta-settings-private.h       | 1 +
@@ -126,7 +131,7 @@ use cases.
  4 files changed, 20 insertions(+)
 
 diff --git a/data/org.gnome.mutter.gschema.xml.in b/data/org.gnome.mutter.gschema.xml.in
-index 3a8fd2bc319..4187fb0a79f 100644
+index 3a8fd2bc31..4187fb0a79 100644
 --- a/data/org.gnome.mutter.gschema.xml.in
 +++ b/data/org.gnome.mutter.gschema.xml.in
 @@ -6,6 +6,7 @@
@@ -151,7 +156,7 @@ index 3a8fd2bc319..4187fb0a79f 100644
      </key>
  
 diff --git a/src/backends/meta-settings-private.h b/src/backends/meta-settings-private.h
-index 3141ec6b456..7516a2cb494 100644
+index 3141ec6b45..7516a2cb49 100644
 --- a/src/backends/meta-settings-private.h
 +++ b/src/backends/meta-settings-private.h
 @@ -34,6 +34,7 @@ typedef enum _MetaExperimentalFeature
@@ -163,7 +168,7 @@ index 3141ec6b456..7516a2cb494 100644
  
  typedef enum _MetaXwaylandExtension
 diff --git a/src/backends/meta-settings.c b/src/backends/meta-settings.c
-index a8e4edf50e3..c2aacddc71d 100644
+index a8e4edf50e..c2aacddc71 100644
 --- a/src/backends/meta-settings.c
 +++ b/src/backends/meta-settings.c
 @@ -49,6 +49,7 @@ static GDebugKey experimental_feature_keys[] = {
@@ -184,7 +189,7 @@ index a8e4edf50e3..c2aacddc71d 100644
        if (feature)
          g_message ("Enabling experimental feature '%s'", feature_str);
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index d91cd6b6dc0..5f76e23ca97 100644
+index d91cd6b6dc..5f76e23ca9 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -126,6 +126,8 @@ struct _MetaOnscreenNative
@@ -218,17 +223,19 @@ index d91cd6b6dc0..5f76e23ca97 100644
  }
  
 -- 
-GitLab
+2.52.0
 
 
-From 20021467ac8fbf6498d65b1e18613fa07fc92362 Mon Sep 17 00:00:00 2001
+From e228ee000eb153cd09786db9734519cebddbf5aa Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Mon, 26 May 2025 15:02:14 +0000
-Subject: [PATCH 4/7] wayland: Add support for tearing control protocol
+Subject: [PATCH 4/8] wayland: Add support for tearing control protocol
 
 Implement core support for the Wayland tearing control protocol,
 enabling Wayland clients to request tearing or asynchronous page
 flip functionality.
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  src/meson.build                            |   3 +
  src/wayland/meta-wayland-surface-private.h |   4 +
@@ -242,7 +249,7 @@ flip functionality.
  create mode 100644 src/wayland/meta-wayland-tearing-control.h
 
 diff --git a/src/meson.build b/src/meson.build
-index 508c3416da9..2b25ee126bb 100644
+index 508c3416da..2b25ee126b 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -713,6 +713,8 @@ if have_wayland
@@ -263,7 +270,7 @@ index 508c3416da9..2b25ee126bb 100644
      ['viewporter', 'stable', ],
      ['xdg-activation', 'staging', 1, ],
 diff --git a/src/wayland/meta-wayland-surface-private.h b/src/wayland/meta-wayland-surface-private.h
-index eb7521b033d..c9783690353 100644
+index 85332ddd03..19ae72f59d 100644
 --- a/src/wayland/meta-wayland-surface-private.h
 +++ b/src/wayland/meta-wayland-surface-private.h
 @@ -154,6 +154,9 @@ struct _MetaWaylandSurfaceState
@@ -276,7 +283,7 @@ index eb7521b033d..c9783690353 100644
  };
  
  struct _MetaWaylandDragDestFuncs
-@@ -220,6 +223,7 @@ struct _MetaWaylandSurface
+@@ -221,6 +224,7 @@ struct _MetaWaylandSurface
      MetaMultiTextureAlphaMode premult;
      MetaMultiTextureCoefficients coeffs;
      MetaMultiTextureChromaLoc chroma_loc;
@@ -285,10 +292,10 @@ index eb7521b033d..c9783690353 100644
  
    /* Extension resources. */
 diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
-index 92ccebf62a3..3be16bb87d0 100644
+index f01e65f14b..aeddd4de77 100644
 --- a/src/wayland/meta-wayland-surface.c
 +++ b/src/wayland/meta-wayland-surface.c
-@@ -428,6 +428,7 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
+@@ -430,6 +430,7 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
    state->dx = 0;
    state->dy = 0;
    state->scale = 0;
@@ -296,7 +303,7 @@ index 92ccebf62a3..3be16bb87d0 100644
  
    state->input_region = NULL;
    state->input_region_set = FALSE;
-@@ -600,6 +601,12 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
+@@ -602,6 +603,12 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
    if (from->scale > 0)
      to->scale = from->scale;
  
@@ -309,7 +316,7 @@ index 92ccebf62a3..3be16bb87d0 100644
    if (from->has_new_buffer_transform)
      {
        to->buffer_transform = from->buffer_transform;
-@@ -797,6 +804,8 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
+@@ -893,6 +900,8 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
  
    surface->applied_state.is_valid = surface->committed_state.is_valid;
  
@@ -318,7 +325,7 @@ index 92ccebf62a3..3be16bb87d0 100644
    if (surface->role)
      {
        meta_wayland_surface_role_pre_apply_state (surface->role, state);
-@@ -1038,6 +1047,11 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
+@@ -1131,6 +1140,11 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
  
    surface->committed_state.is_valid = TRUE;
  
@@ -332,7 +339,7 @@ index 92ccebf62a3..3be16bb87d0 100644
  
 diff --git a/src/wayland/meta-wayland-tearing-control.c b/src/wayland/meta-wayland-tearing-control.c
 new file mode 100644
-index 00000000000..dc0237c2106
+index 0000000000..dc0237c210
 --- /dev/null
 +++ b/src/wayland/meta-wayland-tearing-control.c
 @@ -0,0 +1,263 @@
@@ -601,7 +608,7 @@ index 00000000000..dc0237c2106
 +}
 diff --git a/src/wayland/meta-wayland-tearing-control.h b/src/wayland/meta-wayland-tearing-control.h
 new file mode 100644
-index 00000000000..093b8f7d960
+index 0000000000..093b8f7d96
 --- /dev/null
 +++ b/src/wayland/meta-wayland-tearing-control.h
 @@ -0,0 +1,39 @@
@@ -645,7 +652,7 @@ index 00000000000..093b8f7d960
 +
 +void meta_wayland_tearing_controller_init (MetaWaylandCompositor *compositor);
 diff --git a/src/wayland/meta-wayland-versions.h b/src/wayland/meta-wayland-versions.h
-index e9cf9856c2e..cac623c51b4 100644
+index e9cf9856c2..cac623c51b 100644
 --- a/src/wayland/meta-wayland-versions.h
 +++ b/src/wayland/meta-wayland-versions.h
 @@ -70,3 +70,4 @@
@@ -654,7 +661,7 @@ index e9cf9856c2e..cac623c51b4 100644
  #define META_WP_POINTER_WARP_VERSION 1
 +#define META_WP_TEARING_CONTROL_V1_VERSION 1
 diff --git a/src/wayland/meta-wayland.c b/src/wayland/meta-wayland.c
-index f2f3775eedb..cac547c93fe 100644
+index f2f3775eed..cac547c93f 100644
 --- a/src/wayland/meta-wayland.c
 +++ b/src/wayland/meta-wayland.c
 @@ -63,6 +63,7 @@
@@ -674,21 +681,22 @@ index f2f3775eedb..cac547c93fe 100644
  #ifdef HAVE_WAYLAND_EGLSTREAM
    {
 -- 
-GitLab
+2.52.0
 
 
-From 175cbcca301edf9f26aac64eb413167d4f7aee6a Mon Sep 17 00:00:00 2001
+From a1c39b6c1feff6da10ac14c18f7b5bf49126d3aa Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Thu, 24 Oct 2024 12:06:15 +0000
-Subject: [PATCH 5/7] kms/plane: Use g_autoptr & g_steal_pointer in
+Subject: [PATCH 5/8] kms/plane: Use g_autoptr & g_steal_pointer in
  update_formats
 
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  src/backends/native/meta-kms-plane.c | 10 ++++++----
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/src/backends/native/meta-kms-plane.c b/src/backends/native/meta-kms-plane.c
-index d8eef0a8bcf..5a9be08f250 100644
+index d8eef0a8bc..5a9be08f25 100644
 --- a/src/backends/native/meta-kms-plane.c
 +++ b/src/backends/native/meta-kms-plane.c
 @@ -342,7 +342,7 @@ free_modifier_array (GArray *array)
@@ -728,13 +736,13 @@ index d8eef0a8bcf..5a9be08f250 100644
  
    drmModeFreePropertyBlob (blob);
 -- 
-GitLab
+2.52.0
 
 
-From 3b35c34ae5b457622c71358c6d7491a5b471b97e Mon Sep 17 00:00:00 2001
+From ae927aaaa1558a918fa0ee9b76a2c9180c8138f6 Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Wed, 26 Feb 2025 13:51:19 +0000
-Subject: [PATCH 6/7] backends/native: Add support for in_formats_async drm
+Subject: [PATCH 6/8] backends/native: Add support for in_formats_async drm
  property
 
 Introduce the new DRM property IN_FORMATS_ASYNC, allowing the
@@ -748,6 +756,8 @@ Changes in v2:
 - Check for the availability of the IN_FORMATS_TEARING property.
 - Utilize g_autoptr and g_steal_pointer for GArray in update_formats.
   (Sebastian Wick)
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  .../native/meta-kms-impl-device-atomic.c      |  5 +
  src/backends/native/meta-kms-plane-private.h  |  1 +
@@ -759,14 +769,14 @@ Changes in v2:
  src/backends/native/meta-onscreen-native.c    | 73 ++++++++++----
  src/backends/native/meta-onscreen-native.h    |  5 +
  src/compositor/meta-compositor-native.c       |  6 +-
- src/compositor/meta-compositor-view-native.c  | 42 +++++++-
+ src/compositor/meta-compositor-view-native.c  | 31 ++++++
  src/wayland/meta-wayland-dma-buf.c            | 45 +++++++--
  src/wayland/meta-wayland-surface-private.h    |  2 +
  src/wayland/meta-wayland-surface.c            |  6 ++
- 14 files changed, 284 insertions(+), 27 deletions(-)
+ 14 files changed, 274 insertions(+), 26 deletions(-)
 
 diff --git a/src/backends/native/meta-kms-impl-device-atomic.c b/src/backends/native/meta-kms-impl-device-atomic.c
-index 7860cc2c6bd..89aee54721f 100644
+index 7860cc2c6b..89aee54721 100644
 --- a/src/backends/native/meta-kms-impl-device-atomic.c
 +++ b/src/backends/native/meta-kms-impl-device-atomic.c
 @@ -992,6 +992,8 @@ commit_flags_string (uint32_t commit_flags)
@@ -789,7 +799,7 @@ index 7860cc2c6bd..89aee54721f 100644
                "[atomic] Committing update flags: %s",
                commit_flags_string (commit_flags));
 diff --git a/src/backends/native/meta-kms-plane-private.h b/src/backends/native/meta-kms-plane-private.h
-index c34488ec91c..1e481473f09 100644
+index c34488ec91..1e481473f0 100644
 --- a/src/backends/native/meta-kms-plane-private.h
 +++ b/src/backends/native/meta-kms-plane-private.h
 @@ -28,6 +28,7 @@ typedef enum _MetaKmsPlaneProp
@@ -801,7 +811,7 @@ index c34488ec91c..1e481473f09 100644
    META_KMS_PLANE_PROP_SRC_Y,
    META_KMS_PLANE_PROP_SRC_W,
 diff --git a/src/backends/native/meta-kms-plane.c b/src/backends/native/meta-kms-plane.c
-index 5a9be08f250..97c9ce340b7 100644
+index 5a9be08f25..97c9ce340b 100644
 --- a/src/backends/native/meta-kms-plane.c
 +++ b/src/backends/native/meta-kms-plane.c
 @@ -58,6 +58,8 @@ struct _MetaKmsPlane
@@ -953,7 +963,7 @@ index 5a9be08f250..97c9ce340b7 100644
  
  static void
 diff --git a/src/backends/native/meta-kms-plane.h b/src/backends/native/meta-kms-plane.h
-index adcabfc8a1e..fde33a48950 100644
+index adcabfc8a1..fde33a4895 100644
 --- a/src/backends/native/meta-kms-plane.h
 +++ b/src/backends/native/meta-kms-plane.h
 @@ -85,6 +85,9 @@ gboolean meta_kms_plane_supports_cursor_hotspot (MetaKmsPlane *plane);
@@ -967,7 +977,7 @@ index adcabfc8a1e..fde33a48950 100644
  
  gboolean meta_kms_plane_is_format_supported (MetaKmsPlane *plane,
 diff --git a/src/backends/native/meta-kms-types.h b/src/backends/native/meta-kms-types.h
-index 63530cf9d74..aa15887049b 100644
+index 63530cf9d7..aa15887049 100644
 --- a/src/backends/native/meta-kms-types.h
 +++ b/src/backends/native/meta-kms-types.h
 @@ -81,6 +81,7 @@ typedef enum _MetaKmsUpdateFlag
@@ -979,7 +989,7 @@ index 63530cf9d74..aa15887049b 100644
  
  typedef enum _MetaKmsPlaneType MetaKmsPlaneType;
 diff --git a/src/backends/native/meta-kms-update.c b/src/backends/native/meta-kms-update.c
-index d37061ded14..1da48ffb360 100644
+index d37061ded1..1da48ffb36 100644
 --- a/src/backends/native/meta-kms-update.c
 +++ b/src/backends/native/meta-kms-update.c
 @@ -52,6 +52,8 @@ struct _MetaKmsUpdate
@@ -1020,7 +1030,7 @@ index d37061ded14..1da48ffb360 100644
  meta_kms_update_is_empty (MetaKmsUpdate *update)
  {
 diff --git a/src/backends/native/meta-kms-update.h b/src/backends/native/meta-kms-update.h
-index cf08245af98..2cb3f67fd39 100644
+index cf08245af9..2cb3f67fd3 100644
 --- a/src/backends/native/meta-kms-update.h
 +++ b/src/backends/native/meta-kms-update.h
 @@ -164,6 +164,13 @@ void
@@ -1038,7 +1048,7 @@ index cf08245af98..2cb3f67fd39 100644
                                                const MtkRegion        *region);
  
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 5f76e23ca97..6eb8ca1b775 100644
+index 5f76e23ca9..6eb8ca1b77 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -128,6 +128,8 @@ struct _MetaOnscreenNative
@@ -1178,7 +1188,7 @@ index 5f76e23ca97..6eb8ca1b775 100644
  
  void
 diff --git a/src/backends/native/meta-onscreen-native.h b/src/backends/native/meta-onscreen-native.h
-index e30357d19d1..b4244513e0f 100644
+index e30357d19d..b4244513e0 100644
 --- a/src/backends/native/meta-onscreen-native.h
 +++ b/src/backends/native/meta-onscreen-native.h
 @@ -72,3 +72,8 @@ void meta_onscreen_native_request_frame_sync (MetaOnscreenNative *onscreen_nativ
@@ -1191,7 +1201,7 @@ index e30357d19d1..b4244513e0f 100644
 +
 +gboolean meta_onscreen_native_is_tearing_enabled (MetaOnscreenNative *onscreen_native);
 diff --git a/src/compositor/meta-compositor-native.c b/src/compositor/meta-compositor-native.c
-index 06841bbd35a..3d52e36ccf5 100644
+index 06841bbd35..3d52e36ccf 100644
 --- a/src/compositor/meta-compositor-native.c
 +++ b/src/compositor/meta-compositor-native.c
 @@ -39,14 +39,14 @@ meta_compositor_native_before_paint (MetaCompositor     *compositor,
@@ -1213,7 +1223,7 @@ index 06841bbd35a..3d52e36ccf5 100644
    parent_class->before_paint (compositor, compositor_view, frame);
  }
 diff --git a/src/compositor/meta-compositor-view-native.c b/src/compositor/meta-compositor-view-native.c
-index e683b090518..ee607305585 100644
+index e683b09051..4944575d60 100644
 --- a/src/compositor/meta-compositor-view-native.c
 +++ b/src/compositor/meta-compositor-view-native.c
 @@ -106,15 +106,29 @@ on_frame_sync_surface_is_frozen_changed (MetaSurfaceActor         *surface_actor
@@ -1246,32 +1256,7 @@ index e683b090518..ee607305585 100644
  }
  
  #ifdef HAVE_WAYLAND
-@@ -162,6 +176,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
-   MetaSurfaceActor *surface_actor;
-   MetaSurfaceActorWayland *surface_actor_wayland;
-   MetaWaylandSurface *surface;
-+  //gboolean tearing_enabled;
- 
-   if (meta_get_debug_paint_flags () & META_DEBUG_PAINT_DISABLE_DIRECT_SCANOUT)
-     return FALSE;
-@@ -342,7 +357,15 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
-           return FALSE;
-         }
-     }
--
-+#if 0
-+  tearing_enabled = meta_wayland_surface_get_is_tearing_enabled (surface);
-+  if (tearing_enabled !=
-+      meta_onscreen_native_is_tearing_enabled (META_ONSCREEN_NATIVE (framebuffer)))
-+    {
-+      meta_onscreen_native_request_tearing (META_ONSCREEN_NATIVE (framebuffer),
-+                                            tearing_enabled);
-+    }
-+#endif
-   *crtc_out = crtc;
-   *onscreen_out = COGL_ONSCREEN (framebuffer);
-   *surface_out = surface;
-@@ -508,6 +531,9 @@ update_frame_sync_surface (MetaCompositorViewNative *view_native,
+@@ -508,6 +522,9 @@ update_frame_sync_surface (MetaCompositorViewNative *view_native,
      META_COMPOSITOR_VIEW (view_native);
    ClutterStageView *stage_view;
    CoglFramebuffer *framebuffer;
@@ -1281,7 +1266,7 @@ index e683b090518..ee607305585 100644
  
    g_clear_signal_handler (&view_native->frame_sync_surface_repaint_scheduled_id,
                            view_native->frame_sync_surface);
-@@ -549,6 +575,20 @@ update_frame_sync_surface (MetaCompositorViewNative *view_native,
+@@ -549,6 +566,20 @@ update_frame_sync_surface (MetaCompositorViewNative *view_native,
  
    meta_onscreen_native_request_frame_sync (META_ONSCREEN_NATIVE (framebuffer),
                                             surface_actor != NULL);
@@ -1303,7 +1288,7 @@ index e683b090518..ee607305585 100644
  
  void
 diff --git a/src/wayland/meta-wayland-dma-buf.c b/src/wayland/meta-wayland-dma-buf.c
-index ee2ade3e67a..c3695b83373 100644
+index 13c6f9d409..7fd4616915 100644
 --- a/src/wayland/meta-wayland-dma-buf.c
 +++ b/src/wayland/meta-wayland-dma-buf.c
 @@ -621,10 +621,20 @@ has_modifier (GArray   *modifiers,
@@ -1328,9 +1313,9 @@ index ee2ade3e67a..c3695b83373 100644
  {
    MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
    GArray *crtc_modifiers;
-@@ -638,7 +648,15 @@ crtc_supports_modifier (MetaCrtcKms *crtc_kms,
-   if (drm_modifier == DRM_FORMAT_MOD_INVALID)
-     return TRUE;
+@@ -641,7 +651,15 @@ crtc_supports_modifier (MetaCrtcKms *crtc_kms,
+   if (!crtc_modifiers)
+     return FALSE;
  
 -  return has_modifier (crtc_modifiers, drm_modifier);
 +  if (!has_modifier (crtc_modifiers, drm_modifier))
@@ -1345,7 +1330,7 @@ index ee2ade3e67a..c3695b83373 100644
  }
  #endif
  
-@@ -668,6 +686,7 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
+@@ -671,6 +689,7 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
    const MetaFormatInfo *format_info;
    uint32_t drm_format;
    gboolean use_modifier;
@@ -1353,7 +1338,7 @@ index ee2ade3e67a..c3695b83373 100644
    int n_planes;
  
    dma_buf = meta_wayland_dma_buf_from_buffer (buffer);
-@@ -681,16 +700,19 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
+@@ -684,16 +703,19 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
    format_info = meta_format_info_from_drm_format (dma_buf->drm_format);
    g_assert (format_info);
  
@@ -1375,7 +1360,7 @@ index ee2ade3e67a..c3695b83373 100644
      {
        drm_format = dma_buf->drm_format;
      }
-@@ -1381,6 +1403,12 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
+@@ -1384,6 +1406,12 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
    MetaContext *context =
      meta_wayland_compositor_get_context (dma_buf_manager->compositor);
    MetaBackend *backend = meta_context_get_backend (context);
@@ -1388,7 +1373,7 @@ index ee2ade3e67a..c3695b83373 100644
    MetaWaylandDmaBufFeedback *feedback = surface_feedback->feedback;
    MetaCrtcKms *crtc_kms;
    MetaKmsPlane *kms_plane;
-@@ -1413,6 +1441,9 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
+@@ -1416,6 +1444,9 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
    formats = g_array_new (FALSE, FALSE, sizeof (MetaWaylandDmaBufFormat));
    if (should_send_modifiers_scanout_tranches (backend))
      {
@@ -1398,7 +1383,7 @@ index ee2ade3e67a..c3695b83373 100644
        for (i = 0; i < dma_buf_manager->formats->len; i++)
          {
            MetaWaylandDmaBufFormat format =
-@@ -1425,7 +1456,8 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
+@@ -1428,7 +1459,8 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
  
            if (!crtc_supports_modifier (crtc_kms,
                                         format.drm_format,
@@ -1408,7 +1393,7 @@ index ee2ade3e67a..c3695b83373 100644
              {
                const MetaFormatInfo *format_info;
  
-@@ -1435,7 +1467,8 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
+@@ -1438,7 +1470,8 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
                if (format_info->opaque_substitute == DRM_FORMAT_INVALID ||
                    !crtc_supports_modifier (crtc_kms,
                                             format_info->opaque_substitute,
@@ -1419,10 +1404,10 @@ index ee2ade3e67a..c3695b83373 100644
              }
  
 diff --git a/src/wayland/meta-wayland-surface-private.h b/src/wayland/meta-wayland-surface-private.h
-index c9783690353..507a3a1b9e7 100644
+index 19ae72f59d..5182ae5012 100644
 --- a/src/wayland/meta-wayland-surface-private.h
 +++ b/src/wayland/meta-wayland-surface-private.h
-@@ -430,6 +430,8 @@ CoglScanout *       meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface
+@@ -431,6 +431,8 @@ CoglScanout *       meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface
  
  MetaCrtc * meta_wayland_surface_get_scanout_candidate (MetaWaylandSurface *surface);
  
@@ -1432,10 +1417,10 @@ index c9783690353..507a3a1b9e7 100644
                                                   MetaCrtc           *crtc);
  
 diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
-index 3be16bb87d0..739ab044d77 100644
+index aeddd4de77..058776ff13 100644
 --- a/src/wayland/meta-wayland-surface.c
 +++ b/src/wayland/meta-wayland-surface.c
-@@ -2246,6 +2246,12 @@ meta_wayland_surface_role_is_on_logical_monitor (MetaWaylandSurfaceRole *surface
+@@ -2342,6 +2342,12 @@ meta_wayland_surface_role_is_on_logical_monitor (MetaWaylandSurfaceRole *surface
      return FALSE;
  }
  
@@ -1449,13 +1434,13 @@ index 3be16bb87d0..739ab044d77 100644
  meta_wayland_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role)
  {
 -- 
-GitLab
+2.52.0
 
 
-From dbd23cdfe493cb69c73cf418fc9c81b6c205de2d Mon Sep 17 00:00:00 2001
+From 0cc209f3971ab2a1ef5ec204b2eebc84d0e6d776 Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Sun, 17 Aug 2025 12:19:30 +0000
-Subject: [PATCH 7/7] backend: Disable hw cursor during async page flips
+Subject: [PATCH 7/8] backend: Disable hw cursor during async page flips
 
 On some hardware (e.g. Intel), async commits are not supported on the
 KMS cursor plane. As a result, async flips fail whenever the hardware
@@ -1466,13 +1451,15 @@ and fall back to a software cursor while async mode is active.
 
 This allows users to benefit from higher FPS with async page flips,
 while the software cursor lag remains minimal or unnoticeable.
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
  src/backends/native/meta-onscreen-native.c   | 12 ++++++++++-
  src/compositor/meta-compositor-view-native.c | 21 +++++++++++---------
  2 files changed, 23 insertions(+), 10 deletions(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 6eb8ca1b775..6c094b00914 100644
+index 6eb8ca1b77..6c094b0091 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -1960,10 +1960,20 @@ meta_onscreen_native_request_tearing (MetaOnscreenNative *onscreen_native,
@@ -1498,10 +1485,10 @@ index 6eb8ca1b775..6c094b00914 100644
  
  gboolean
 diff --git a/src/compositor/meta-compositor-view-native.c b/src/compositor/meta-compositor-view-native.c
-index ee607305585..d297ec5e6a2 100644
+index 4944575d60..4ab1407719 100644
 --- a/src/compositor/meta-compositor-view-native.c
 +++ b/src/compositor/meta-compositor-view-native.c
-@@ -190,6 +190,14 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
+@@ -189,6 +189,14 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
  
    clutter_stage_view_get_layout (stage_view, &view_rect);
  
@@ -1516,7 +1503,7 @@ index ee607305585..d297ec5e6a2 100644
    cursor_sprite = meta_cursor_tracker_get_sprite (cursor_tracker);
    if (cursor_sprite &&
        meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
-@@ -201,7 +209,10 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
+@@ -200,7 +208,10 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
        float scale;
        int hotspot_x;
        int hotspot_y;
@@ -1527,7 +1514,7 @@ index ee607305585..d297ec5e6a2 100644
        meta_cursor_tracker_get_pointer (cursor_tracker, &position, NULL);
        meta_cursor_tracker_get_hot (cursor_tracker, &hotspot_x, &hotspot_y);
  
-@@ -217,7 +228,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
+@@ -216,7 +227,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
        graphene_view_rect = mtk_rectangle_to_graphene_rect (&view_rect);
        if (graphene_rect_intersection (&graphene_view_rect,
                                        &cursor_rect,
@@ -1536,7 +1523,7 @@ index ee607305585..d297ec5e6a2 100644
          {
            meta_topic (META_DEBUG_RENDER,
                        "No direct scanout candidate: using software cursor");
-@@ -233,14 +244,6 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
+@@ -232,14 +243,6 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
        return FALSE;
      }
  
@@ -1552,5 +1539,36 @@ index ee607305585..d297ec5e6a2 100644
      {
        meta_topic (META_DEBUG_RENDER,
 -- 
-GitLab
+2.52.0
+
+
+From 843c11c2dcd9cb082ce7bf07809bb8414204df85 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Timotej=20=C5=A0ul=C3=ADk?= <timotej.sulik@gmail.com>
+Date: Sun, 1 Feb 2026 23:36:17 +0300
+Subject: [PATCH 8/8] Fix tearing crash
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
+---
+ src/wayland/meta-wayland-tearing-control.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/wayland/meta-wayland-tearing-control.c b/src/wayland/meta-wayland-tearing-control.c
+index dc0237c210..9a7461bc88 100644
+--- a/src/wayland/meta-wayland-tearing-control.c
++++ b/src/wayland/meta-wayland-tearing-control.c
+@@ -126,7 +126,11 @@ static void
+ on_surface_destroyed (MetaWaylandSurface        *surface,
+                       MetaWaylandTearingSurface *tearing_surface)
+ {
+-  clear_tearing_surface_data (tearing_surface);
++  /* The surface is being destroyed. Don't access it at all - not even
++   * to disconnect signals. Just clear our pointer. The signal will be
++   * automatically disconnected when the surface is finalized. */
++  tearing_surface->destroy_handler_id = 0;
++  tearing_surface->surface = NULL;
+ }
+ 
+ static void
+-- 
+2.52.0
 
