@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=11.3.r128.g739ca45017f
+pkgver=11.3.r146.g5e5bc095ed7
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -26,7 +26,6 @@ source=(
   Do-not-handle-IMAGE_FILE_LARGE_ADDRESS_AWARE-on-WoW64.patch
   Disable-optimization-of-some-functions.patch
   Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch
-  vkd3d-staticlib_insteadof_extlib.patch
 )
 
 sha256sums=(
@@ -47,7 +46,6 @@ sha256sums=(
   'ce5a5c7ca21d748ab1ae92730456023d00d7f90ec27d0fcd28836a8bc16000ba'
   '5a9aef19726f22af31f0f373c528c95b8552e76cc8c4477c8b61abd56545686b'
   'cc2dce94d6d34b63dab273d9293c7644a6d4677f7b234e1551f64db35238bef0'
-  'b85fd45ad2ebe6213d82a521cb900f8c1a475ce303a66154cd441af3c51b3594'
 )
 
 pkgdesc="Bleeding-edge Wine build (Staging, WoW64, Wayland)"
@@ -157,9 +155,6 @@ prepare() {
 
   # Clang specific fix
   patch -Np1 -i "${srcdir}/Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch"
-
-  #Vkd3D specific patch
-  patch -Np1 -i "${srcdir}/vkd3d-staticlib_insteadof_extlib.patch"
 
   ./dlls/winevulkan/make_vulkan
   ./tools/make_requests
