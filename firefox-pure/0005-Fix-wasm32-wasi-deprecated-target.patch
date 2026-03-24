@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Mon, 24 Mar 2025 00:00:00 +0000
+Subject: [PATCH] Fix deprecated wasm32-wasi target
+
+Clang deprecated --target=wasm32-wasi in favor of --target=wasm32-wasip1.
+This patch updates the build system to use the new target name.
+
+---
+ build/moz.configure/toolchain.configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build/moz.configure/toolchain.configure b/build/moz.configure/toolchain.configure
+index abcdef1..1234567 100644
+--- a/build/moz.configure/toolchain.configure
++++ b/build/moz.configure/toolchain.configure
+@@ -1119,7 +1119,7 @@ def c_compiler_wrapper(host_or_target, ccache, wrapper):
+ 
+ @dependable
+ def wasm():
+-    return split_triplet("wasm32-wasi", allow_wasi=True)
++    return split_triplet("wasm32-wasip1", allow_wasi=True)
+ 
+ 
+ @template
+-- 
+2.49.0
