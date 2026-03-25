@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=26.0.2
+pkgver=26.0.3
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -88,7 +88,7 @@ source=(
   "Revert-wsi-wayland-Add-support-for-PresentWait2.patch"
 )
 sha256sums=(
-  '973f535221be211c6363842b4cce9ef8e9b3e1d5ea86c5450ca86060163c7346'
+  'ddb7443d328e89aa45b4b6b80f077bf937f099daeca8ba48cabe32aab769e134'
   'e252096c048642ccb7dda6bf9c3b89d1fe3a50b9486262360d51e28cde992b80'
 )
 
