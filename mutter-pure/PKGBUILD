@@ -6,13 +6,12 @@
 # Contributor: Michael Kanis <mkanis_at_gmx_dot_de>
 
 pkgname=mutter-pure
-pkgver=49.4
+pkgver=50.0
 pkgrel=1
 pkgdesc="Window manager and compositor for GNOME"
 url="https://gitlab.gnome.org/GNOME/mutter"
 arch=(x86_64)
 license=(GPL-2.0-or-later)
-options=(!strip debug)
 depends=(
   at-spi2-core
   cairo
@@ -21,11 +20,10 @@ depends=(
   egl-wayland
   fontconfig
   fribidi
-  gcc-libs
-  glycin
   gdk-pixbuf2
   glib2
   glibc
+  glycin
   gnome-desktop-4
   gnome-settings-daemon
   graphene
@@ -39,13 +37,12 @@ depends=(
   libdisplay-info
   libdrm
   libei
+  libgcc
   libgirepository
   libglvnd
   libgudev
-  libice
   libinput
   libpipewire
-  libsm
   libsysprof-capture
   libwacom
   libx11
@@ -59,17 +56,15 @@ depends=(
   libxi
   libxinerama
   libxkbcommon
-  libxkbcommon-x11
   libxkbfile
   libxrandr
-  libxtst
   mesa
   pango
   pipewire
   pixman
   python
-  python-dbus
   python-argcomplete
+  python-dbus
   python-gobject
   startup-notification
   systemd-libs
@@ -87,7 +82,7 @@ makedepends=(
   sysprof
   wayland-protocols
 )
-provides=(libmutter-17.so mutter)
+provides=(libmutter-18.so mutter)
 conflicts=(mutter)
 optdepends=('bash-completion: Bash completions for gdctl')
 source=(
@@ -97,9 +92,9 @@ source=(
   "Add-support-for-tearing.patch"
 )
 b2sums=(
-  '200a37cd814697835c3e7da4e63afce8a00503d3cb837758a149c72140d39fca5e225e47daac5700b4e358c2407d58e013acc9e8f3aae46f08d2316dc6f4d0a2'
+  'bd33bec1e65648b386f4f8c042097c948ff663034a8f99a3aa483dd9b20c066a1c5e69634fffdcb503993eaa9460b45128d68ef418c572f5a635a8d2934313d3'
   'c25796ff54fee353c5fc7a0815c25255b399490148d2bad1f37932d2da66d80561d6e262a5f256c89d142419a504c23eff69f7ef4e65e349f2dea3e0ac0bac1a'
-  '57f234b4bebe746cf9e24c273a5ce7ca8c0648e2b89e62b3ad30f241de28bfabcb90b53af8c33adb4c2786454bcf76d4f9c8f632b345d6a55ee521ee78d1f6b4'
+  'afcf2a3d8a1f6989ab53dfc4f3e632ae039258a22455dedf16b7c8387db184a48a2d6f7be28880ed3d792dab72ba99c9b1693aad0e92a518e8c98d1f37c8f325'
 )
 
 prepare() {
