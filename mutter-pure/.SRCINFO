@@ -1,7 +1,7 @@
 pkgbase = mutter-pure
 	pkgdesc = Window manager and compositor for GNOME
-	pkgver = 50.0
-	pkgrel = 2
+	pkgver = 50.1
+	pkgrel = 1
 	url = https://gitlab.gnome.org/GNOME/mutter
 	arch = x86_64
 	license = GPL-2.0-or-later
@@ -75,13 +75,11 @@ pkgbase = mutter-pure
 	provides = libmutter-18.so
 	provides = mutter
 	conflicts = mutter
-	source = git+https://gitlab.gnome.org/GNOME/mutter.git#tag=50.0
+	source = git+https://gitlab.gnome.org/GNOME/mutter.git#tag=50.1
 	source = git+https://gitlab.gnome.org/GNOME/gvdb.git#commit=466fc22016cf0981424e7121557611942191992f
 	source = Add-support-for-tearing.patch
-	source = aae0955e6718de9084a6679fcd796cf8bd2cdef7.patch
-	b2sums = bd33bec1e65648b386f4f8c042097c948ff663034a8f99a3aa483dd9b20c066a1c5e69634fffdcb503993eaa9460b45128d68ef418c572f5a635a8d2934313d3
+	b2sums = 224bcda4fcd4aaf58abd1e52c95c36d93cf3d1621f87b3c9ca4b7130849cea1fd535dbb11142ad4676b18965d273a356d1112c9a1bd39ad39c2d6d7d4f5c8802
 	b2sums = c25796ff54fee353c5fc7a0815c25255b399490148d2bad1f37932d2da66d80561d6e262a5f256c89d142419a504c23eff69f7ef4e65e349f2dea3e0ac0bac1a
 	b2sums = afcf2a3d8a1f6989ab53dfc4f3e632ae039258a22455dedf16b7c8387db184a48a2d6f7be28880ed3d792dab72ba99c9b1693aad0e92a518e8c98d1f37c8f325
-	b2sums = 5ab4eff01fffc78d1d519a78d49ad5a180233981da44d3459359793df770f2c87c552a775af01b5055a8f78cf0005bd1bbc8ce4be31021bf23d6b8b3ac2b31b4
 
 pkgname = mutter-pure
