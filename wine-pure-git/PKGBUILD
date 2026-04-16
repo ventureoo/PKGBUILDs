@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=11.3.r146.g5e5bc095ed7
+pkgver=11.6.r223.gada7c061027
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
