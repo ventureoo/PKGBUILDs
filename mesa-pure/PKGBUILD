@@ -7,7 +7,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=mesa-pure
-pkgver=26.0.6
+pkgver=26.1.0
 pkgrel=1
 pkgdesc="A purely personal Mesa build"
 url="https://www.mesa3d.org/"
@@ -89,8 +89,8 @@ source=(
   "Revert-wsi-wayland-Add-support-for-PresentWait2.patch"
 )
 sha256sums=(
-  '1d3c3b8a8363b8cc354175bb4a684ad8b035211cc1d6fa17aeb9b9623c513f89'
-  'e252096c048642ccb7dda6bf9c3b89d1fe3a50b9486262360d51e28cde992b80'
+  'a5095e6dc2986c78f0cef4c5555dc803e93b6bfe5670e991f9e8bd49395bae19'
+  '64dd0409bafd377f3e416eb02234739efaae0e5b582a9713bdcfc869112f2c0f'
 )
 
 prepare() {
@@ -119,7 +119,6 @@ build() {
   ulimit -n 4096
 
   local meson_options=(
-    -D b_lto=true
     -D c_args="-O3 -march=$march"
     -D c_link_args="-O1"
     -D cpp_args="-O3 -march=$march"
