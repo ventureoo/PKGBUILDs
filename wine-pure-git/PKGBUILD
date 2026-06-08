@@ -7,7 +7,7 @@
 
 pkgname=wine-pure-git
 pkgver=11.10.r124.gb9f5aa42b15
-pkgrel=1
+pkgrel=2
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
