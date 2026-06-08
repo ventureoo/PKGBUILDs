@@ -1,4 +1,4 @@
-From cdf0ced4bfbffcccbca1957b1c8904794d27db0e Mon Sep 17 00:00:00 2001
+From 7e90f6ed190c67955c80cd1f4e764c5c3b917ac9 Mon Sep 17 00:00:00 2001
 From: Paul Gofman <pgofman@codeweavers.com>
 Date: Fri, 7 Feb 2025 22:28:26 +0300
 Subject: [PATCH 4/5] wineboot: Generate better DigitalProductId.
@@ -9,7 +9,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 46 insertions(+)
 
 diff --git a/programs/wineboot/wineboot.c b/programs/wineboot/wineboot.c
-index 7a428479959..682614b28ed 100644
+index 523e7859d78..480e68fd68b 100644
 --- a/programs/wineboot/wineboot.c
 +++ b/programs/wineboot/wineboot.c
 @@ -79,6 +79,8 @@
@@ -21,7 +21,7 @@ index 7a428479959..682614b28ed 100644
  #include "resource.h"
  
  WINE_DEFAULT_DEBUG_CHANNEL(wineboot);
-@@ -1958,6 +1960,49 @@ static void usage( int status )
+@@ -1846,6 +1848,49 @@ static void usage( int status )
      exit( status );
  }
  
@@ -71,14 +71,14 @@ index 7a428479959..682614b28ed 100644
  int __cdecl main( int argc, char *argv[] )
  {
      /* First, set the current directory to SystemRoot */
-@@ -2067,6 +2112,7 @@ int __cdecl main( int argc, char *argv[] )
+@@ -1959,6 +2004,7 @@ int __cdecl main( int argc, char *argv[] )
      }
      if (init || update) update_wineprefix( update );
  
 +    create_digitalproductid();
      create_volatile_environment_registry_key();
-     create_proxy_settings();
- 
+     create_known_dlls();
+     initialize_internet();
 -- 
-2.48.1
+2.54.0
 

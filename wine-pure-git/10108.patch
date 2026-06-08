@@ -1,0 +1,51 @@
+From fd50956d25003365530a652d50e6e879a7327bea Mon Sep 17 00:00:00 2001
+From: William Horvath <william@horvath.blog>
+Date: Sat, 28 Dec 2024 06:45:10 -0800
+Subject: [PATCH] ntdll: Never use CLOCK_REALTIME_COARSE.
+
+This is required for deterministic timekeeping, as the CLOCK_REALTIME_COARSE
+path depends on the scheduling tickrate (CONFIG_HZ) the kernel was built with.
+Increasing the kernel tickrate to 1000 or greater will then result in decreased
+accuracy for anything calling NtQuerySystemTime, which some anti-cheat/DRM schemes
+are unhappy about (see wine bug). Being in the vDSO, clock_gettime(CLOCK_REALTIME)
+should not meaningfully impact performance when compared to CLOCK_REALTIME_COARSE.
+
+Furthermore, the CLOCK_REALTIME_COARSE code path is completely untested in CI,
+because the current CI runners are configured with CONFIG_HZ < 1000.
+
+Wine-Bug: https://bugs.winehq.org/show_bug.cgi?id=59420
+---
+ dlls/ntdll/unix/sync.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
+
+diff --git a/dlls/ntdll/unix/sync.c b/dlls/ntdll/unix/sync.c
+index fbf054e9d93..37cc7f3d207 100644
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -2483,22 +2483,7 @@ NTSTATUS WINAPI NtQuerySystemTime( LARGE_INTEGER *time )
+ {
+ #ifdef HAVE_CLOCK_GETTIME
+     struct timespec ts;
+-    static clockid_t clock_id = CLOCK_MONOTONIC; /* placeholder */
+-
+-    if (clock_id == CLOCK_MONOTONIC)
+-    {
+-#ifdef CLOCK_REALTIME_COARSE
+-        struct timespec res;
+-
+-        /* Use CLOCK_REALTIME_COARSE if it has 1 ms or better resolution */
+-        if (!clock_getres( CLOCK_REALTIME_COARSE, &res ) && res.tv_sec == 0 && res.tv_nsec <= 1000000)
+-            clock_id = CLOCK_REALTIME_COARSE;
+-        else
+-#endif /* CLOCK_REALTIME_COARSE */
+-            clock_id = CLOCK_REALTIME;
+-    }
+-
+-    if (!clock_gettime( clock_id, &ts ))
++    if (!clock_gettime( CLOCK_REALTIME, &ts ))
+     {
+         time->QuadPart = ticks_from_time_t( ts.tv_sec ) + (ts.tv_nsec + 50) / 100;
+     }
+-- 
+GitLab
+

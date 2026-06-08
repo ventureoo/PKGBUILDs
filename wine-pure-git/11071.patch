@@ -1,0 +1,52 @@
+From 8519fb4e858a1bfa6e293855a0bbb94bb271e281 Mon Sep 17 00:00:00 2001
+From: Soham Nandy <soham.nandy2006@gmail.com>
+Date: Thu, 4 Jun 2026 04:02:26 +0530
+Subject: [PATCH] ntdll: Ignore hardware breakpoint traps inside the signal
+ stack.
+
+Ignore hardware-breakpoint traps raised to avoid recursively
+dispatching a trap through the Unix signal handler when user code
+installs a hardware breakpoint that is also reached from Wine's
+signal-handling path
+---
+ dlls/ntdll/unix/signal_i386.c   | 5 +++--
+ dlls/ntdll/unix/signal_x86_64.c | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/dlls/ntdll/unix/signal_i386.c b/dlls/ntdll/unix/signal_i386.c
+index ea535bd4d27..007656d9239 100644
+--- a/dlls/ntdll/unix/signal_i386.c
++++ b/dlls/ntdll/unix/signal_i386.c
+@@ -1922,9 +1922,10 @@ static BOOL handle_syscall_trap( struct thread_data *data, ucontext_t *sigcontex
+         EIP_sig( sigcontext ) = (ULONG)__wine_unix_call_dispatcher_prolog_end;
+         fixup_frame_fpu_state( frame, sigcontext );
+     }
+-    else if (siginfo->si_code == 4 /* TRAP_HWBKPT */ && is_inside_syscall( data, ESP_sig(sigcontext) ))
++    else if (siginfo->si_code == 4 /* TRAP_HWBKPT */ && (is_inside_syscall( data, ESP_sig(sigcontext) )
++             || is_inside_signal_stack( data, (void *)ESP_sig(sigcontext) )))
+     {
+-        TRACE_(seh)( "ignoring HWBKPT in syscall eip=%p\n", (void *)EIP_sig(sigcontext) );
++        TRACE_(seh)( "ignoring HWBKPT eip=%p\n", (void *)EIP_sig(sigcontext) );
+         return TRUE;
+     }
+     else return FALSE;
+diff --git a/dlls/ntdll/unix/signal_x86_64.c b/dlls/ntdll/unix/signal_x86_64.c
+index 41293fe5607..5ba2be32ce1 100644
+--- a/dlls/ntdll/unix/signal_x86_64.c
++++ b/dlls/ntdll/unix/signal_x86_64.c
+@@ -2149,9 +2149,10 @@ static BOOL handle_syscall_trap( struct thread_data *data, ucontext_t *sigcontex
+         R10_sig( sigcontext ) = RCX_sig( sigcontext );
+         fixup_frame_fpu_state( frame, sigcontext );
+     }
+-    else if (siginfo->si_code == 4 /* TRAP_HWBKPT */ && is_inside_syscall( data, RSP_sig(sigcontext) ))
++    else if (siginfo->si_code == 4 /* TRAP_HWBKPT */ && (is_inside_syscall( data, RSP_sig(sigcontext) )
++             || is_inside_signal_stack( data, (void *)RSP_sig(sigcontext) )))
+     {
+-        TRACE_(seh)( "ignoring HWBKPT in syscall rip=%p\n", (void *)RIP_sig(sigcontext) );
++        TRACE_(seh)( "ignoring HWBKPT rip=%p\n", (void *)RIP_sig(sigcontext) );
+         return TRUE;
+     }
+     else return FALSE;
+-- 
+GitLab
+

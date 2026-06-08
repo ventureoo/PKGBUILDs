@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=11.7.r79.g9f4295cec02
+pkgver=11.10.r124.gb9f5aa42b15
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -25,25 +25,38 @@ source=(
   Do-not-handle-IMAGE_FILE_LARGE_ADDRESS_AWARE-on-WoW64.patch
   Disable-optimization-of-some-functions.patch
   Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch
+  proton-em-winewayland.patch
+  10108.patch
+  10864.patch
+  10829.patch
+  11071.patch
+  11077.patch
+  kernelbase-Handle-misaligned-stack-in-OpenThread.patch
 )
-
 sha256sums=(
   'SKIP'
   'SKIP'
   '9901a5ee619f24662b241672a7358364617227937d5f6d3126f70528ee5111e7'
   '6dfdefec305024ca11f35ad7536565f5551f09119dda2028f194aee8f77077a4'
-  '13c94740b1030818c41c8745928c8d4125386066e794a7ddcd0b2f48a09ccd60'
+  'bcd2e27ff0b3064bbc874fe4cd2d9ad02cab4dc4e4b03ad70e8432a930c6174c'
   '7f524fff2146871019dd4d8dfb278dec6bb4dec71870d3ddfb5a7004c29a6f57'
-  'de34be62e63a4187582b21a3a77d4162a33e7d777095e8e7b8fbd13cb745516f'
-  '69b120ed11e07270db4e4378c8ad42d1bae418a6f8a10d98dc031ab9af0d1130'
-  '236d3f562d1ce05ae9d372cd606acb0dab545579fcecae9cf14df1c253fff574'
-  '771777eb4d60ef99588ed33657270533893de9a3f0c010d1fc6898ba3ec8ed74'
+  '0976f1e01bd32242179e2e2da6f4059c4166f5b8da3ae9f363d9da77a1f4c42f'
+  '202f3ba9f71b98fa87b58d34ec8456ed18134a7f68fb37f61469d369261a28cf'
+  'c19b69bba9bf59683e784987663c1c1f0ebfc99d5050bda0b041b14f4cb0c7bc'
+  'd133ef2daeb2f3e6a2359850d1ece08e2944c505ac08ff219ef59294e9df10a2'
   'e732361371cec88fdd74a773be9bf6e8062b1179e4829bf65c9a6f7e2bbe3518'
   '906f5dab93dd61f0b74cf3e83adeec1509dd1f610366c903b628c962ff48399a'
   '07b0cbe87d08ce9272c15870acfc4f8a467990fc1b4405329e96d76c23f0fc58'
   'ce5a5c7ca21d748ab1ae92730456023d00d7f90ec27d0fcd28836a8bc16000ba'
-  '5a9aef19726f22af31f0f373c528c95b8552e76cc8c4477c8b61abd56545686b'
+  '328fc86db171eead5b6a0a4e261cb652c4d452b5ed82704b9844a9ff3da25399'
   'cc2dce94d6d34b63dab273d9293c7644a6d4677f7b234e1551f64db35238bef0'
+  '2cd0adc2b026a375a235e753a307d139f6bc5dae8657a4588deec66f1c842276'
+  'a24c846ee68b9d071431e23447c8eacad554fdda1954d626656b7fde3a415d14'
+  '48b9cfced43cee446f3f19c8777a6b24a8fdb208e931d4c0459bdbbe96311da4'
+  'd0178e2750fcd13b6c5360edafa49d95607b2198850ecb40873f83bfd5a70092'
+  '61fc41277911ed84a3ace57b3094276e4f068a51ff3432d780649070148e9d01'
+  '066933f856ddd59a39df29efd115fcb2180dd9618308b12d19e7756b22394b4e'
+  'd989e594b544abfc0924ca9d1554f4cac215a78d8612a4e935cc89511677fa21'
 )
 
 pkgdesc="Bleeding-edge Wine build (Staging, WoW64, Wayland)"
@@ -149,6 +162,33 @@ prepare() {
 
   # Clang specific fix
   patch -Np1 -i "${srcdir}/Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch"
+
+  # winewayland fixes & improvements from Proton-EM
+  patch -Np1 -i "${srcdir}/proton-em-winewayland.patch"
+
+  # ntdll: Never use CLOCK_REALTIME_COARSE
+  # https://gitlab.winehq.org/wine/wine/-/merge_requests/10108
+  patch -Np1 -i "${srcdir}/10108.patch"
+
+  # Futex optimizations
+  # https://gitlab.winehq.org/wine/wine/-/merge_requests/10829
+  patch -Np1 -i "${srcdir}/10829.patch"
+
+  # winegstreamer: Normalize PTS values so the stream starts at zero.
+  # https://gitlab.winehq.org/wine/wine/-/merge_requests/10864
+  patch -Np1 -i "${srcdir}/10864.patch"
+
+  # ntdll: Ignore hardware breakpoint traps inside the signal stack.
+  # https://gitlab.winehq.org/wine/wine/-/merge_requests/11071
+  patch -Np1 -i "${srcdir}/11071.patch"
+
+  # ntdll: Preserve nonvolatile registers across VEH callbacks
+  # https://gitlab.winehq.org/wine/wine/-/merge_requests/11077
+  patch -Np1 -i "${srcdir}/11077.patch"
+
+  # kernelbase: Handle misaligned stack in OpenThread
+  # https://gitlab.winehq.org/wine/wine/-/merge_requests/11069
+  patch -Np1 -i "${srcdir}/kernelbase-Handle-misaligned-stack-in-OpenThread.patch"
 
   ./dlls/winevulkan/make_vulkan
   ./tools/make_requests

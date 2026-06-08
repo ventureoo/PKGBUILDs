@@ -1,0 +1,140 @@
+From 8783afb2e8ac89410ebdbd2da416772f57f0eaa4 Mon Sep 17 00:00:00 2001
+From: Akihiro Sagawa <sagawa.aki@gmail.com>
+Date: Mon, 11 May 2026 20:55:06 +0900
+Subject: [PATCH 1/2] quartz/tests: Add a timestamp test for the first sample.
+
+---
+ dlls/quartz/tests/mpegsplit.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/dlls/quartz/tests/mpegsplit.c b/dlls/quartz/tests/mpegsplit.c
+index 1d62f0000ee..9fd94f84b90 100644
+--- a/dlls/quartz/tests/mpegsplit.c
++++ b/dlls/quartz/tests/mpegsplit.c
+@@ -1084,6 +1084,7 @@ struct testfilter
+     HANDLE eos_event;
+     unsigned int sample_count, eos_count, new_segment_count, byte_count;
+     REFERENCE_TIME segment_start, segment_end_min, segment_end_max, seek_start, seek_end;
++    REFERENCE_TIME sample_start;
+     LONGLONG read_position;
+ };
+ 
+@@ -1212,6 +1213,9 @@ static HRESULT WINAPI testsink_Receive(struct strmbase_sink *iface, IMediaSample
+     if (winetest_debug > 1)
+         trace("%04lx: Got sample with timestamps %I64d-%I64d.\n", GetCurrentThreadId(), start, end);
+ 
++    if (filter->sample_count == 0 && filter->byte_count == 0)
++        filter->sample_start = start;
++
+     ok(filter->new_segment_count, "Expected NewSegment() before Receive().\n");
+ 
+     IPin_QueryInterface(iface->pin.peer, &IID_IMediaSeeking, (void **)&seeking);
+@@ -2105,6 +2109,11 @@ static void test_video_file(void)
+     ok(testsink_video.byte_count == 1214, "Video sink got %u bytes.\n", testsink_video.byte_count);
+     ok(testsink_audio.byte_count == 8777, "Audio sink got %u bytes.\n", testsink_audio.byte_count);
+ 
++    /* Native uses 55 for the first sample timestamp, but there's no need to copy the exact value. */
++    todo_wine ok(min(testsink_video.sample_start, testsink_audio.sample_start) < 100,
++       "The first sample timestamp is off by more 100, video %I64d and audio %I64d.\n",
++       testsink_video.sample_start, testsink_audio.sample_start);
++
+     IAMStreamSelect_Release(sel);
+     IPin_Release(source_video);
+     IPin_Release(source_audio);
+-- 
+GitLab
+
+
+From 48c90352be388ace08b367cc772983594ca07f73 Mon Sep 17 00:00:00 2001
+From: Akihiro Sagawa <sagawa.aki@gmail.com>
+Date: Mon, 11 May 2026 20:55:06 +0900
+Subject: [PATCH 2/2] winegstreamer: Normalize PTS values so the stream starts
+ at zero.
+
+mpegpsdemux uses raw PTS values from the stream, which often start at
+a non-zero timestamp.
+
+To avoid an initial delay, we normalize the PTS by subtracting the
+first raw value so that the buffer timeline begins at zero.
+
+Without this adjustment, the first sample would not be presented until
+its original (non-zero) timestamp.
+
+Wine-Bug: https://bugs.winehq.org/show_bug.cgi?id=59565
+---
+ dlls/quartz/tests/mpegsplit.c  |  2 +-
+ dlls/winegstreamer/wg_parser.c | 23 ++++++++++++++++++++++-
+ 2 files changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/dlls/quartz/tests/mpegsplit.c b/dlls/quartz/tests/mpegsplit.c
+index 9fd94f84b90..913c19a4f63 100644
+--- a/dlls/quartz/tests/mpegsplit.c
++++ b/dlls/quartz/tests/mpegsplit.c
+@@ -2110,7 +2110,7 @@ static void test_video_file(void)
+     ok(testsink_audio.byte_count == 8777, "Audio sink got %u bytes.\n", testsink_audio.byte_count);
+ 
+     /* Native uses 55 for the first sample timestamp, but there's no need to copy the exact value. */
+-    todo_wine ok(min(testsink_video.sample_start, testsink_audio.sample_start) < 100,
++    ok(min(testsink_video.sample_start, testsink_audio.sample_start) < 100,
+        "The first sample timestamp is off by more 100, video %I64d and audio %I64d.\n",
+        testsink_video.sample_start, testsink_audio.sample_start);
+ 
+diff --git a/dlls/winegstreamer/wg_parser.c b/dlls/winegstreamer/wg_parser.c
+index da414af6134..6f13047a4a6 100644
+--- a/dlls/winegstreamer/wg_parser.c
++++ b/dlls/winegstreamer/wg_parser.c
+@@ -68,6 +68,7 @@ struct wg_parser
+     GstPad *my_src;
+ 
+     guint64 file_size, start_offset, next_offset, stop_offset;
++    GstClockTime base_pts;
+     guint64 next_pull_offset;
+     gchar *uri;
+ 
+@@ -366,8 +367,17 @@ static NTSTATUS wg_parser_stream_get_buffer(void *args)
+      * that this will need modification to wg_parser_stream_notify_qos() as
+      * well. */
+ 
++    /* Because mpegpsdemux reports a non-zero PTS for the earliest buffer among
++     * all streams, we normalize the PTS by subtracting base_pts so that our
++     * stream starts at zero. */
++
+     if ((wg_buffer->has_pts = GST_BUFFER_PTS_IS_VALID(buffer)))
+-        wg_buffer->pts = GST_BUFFER_PTS(buffer) / 100;
++    {
++        if (GST_CLOCK_TIME_IS_VALID(parser->base_pts))
++            wg_buffer->pts = (GST_BUFFER_PTS(buffer) - parser->base_pts) / 100;
++        else
++            wg_buffer->pts = GST_BUFFER_PTS(buffer) / 100;
++    }
+     if ((wg_buffer->has_duration = GST_BUFFER_DURATION_IS_VALID(buffer)))
+         wg_buffer->duration = GST_BUFFER_DURATION(buffer) / 100;
+     wg_buffer->discontinuity = GST_BUFFER_FLAG_IS_SET(buffer, GST_BUFFER_FLAG_DISCONT);
+@@ -725,6 +735,16 @@ static GstFlowReturn sink_chain_cb(GstPad *pad, GstObject *parent, GstBuffer *bu
+     if (!stream->has_buffer)
+     {
+         stream->has_buffer = true;
++
++        /* Keep the earliest PTS for adjusting. */
++        if (GST_BUFFER_PTS_IS_VALID(buffer) &&
++            (GST_BUFFER_PTS(buffer) < parser->base_pts))
++        {
++            parser->base_pts = GST_BUFFER_PTS(buffer);
++            GST_LOG("Updated base PTS to %" GST_TIME_FORMAT ".",
++                    GST_TIME_ARGS(parser->base_pts));
++        }
++
+         pthread_cond_signal(&parser->init_cond);
+     }
+ 
+@@ -1883,6 +1903,7 @@ static NTSTATUS wg_parser_create(void *args)
+     parser->output_compressed = params->output_compressed;
+     parser->err_on = params->err_on;
+     parser->warn_on = params->warn_on;
++    parser->base_pts = GST_CLOCK_TIME_NONE;
+     GST_DEBUG("Created winegstreamer parser %p.", parser);
+     params->parser = (wg_parser_t)(ULONG_PTR)parser;
+     return S_OK;
+-- 
+GitLab
+
