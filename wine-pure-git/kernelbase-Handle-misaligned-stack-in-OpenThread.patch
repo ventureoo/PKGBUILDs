@@ -1,0 +1,103 @@
+From 0362455ea2ecd4eaf19155695761d37f8f1cd8a9 Mon Sep 17 00:00:00 2001
+From: Soham Nandy <soham.nandy2006@gmail.com>
+Date: Thu, 4 Jun 2026 04:02:23 +0530
+Subject: [PATCH] kernelbase: Handle misaligned stack in OpenThread.
+
+Some copy protection software call OpenThread with a misaligned stack.
+
+GCC emits movaps when it can prove 16-byte alignment, but given the
+broken stack setup rsp+0x60 is only 8-byte aligned on entry, causing a
+fault before NtOpenThread() is reached:
+
+    movups XMMWORD PTR [rsp+0x48],xmm0
+    lea    rcx,[rsp+0x28]
+    add    eax,eax
+    movaps XMMWORD PTR [rsp+0x60],xmm0  <- fault
+
+Provide a handrolled asm implementation that forces alignment
+unconditionally via andq $~15,%rsp regardless of caller state.
+---
+ dlls/kernelbase/thread.c | 60 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
+
+diff --git a/dlls/kernelbase/thread.c b/dlls/kernelbase/thread.c
+index 13040915817..cad7fb6a2b5 100644
+--- a/dlls/kernelbase/thread.c
++++ b/dlls/kernelbase/thread.c
+@@ -397,6 +397,65 @@ LANGID WINAPI DECLSPEC_HOTPATCH GetThreadUILanguage(void)
+ /***********************************************************************
+  *	     OpenThread   (kernelbase.@)
+  */
++#if defined(__WINE_PE_BUILD) && defined(__x86_64__) && !defined(__arm64ec__)
++/*
++ * Some copy protection software calls OpenThread() with a misaligned stack. 
++ *
++ * GCC emits movaps when it can prove 16-byte alignment, but with the broken
++ * stack setup (rsp+0x60) is 8 byte aligned and causes a fault. MSVC never emits
++ * movaps regardless of provable alignment so this passes on Windows.
++ *
++ * Provide a handrolled asm implementation that forces alignment
++ * unconditionally.
++ */
++__ASM_GLOBAL_FUNC( OpenThread,
++                   ".byte 0x48\n\t" /* hotpatch prolog */
++                   "pushq %rbp\n\t"
++                   __ASM_SEH(".seh_pushreg %rbp\n\t")
++                   __ASM_CFI(".cfi_adjust_cfa_offset 8\n\t")
++                   __ASM_CFI(".cfi_rel_offset %rbp,0\n\t")
++                   "movq %rsp,%rbp\n\t"
++                   __ASM_SEH(".seh_setframe %rbp,0\n\t")
++                   __ASM_CFI(".cfi_def_cfa_register %rbp\n\t")
++                   __ASM_SEH(".seh_endprologue\n\t")
++                   "subq $0x80,%rsp\n\t"
++                   "andq $~15,%rsp\n\t"
++                   "movl %ecx,%r10d\n\t"             /* access */
++                   "movl %r8d,%eax\n\t"              /* id */
++                   "movq $0,0x28(%rsp)\n\t"          /* handle */
++                   "movq $0,0x30(%rsp)\n\t"          /* cid.UniqueProcess */
++                   "movq %rax,0x38(%rsp)\n\t"        /* cid.UniqueThread */
++                   "movl $0x30,0x40(%rsp)\n\t"       /* attr.Length */
++                   "movq $0,0x48(%rsp)\n\t"          /* attr.RootDirectory */
++                   "movq $0,0x50(%rsp)\n\t"          /* attr.ObjectName */
++                   "testl %edx,%edx\n\t"
++                   "setne %al\n\t"
++                   "movzbl %al,%eax\n\t"
++                   "addl %eax,%eax\n\t"
++                   "movl %eax,0x58(%rsp)\n\t"        /* attr.Attributes */
++                   "movq $0,0x60(%rsp)\n\t"          /* attr.SecurityDescriptor */
++                   "movq $0,0x68(%rsp)\n\t"          /* attr.SecurityQualityOfService */
++                   "leaq 0x28(%rsp),%rcx\n\t"
++                   "movl %r10d,%edx\n\t"
++                   "leaq 0x40(%rsp),%r8\n\t"
++                   "leaq 0x30(%rsp),%r9\n\t"
++                   "call *__imp_NtOpenThread(%rip)\n\t"
++                   "testl %eax,%eax\n\t"
++                   "jne 1f\n\t"
++                   "movq 0x28(%rsp),%rax\n\t"
++                   "jmp 2f\n\t"
++                   "1:\tmovl %eax,%ecx\n\t"
++                   "call *__imp_RtlNtStatusToDosError(%rip)\n\t"
++                   "movl %eax,%edx\n\t"
++                   "movq %gs:0x30,%rax\n\t"
++                   "movl %edx,0x68(%rax)\n\t"
++                   "xorl %eax,%eax\n\t"
++                   "2:\tleaq 0(%rbp),%rsp\n\t"
++                   __ASM_CFI(".cfi_def_cfa_register %rsp\n\t")
++                   "popq %rbp\n\t"
++                   __ASM_CFI(".cfi_adjust_cfa_offset -8\n\t")
++                   "ret" )
++#else
+ HANDLE WINAPI DECLSPEC_HOTPATCH OpenThread( DWORD access, BOOL inherit, DWORD id )
+ {
+     HANDLE handle;
+@@ -410,6 +469,7 @@ HANDLE WINAPI DECLSPEC_HOTPATCH OpenThread( DWORD access, BOOL inherit, DWORD id
+     if (!set_ntstatus( NtOpenThread( &handle, access, &attr, &cid ))) handle = 0;
+     return handle;
+ }
++#endif
+ 
+ 
+ /* callback for QueueUserAPC */
+-- 
+GitLab
+
