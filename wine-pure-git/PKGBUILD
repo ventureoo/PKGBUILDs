@@ -6,8 +6,8 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=11.10.r124.gb9f5aa42b15
-pkgrel=2
+pkgver=11.10.r143.g26bf0d20b79
+pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
   "git+https://gitlab.winehq.org/wine/wine-staging.git"
@@ -30,7 +30,6 @@ source=(
   10864.patch
   10829.patch
   11071.patch
-  11077.patch
   kernelbase-Handle-misaligned-stack-in-OpenThread.patch
 )
 sha256sums=(
@@ -55,7 +54,6 @@ sha256sums=(
   '48b9cfced43cee446f3f19c8777a6b24a8fdb208e931d4c0459bdbbe96311da4'
   'd0178e2750fcd13b6c5360edafa49d95607b2198850ecb40873f83bfd5a70092'
   '61fc41277911ed84a3ace57b3094276e4f068a51ff3432d780649070148e9d01'
-  '066933f856ddd59a39df29efd115fcb2180dd9618308b12d19e7756b22394b4e'
   'd989e594b544abfc0924ca9d1554f4cac215a78d8612a4e935cc89511677fa21'
 )
 
@@ -181,10 +179,6 @@ prepare() {
   # ntdll: Ignore hardware breakpoint traps inside the signal stack.
   # https://gitlab.winehq.org/wine/wine/-/merge_requests/11071
   patch -Np1 -i "${srcdir}/11071.patch"
-
-  # ntdll: Preserve nonvolatile registers across VEH callbacks
-  # https://gitlab.winehq.org/wine/wine/-/merge_requests/11077
-  patch -Np1 -i "${srcdir}/11077.patch"
 
   # kernelbase: Handle misaligned stack in OpenThread
   # https://gitlab.winehq.org/wine/wine/-/merge_requests/11069

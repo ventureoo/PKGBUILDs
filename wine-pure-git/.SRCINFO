@@ -1,7 +1,7 @@
 pkgbase = wine-pure-git
 	pkgdesc = Bleeding-edge Wine build (Staging, WoW64, Wayland)
-	pkgver = 11.10.r124.gb9f5aa42b15
-	pkgrel = 2
+	pkgver = 11.10.r143.g26bf0d20b79
+	pkgrel = 1
 	url = https://github.com/ventureoo/PKGBUILDs
 	install = wine.install
 	arch = x86_64
@@ -75,7 +75,6 @@ pkgbase = wine-pure-git
 	source = 10864.patch
 	source = 10829.patch
 	source = 11071.patch
-	source = 11077.patch
 	source = kernelbase-Handle-misaligned-stack-in-OpenThread.patch
 	sha256sums = SKIP
 	sha256sums = SKIP
@@ -98,7 +97,6 @@ pkgbase = wine-pure-git
 	sha256sums = 48b9cfced43cee446f3f19c8777a6b24a8fdb208e931d4c0459bdbbe96311da4
 	sha256sums = d0178e2750fcd13b6c5360edafa49d95607b2198850ecb40873f83bfd5a70092
 	sha256sums = 61fc41277911ed84a3ace57b3094276e4f068a51ff3432d780649070148e9d01
-	sha256sums = 066933f856ddd59a39df29efd115fcb2180dd9618308b12d19e7756b22394b4e
 	sha256sums = d989e594b544abfc0924ca9d1554f4cac215a78d8612a4e935cc89511677fa21
 
 pkgname = wine-pure-git
