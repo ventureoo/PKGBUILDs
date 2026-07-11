@@ -1,6 +1,6 @@
 pkgbase = wine-pure-git
 	pkgdesc = Bleeding-edge Wine build (Staging, WoW64, Wayland)
-	pkgver = 11.10.r143.g26bf0d20b79
+	pkgver = 11.13.r0.g6eb2e4c32cc
 	pkgrel = 1
 	url = https://github.com/ventureoo/PKGBUILDs
 	install = wine.install
@@ -51,7 +51,7 @@ pkgbase = wine-pure-git
 	provides = wine-staging
 	provides = wine
 	provides = wine-wow64
-	provides = wine=11.10
+	provides = wine=11.13
 	conflicts = wine
 	options = !lto
 	source = git+https://gitlab.winehq.org/wine/wine.git
@@ -70,11 +70,9 @@ pkgbase = wine-pure-git
 	source = Do-not-handle-IMAGE_FILE_LARGE_ADDRESS_AWARE-on-WoW64.patch
 	source = Disable-optimization-of-some-functions.patch
 	source = Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch
-	source = proton-em-winewayland.patch
 	source = 10108.patch
 	source = 10864.patch
 	source = 10829.patch
-	source = 11071.patch
 	source = kernelbase-Handle-misaligned-stack-in-OpenThread.patch
 	sha256sums = SKIP
 	sha256sums = SKIP
@@ -92,11 +90,9 @@ pkgbase = wine-pure-git
 	sha256sums = ce5a5c7ca21d748ab1ae92730456023d00d7f90ec27d0fcd28836a8bc16000ba
 	sha256sums = 328fc86db171eead5b6a0a4e261cb652c4d452b5ed82704b9844a9ff3da25399
 	sha256sums = cc2dce94d6d34b63dab273d9293c7644a6d4677f7b234e1551f64db35238bef0
-	sha256sums = 2cd0adc2b026a375a235e753a307d139f6bc5dae8657a4588deec66f1c842276
 	sha256sums = a24c846ee68b9d071431e23447c8eacad554fdda1954d626656b7fde3a415d14
 	sha256sums = 48b9cfced43cee446f3f19c8777a6b24a8fdb208e931d4c0459bdbbe96311da4
 	sha256sums = d0178e2750fcd13b6c5360edafa49d95607b2198850ecb40873f83bfd5a70092
-	sha256sums = 61fc41277911ed84a3ace57b3094276e4f068a51ff3432d780649070148e9d01
 	sha256sums = d989e594b544abfc0924ca9d1554f4cac215a78d8612a4e935cc89511677fa21
 
 pkgname = wine-pure-git
