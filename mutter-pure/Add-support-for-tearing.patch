@@ -1,4 +1,4 @@
-From 25c8f8b1fd0b4883d87ec4f30ef31cc0b0283dcd Mon Sep 17 00:00:00 2001
+From bdacd8d205b1e03ff70fd1fc47c988ecfe9d1bdf Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Mon, 26 May 2025 14:55:01 +0000
 Subject: [PATCH 01/17] build: Bump libdrm requirement to >= 2.4.120
@@ -9,7 +9,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/meson.build b/meson.build
-index 723d2e753b..0106c096e2 100644
+index ecbeb85508..d698400c63 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -53,7 +53,7 @@ wayland_protocols_req = '>= 1.47'
@@ -22,10 +22,10 @@ index 723d2e753b..0106c096e2 100644
  # screen cast version requirements
  libpipewire_req = '>= 1.6.0'
 -- 
-2.53.0
+2.55.0
 
 
-From fea082ad140b0d59525f958ace5108ca5415fd02 Mon Sep 17 00:00:00 2001
+From 1cf186dc2a84336a2d83183399df56f090a1ceb7 Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Thu, 10 Apr 2025 04:27:46 +0000
 Subject: [PATCH 02/17] atomic: Check for atomic tearing capability
@@ -41,7 +41,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  4 files changed, 16 insertions(+)
 
 diff --git a/src/backends/native/meta-kms-device.c b/src/backends/native/meta-kms-device.c
-index 4dec048d08..0ce4ccd0bd 100644
+index 4a3415ca75..224e014554 100644
 --- a/src/backends/native/meta-kms-device.c
 +++ b/src/backends/native/meta-kms-device.c
 @@ -140,6 +140,12 @@ meta_kms_device_uses_monotonic_clock (MetaKmsDevice *device)
@@ -72,10 +72,10 @@ index 6dfa5a76ac..49d68b19c0 100644
  GList * meta_kms_device_get_connectors (MetaKmsDevice *device);
  
 diff --git a/src/backends/native/meta-kms-impl-device.c b/src/backends/native/meta-kms-impl-device.c
-index ee6cef9099..b037a485af 100644
+index 162a7ca9e2..4688e71e7a 100644
 --- a/src/backends/native/meta-kms-impl-device.c
 +++ b/src/backends/native/meta-kms-impl-device.c
-@@ -566,6 +566,7 @@ init_caps (MetaKmsImplDevice *impl_device)
+@@ -574,6 +574,7 @@ init_caps (MetaKmsImplDevice *impl_device)
    uint64_t prefer_shadow;
    uint64_t uses_monotonic_clock;
    uint64_t addfb2_modifiers;
@@ -83,7 +83,7 @@ index ee6cef9099..b037a485af 100644
  
    fd = meta_device_file_get_fd (priv->device_file);
    if (drmGetCap (fd, DRM_CAP_CURSOR_WIDTH, &cursor_width) == 0 &&
-@@ -593,6 +594,11 @@ init_caps (MetaKmsImplDevice *impl_device)
+@@ -601,6 +602,11 @@ init_caps (MetaKmsImplDevice *impl_device)
      {
        priv->caps.addfb2_modifiers = (addfb2_modifiers != 0);
      }
@@ -96,7 +96,7 @@ index ee6cef9099..b037a485af 100644
  
  static void
 diff --git a/src/backends/native/meta-kms-impl-device.h b/src/backends/native/meta-kms-impl-device.h
-index ecce42e716..806db27f60 100644
+index 57173924fa..9a445a027b 100644
 --- a/src/backends/native/meta-kms-impl-device.h
 +++ b/src/backends/native/meta-kms-impl-device.h
 @@ -39,6 +39,7 @@ typedef struct _MetaKmsDeviceCaps
@@ -108,10 +108,10 @@ index ecce42e716..806db27f60 100644
  
  
 -- 
-2.53.0
+2.55.0
 
 
-From 573fc657bcf55199352a6cf07ee965065f589717 Mon Sep 17 00:00:00 2001
+From 00a2bc3c32fd81540d3a66bbf4afb5321039e8b0 Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Mon, 14 Oct 2024 08:26:52 +0000
 Subject: [PATCH 03/17] settings: Add experimental feature for tearing
@@ -188,7 +188,7 @@ index 75385d6df6..17dc1189a7 100644
        if (feature)
          g_message ("Enabling experimental feature '%s'", feature_str);
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 3f3870fc12..504f6044e9 100644
+index 9dfd9d5c68..e4f3df90ba 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -153,6 +153,8 @@ struct _MetaOnscreenNative
@@ -200,7 +200,7 @@ index 3f3870fc12..504f6044e9 100644
    MetaRendererView *view;
  
    GSource *render_source;
-@@ -3447,6 +3449,9 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
+@@ -3469,6 +3471,9 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
                            int                 height)
  {
    MetaOnscreenNative *onscreen_native;
@@ -210,7 +210,7 @@ index 3f3870fc12..504f6044e9 100644
    CoglFramebufferDriverConfig driver_config;
    const MetaOutputInfo *output_info = meta_output_get_info (output);
  
-@@ -3484,6 +3489,10 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
+@@ -3506,6 +3511,10 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
                            onscreen_native);
      }
  
@@ -222,10 +222,10 @@ index 3f3870fc12..504f6044e9 100644
  }
  
 -- 
-2.53.0
+2.55.0
 
 
-From 35da6f3ba65f0a30a57b77904407c8bc2b078be7 Mon Sep 17 00:00:00 2001
+From 4fc2614bbe40b509272f21345447ca805234c5f6 Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Mon, 26 May 2025 15:02:14 +0000
 Subject: [PATCH 04/17] wayland: Add support for tearing control protocol
@@ -248,7 +248,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  create mode 100644 src/wayland/meta-wayland-tearing-control.h
 
 diff --git a/src/meson.build b/src/meson.build
-index 22d0188f8c..cfd9cd6333 100644
+index 9410646b54..c154249a3e 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -638,6 +638,8 @@ mutter_sources += [
@@ -260,14 +260,14 @@ index 22d0188f8c..cfd9cd6333 100644
    'wayland/meta-wayland-text-input.c',
    'wayland/meta-wayland-text-input.h',
    'wayland/meta-wayland-toplevel-drag.c',
-@@ -1075,6 +1077,7 @@ wayland_protocols = [
-   ['session-management-v1', 'private', ],
+@@ -1076,6 +1078,7 @@ wayland_protocols = [
    ['single-pixel-buffer', 'staging', 1, ],
    ['tablet', 'stable', 2, ],
+   ['text-input-unstable-v3', 'private', ],
 +  ['tearing-control', 'staging', 1, ],
-   ['text-input', 'unstable', 3, ],
    ['viewporter', 'stable', ],
    ['xdg-activation', 'staging', 1, ],
+   ['xdg-dialog', 'staging', 1, ],
 diff --git a/src/wayland/meta-wayland-surface-private.h b/src/wayland/meta-wayland-surface-private.h
 index c9dce70313..e67d0cf7fc 100644
 --- a/src/wayland/meta-wayland-surface-private.h
@@ -291,7 +291,7 @@ index c9dce70313..e67d0cf7fc 100644
  
    /* Extension resources. */
 diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
-index b52375afc6..beaf3261b0 100644
+index ebbd3f3975..e174f0d626 100644
 --- a/src/wayland/meta-wayland-surface.c
 +++ b/src/wayland/meta-wayland-surface.c
 @@ -430,6 +430,7 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
@@ -302,7 +302,7 @@ index b52375afc6..beaf3261b0 100644
  
    state->input_region = NULL;
    state->input_region_set = FALSE;
-@@ -602,6 +603,12 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
+@@ -595,6 +596,12 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
    if (from->scale > 0)
      to->scale = from->scale;
  
@@ -315,7 +315,7 @@ index b52375afc6..beaf3261b0 100644
    if (from->has_new_buffer_transform)
      {
        to->buffer_transform = from->buffer_transform;
-@@ -893,6 +900,8 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
+@@ -886,6 +893,8 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
  
    surface->applied_state.is_valid = surface->committed_state.is_valid;
  
@@ -324,7 +324,7 @@ index b52375afc6..beaf3261b0 100644
    if (surface->role)
      {
        meta_wayland_surface_role_pre_apply_state (surface->role, state);
-@@ -1131,6 +1140,11 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
+@@ -1124,6 +1133,11 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
  
    surface->committed_state.is_valid = TRUE;
  
@@ -651,7 +651,7 @@ index 0000000000..093b8f7d96
 +
 +void meta_wayland_tearing_controller_init (MetaWaylandCompositor *compositor);
 diff --git a/src/wayland/meta-wayland-versions.h b/src/wayland/meta-wayland-versions.h
-index bf87d1feff..163bf53bf3 100644
+index 9da5e1eeeb..61ceed0d87 100644
 --- a/src/wayland/meta-wayland-versions.h
 +++ b/src/wayland/meta-wayland-versions.h
 @@ -70,3 +70,4 @@
@@ -680,10 +680,10 @@ index cc303d3648..6ca5525c88 100644
  #ifdef HAVE_WAYLAND_EGLSTREAM
    {
 -- 
-2.53.0
+2.55.0
 
 
-From d06396c775a031a87312cc0c4db219241d772cbe Mon Sep 17 00:00:00 2001
+From 994e16353a930507ff56cc3640a2ad574416e721 Mon Sep 17 00:00:00 2001
 From: Naveen Kumar <naveen1.kumar@intel.com>
 Date: Thu, 24 Oct 2024 12:06:15 +0000
 Subject: [PATCH 05/17] kms/plane: Use g_autoptr & g_steal_pointer in
@@ -735,10 +735,10 @@ index 268981a2a1..2cb6279744 100644
  
    drmModeFreePropertyBlob (blob);
 -- 
-2.53.0
+2.55.0
 
 
-From b60ea5671548d8b1c3a3c65a3d9c2ba457284ddc Mon Sep 17 00:00:00 2001
+From 5fd31f2bb00b9aaf142138bb4e68986fbf3f8f74 Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Sat, 31 Jan 2026 19:17:21 +0000
 Subject: [PATCH 06/17] backends/native: Add support for in_formats_async drm
@@ -976,7 +976,7 @@ index adcabfc8a1..fde33a4895 100644
  
  gboolean meta_kms_plane_is_format_supported (MetaKmsPlane *plane,
 diff --git a/src/backends/native/meta-kms-types.h b/src/backends/native/meta-kms-types.h
-index 599b7e56f1..de4c6afe69 100644
+index 51d7f57b89..0f38c223c2 100644
 --- a/src/backends/native/meta-kms-types.h
 +++ b/src/backends/native/meta-kms-types.h
 @@ -80,6 +80,7 @@ typedef enum _MetaKmsUpdateFlag
@@ -988,7 +988,7 @@ index 599b7e56f1..de4c6afe69 100644
  
  typedef enum _MetaKmsPlaneType MetaKmsPlaneType;
 diff --git a/src/backends/native/meta-kms-update.c b/src/backends/native/meta-kms-update.c
-index 28a26f6410..75e829471c 100644
+index dce5bd2c0e..fb085a5049 100644
 --- a/src/backends/native/meta-kms-update.c
 +++ b/src/backends/native/meta-kms-update.c
 @@ -52,6 +52,8 @@ struct _MetaKmsUpdate
@@ -1029,10 +1029,10 @@ index 28a26f6410..75e829471c 100644
  meta_kms_update_is_empty (MetaKmsUpdate *update)
  {
 diff --git a/src/backends/native/meta-kms-update.h b/src/backends/native/meta-kms-update.h
-index c5398eae81..2ec18d890a 100644
+index 7243a62e2a..b9e42419ae 100644
 --- a/src/backends/native/meta-kms-update.h
 +++ b/src/backends/native/meta-kms-update.h
-@@ -182,6 +182,13 @@ int64_t meta_kms_update_get_target_presentation_time (MetaKmsUpdate *update);
+@@ -179,6 +179,13 @@ int64_t meta_kms_update_get_target_presentation_time (MetaKmsUpdate *update);
  void meta_kms_update_set_target_presentation_time (MetaKmsUpdate *update,
                                                     int64_t        target_presentation_time_us);
  
@@ -1047,7 +1047,7 @@ index c5398eae81..2ec18d890a 100644
                                                const MtkRegion        *region);
  
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 504f6044e9..ef61be8587 100644
+index e4f3df90ba..771c8fd270 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -155,6 +155,8 @@ struct _MetaOnscreenNative
@@ -1059,7 +1059,7 @@ index 504f6044e9..ef61be8587 100644
    MetaRendererView *view;
  
    GSource *render_source;
-@@ -493,10 +495,17 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
+@@ -490,10 +492,17 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
                              gpointer      user_data)
  {
    MetaRendererView *view = user_data;
@@ -1078,7 +1078,7 @@ index 504f6044e9..ef61be8587 100644
  
    page_flip_time = (struct timeval) {
      .tv_sec = tv_sec,
-@@ -2105,6 +2114,9 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
+@@ -2096,6 +2105,9 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
                                                      frame->expected_presentation_time_us);
      }
  
@@ -1088,7 +1088,7 @@ index 504f6044e9..ef61be8587 100644
    meta_kms_device_post_update (kms_device, kms_update,
                                 META_KMS_UPDATE_FLAG_NONE);
  
-@@ -2142,6 +2154,9 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
+@@ -2133,6 +2145,9 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
    cogl_scanout_get_src_rect (scanout, &src_rect);
    cogl_scanout_get_dst_rect (scanout, &dst_rect);
  
@@ -1098,7 +1098,7 @@ index 504f6044e9..ef61be8587 100644
    buffer = META_DRM_BUFFER (cogl_scanout_get_buffer (scanout));
    assign_primary_plane (crtc_kms,
                          buffer,
-@@ -2293,6 +2308,25 @@ meta_onscreen_native_allow_vrr (MetaOnscreenNative *onscreen_native,
+@@ -2286,6 +2301,25 @@ meta_onscreen_native_allow_vrr (MetaOnscreenNative *onscreen_native,
    onscreen_native->vrr_allowed = allowed;
  }
  
@@ -1124,7 +1124,7 @@ index 504f6044e9..ef61be8587 100644
  static void
  maybe_update_vrr (MetaOnscreenNative *onscreen_native,
                    ClutterFrame       *frame)
-@@ -2307,7 +2341,6 @@ maybe_update_vrr (MetaOnscreenNative *onscreen_native,
+@@ -2300,7 +2334,6 @@ maybe_update_vrr (MetaOnscreenNative *onscreen_native,
    ClutterFrameClock *frame_clock =
      clutter_stage_view_get_frame_clock (stage_view);
    ClutterFrameClockMode frame_clock_mode;
@@ -1132,7 +1132,7 @@ index 504f6044e9..ef61be8587 100644
    gboolean vrr_enabled = FALSE;
  
    if (meta_output_is_vrr_enabled (onscreen_native->output))
-@@ -2315,18 +2348,23 @@ maybe_update_vrr (MetaOnscreenNative *onscreen_native,
+@@ -2308,18 +2341,23 @@ maybe_update_vrr (MetaOnscreenNative *onscreen_native,
  
    if (vrr_enabled != onscreen_native->vrr_enabled)
      {
@@ -1160,10 +1160,10 @@ index 504f6044e9..ef61be8587 100644
  
  void
 diff --git a/src/backends/native/meta-onscreen-native.h b/src/backends/native/meta-onscreen-native.h
-index c60ceaeb41..e4207b781e 100644
+index 7c5f87ecb5..60d4a0623c 100644
 --- a/src/backends/native/meta-onscreen-native.h
 +++ b/src/backends/native/meta-onscreen-native.h
-@@ -70,3 +70,8 @@ void meta_onscreen_native_detach (MetaOnscreenNative *onscreen_native);
+@@ -68,3 +68,8 @@ void meta_onscreen_native_detach (MetaOnscreenNative *onscreen_native);
  
  void meta_onscreen_native_allow_vrr (MetaOnscreenNative *onscreen_native,
                                       gboolean            allowed);
@@ -1193,10 +1193,10 @@ index 704cbad277..12b0307658 100644
    parent_class->before_paint (compositor, compositor_view, frame);
  }
 diff --git a/src/compositor/meta-compositor-view-native.c b/src/compositor/meta-compositor-view-native.c
-index 9c52182cac..9dc5a3b871 100644
+index 9519089219..464786b009 100644
 --- a/src/compositor/meta-compositor-view-native.c
 +++ b/src/compositor/meta-compositor-view-native.c
-@@ -81,7 +81,17 @@ static void
+@@ -89,7 +89,17 @@ static void
  on_fullscreen_actor_destroyed (MetaSurfaceActor         *surface_actor,
                                 MetaCompositorViewNative *view_native)
  {
@@ -1214,7 +1214,7 @@ index 9c52182cac..9dc5a3b871 100644
  }
  
  static void
-@@ -412,6 +422,9 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -436,6 +446,9 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
      META_COMPOSITOR_VIEW (view_native);
    ClutterStageView *stage_view;
    CoglFramebuffer *framebuffer;
@@ -1224,7 +1224,7 @@ index 9c52182cac..9dc5a3b871 100644
  
    g_clear_signal_handler (&view_native->fullscreen_surface_repaint_scheduled_id,
                            view_native->fullscreen_actor);
-@@ -446,6 +459,35 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -470,6 +483,35 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
  
    meta_onscreen_native_allow_vrr (META_ONSCREEN_NATIVE (framebuffer),
                                    surface_actor != NULL);
@@ -1390,10 +1390,10 @@ index e67d0cf7fc..5928f58743 100644
                                                   MetaCrtc           *crtc);
  
 diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
-index beaf3261b0..5630627aa6 100644
+index e174f0d626..d53d221dcd 100644
 --- a/src/wayland/meta-wayland-surface.c
 +++ b/src/wayland/meta-wayland-surface.c
-@@ -2343,6 +2343,12 @@ meta_wayland_surface_role_is_on_logical_monitor (MetaWaylandSurfaceRole *surface
+@@ -2335,6 +2335,12 @@ meta_wayland_surface_role_is_on_logical_monitor (MetaWaylandSurfaceRole *surface
      return FALSE;
  }
  
@@ -1407,10 +1407,10 @@ index beaf3261b0..5630627aa6 100644
  meta_wayland_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role)
  {
 -- 
-2.53.0
+2.55.0
 
 
-From 45a7155cf6390996bcdada841c331c03cfeb4cfa Mon Sep 17 00:00:00 2001
+From 2537f19e4f0afa62f1555f192231636199385a6f Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Wed, 4 Feb 2026 00:00:00 +0000
 Subject: [PATCH 07/17] Fix tearing crash with weak references
@@ -1531,10 +1531,10 @@ index dc0237c210..d4e504bac9 100644
                        quark_tearing_surface_data,
                        tearing_surface);
 -- 
-2.53.0
+2.55.0
 
 
-From 6bdac0c9b752cbb09fcaf9b00007f680e04de3c9 Mon Sep 17 00:00:00 2001
+From cba5c6acddaa13425c8ebd13862e519ee663c984 Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Wed, 4 Feb 2026 00:00:00 +0000
 Subject: [PATCH 08/17] Auto-enable tearing for fullscreen windows
@@ -1548,10 +1548,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 8 insertions(+)
 
 diff --git a/src/compositor/meta-compositor-view-native.c b/src/compositor/meta-compositor-view-native.c
-index 9dc5a3b871..8611aae046 100644
+index 464786b009..9944f45db4 100644
 --- a/src/compositor/meta-compositor-view-native.c
 +++ b/src/compositor/meta-compositor-view-native.c
-@@ -484,6 +484,14 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -508,6 +508,14 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
      }
  
    tearing_enabled = meta_wayland_surface_get_is_tearing_enabled (surface);
@@ -1567,10 +1567,10 @@ index 9dc5a3b871..8611aae046 100644
        meta_onscreen_native_is_tearing_enabled (META_ONSCREEN_NATIVE (framebuffer)))
      meta_onscreen_native_request_tearing (META_ONSCREEN_NATIVE (framebuffer),
 -- 
-2.53.0
+2.55.0
 
 
-From caf2b3a488d1084770408cbe1100baf92f5957fd Mon Sep 17 00:00:00 2001
+From f55556b2a7080dbdd6eff4b42fa164ea2c6ab224 Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Wed, 4 Feb 2026 05:30:00 +0000
 Subject: [PATCH 09/17] native: Fix ghost cursor by blocking cursor updates
@@ -1638,10 +1638,10 @@ index caec41240c..aa7bc69a56 100644
      return update;
  
 -- 
-2.53.0
+2.55.0
 
 
-From f0dd59504f74da4325ed87eb9994b8ce21aca67a Mon Sep 17 00:00:00 2001
+From c4adc097e8a949bf13d04e0ec5602e2b9fa756dd Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Wed, 4 Feb 2026 00:00:00 +0000
 Subject: [PATCH 10/17] Add unlocked frame clock mode for tearing support
@@ -1658,10 +1658,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  3 files changed, 35 insertions(+), 4 deletions(-)
 
 diff --git a/clutter/clutter/clutter-frame-clock.c b/clutter/clutter/clutter-frame-clock.c
-index 3d06ba7ebd..9217afc8e4 100644
+index f0e24f4ad8..37ff175751 100644
 --- a/clutter/clutter/clutter-frame-clock.c
 +++ b/clutter/clutter/clutter-frame-clock.c
-@@ -779,6 +779,7 @@ maybe_want_triple_buffering (ClutterFrameClock *frame_clock)
+@@ -842,6 +842,7 @@ maybe_want_triple_buffering (ClutterFrameClock *frame_clock)
      {
      case CLUTTER_FRAME_CLOCK_MODE_FIXED:
      case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
@@ -1669,7 +1669,7 @@ index 3d06ba7ebd..9217afc8e4 100644
        break;
      case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
        return FALSE;
-@@ -1150,6 +1151,16 @@ want_triple_buffering (ClutterFrameClock *frame_clock)
+@@ -1213,6 +1214,16 @@ want_triple_buffering (ClutterFrameClock *frame_clock)
    if (!maybe_want_triple_buffering (frame_clock))
      return FALSE;
  
@@ -1686,7 +1686,7 @@ index 3d06ba7ebd..9217afc8e4 100644
    if (clutter_frame_clock_estimate_max_update_time_us (frame_clock,
                                                         &max_update_time_estimate_us) &&
        max_update_time_estimate_us < frame_clock->refresh_interval_us)
-@@ -1220,6 +1231,12 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
+@@ -1283,6 +1294,12 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
        frame_clock->has_next_frame_deadline =
          (frame_clock->next_frame_deadline_us != 0);
        break;
@@ -1699,7 +1699,7 @@ index 3d06ba7ebd..9217afc8e4 100644
      case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
        clutter_frame_clock_driver_schedule_update (frame_clock->driver);
        break;
-@@ -1247,6 +1264,7 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
+@@ -1310,6 +1327,7 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
      {
      case CLUTTER_FRAME_CLOCK_MODE_FIXED:
      case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
@@ -1707,7 +1707,7 @@ index 3d06ba7ebd..9217afc8e4 100644
        break;
      case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
        clutter_frame_clock_driver_schedule_update (frame_clock->driver);
-@@ -1309,6 +1327,12 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
+@@ -1372,6 +1390,12 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
        frame_clock->has_next_frame_deadline =
          (frame_clock->next_frame_deadline_us != 0);
        break;
@@ -1720,7 +1720,7 @@ index 3d06ba7ebd..9217afc8e4 100644
      case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
        g_assert_not_reached ();
        break;
-@@ -1342,6 +1366,7 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
+@@ -1405,6 +1429,7 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
      {
      case CLUTTER_FRAME_CLOCK_MODE_FIXED:
      case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
@@ -1728,7 +1728,7 @@ index 3d06ba7ebd..9217afc8e4 100644
        break;
      case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
        clutter_frame_clock_driver_schedule_update (frame_clock->driver);
-@@ -1414,6 +1439,9 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
+@@ -1477,6 +1502,9 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
        frame_clock->is_next_presentation_time_valid = TRUE;
        frame_clock->next_presentation_time_us = target_us;
        break;
@@ -1751,10 +1751,10 @@ index 4dc89e3ae3..b3d5ef64f4 100644
  } ClutterFrameClockMode;
  
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index ef61be8587..7993eca255 100644
+index 771c8fd270..20a7c5ce9b 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -2360,10 +2360,12 @@ maybe_update_vrr (MetaOnscreenNative *onscreen_native,
+@@ -2353,10 +2353,12 @@ maybe_update_vrr (MetaOnscreenNative *onscreen_native,
        meta_kms_update_set_vrr (kms_update, kms_crtc, vrr_enabled);
      }
  
@@ -1772,10 +1772,10 @@ index ef61be8587..7993eca255 100644
  }
  
 -- 
-2.53.0
+2.55.0
 
 
-From a3ed42bcb4edf459f8a5ccb5fad0d77afb1788e7 Mon Sep 17 00:00:00 2001
+From 904bec1a2313131aa547e001731ac3fa1b865098 Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Thu, 5 Feb 2026 00:00:00 +0000
 Subject: [PATCH 11/17] Add experimental flag for auto-fullscreen tearing
@@ -1873,7 +1873,7 @@ index 17dc1189a7..7a43b5b8d0 100644
      {
        settings->experimental_features = features;
 diff --git a/src/compositor/meta-compositor-view-native.c b/src/compositor/meta-compositor-view-native.c
-index 8611aae046..a6b7175687 100644
+index 9944f45db4..9d555c94dc 100644
 --- a/src/compositor/meta-compositor-view-native.c
 +++ b/src/compositor/meta-compositor-view-native.c
 @@ -26,6 +26,8 @@
@@ -1885,7 +1885,7 @@ index 8611aae046..a6b7175687 100644
  #include "backends/native/meta-crtc-kms.h"
  #include "backends/native/meta-onscreen-native.h"
  #include "clutter/clutter.h"
-@@ -489,7 +491,16 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -513,7 +515,16 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
        MetaWindow *window = meta_wayland_surface_get_toplevel_window (surface);
  
        if (window && meta_window_is_fullscreen (window))
@@ -1904,10 +1904,10 @@ index 8611aae046..a6b7175687 100644
  
    if (tearing_enabled !=
 -- 
-2.53.0
+2.55.0
 
 
-From 277b0977e30def9b4a6eacf629ad6260c287da0d Mon Sep 17 00:00:00 2001
+From 22497577315a36fc56fc97769b446d17d5cefdc0 Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Wed, 4 Feb 2026 06:00:00 +0000
 Subject: [PATCH 12/17] Add backend cursor inhibit for smooth tearing
@@ -1928,10 +1928,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 7993eca255..fadaf1eb29 100644
+index 20a7c5ce9b..d4fa11c8e7 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -2315,10 +2315,20 @@ meta_onscreen_native_request_tearing (MetaOnscreenNative *onscreen_native,
+@@ -2308,10 +2308,20 @@ meta_onscreen_native_request_tearing (MetaOnscreenNative *onscreen_native,
    MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
    MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
    MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
@@ -1954,10 +1954,10 @@ index 7993eca255..fadaf1eb29 100644
  
  gboolean
 -- 
-2.53.0
+2.55.0
 
 
-From c84a705ff3aad30b28e7c54ad6b1b348d92fe00a Mon Sep 17 00:00:00 2001
+From 7cdf2463925e9cd3e34f75907ffb7aac35bb5ab2 Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Tue, 10 Feb 2026 03:03:14 +0000
 Subject: [PATCH 13/17] native/kms-cursor: Allow sync clear during async tear
@@ -2072,10 +2072,10 @@ index aa7bc69a56..7e1ebc37c4 100644
  
    if (flags & META_KMS_UPDATE_FLAG_TEST_ONLY)
 -- 
-2.53.0
+2.55.0
 
 
-From bd555273a2015194df02283a85035ea3d52c707e Mon Sep 17 00:00:00 2001
+From 946e68775c90c8d5e85ba8793aab967398ae0f8d Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Tue, 10 Feb 2026 03:30:57 +0000
 Subject: [PATCH 14/17] tearing: Fix lifecycle, protocol revert semantics, and
@@ -2090,10 +2090,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  4 files changed, 62 insertions(+), 44 deletions(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index fadaf1eb29..8a29b08a0b 100644
+index d4fa11c8e7..7d0edd6a0f 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -2318,17 +2318,22 @@ meta_onscreen_native_request_tearing (MetaOnscreenNative *onscreen_native,
+@@ -2311,17 +2311,22 @@ meta_onscreen_native_request_tearing (MetaOnscreenNative *onscreen_native,
    MetaRenderer *renderer =
      META_RENDERER (onscreen_native->renderer_native);
    MetaBackend *backend = meta_renderer_get_backend (renderer);
@@ -2125,7 +2125,7 @@ index fadaf1eb29..8a29b08a0b 100644
  }
  
  gboolean
-@@ -3565,6 +3570,10 @@ meta_onscreen_native_dispose (GObject *object)
+@@ -3587,6 +3592,10 @@ meta_onscreen_native_dispose (GObject *object)
    MetaRendererNativeGpuData *renderer_gpu_data;
  
    g_clear_pointer (&onscreen_native->render_source, g_source_destroy);
@@ -2137,10 +2137,10 @@ index fadaf1eb29..8a29b08a0b 100644
  
    meta_onscreen_native_discard_pending_swaps (onscreen);
 diff --git a/src/compositor/meta-compositor-view-native.c b/src/compositor/meta-compositor-view-native.c
-index a6b7175687..a4ac5de50d 100644
+index 9d555c94dc..fc59e28c06 100644
 --- a/src/compositor/meta-compositor-view-native.c
 +++ b/src/compositor/meta-compositor-view-native.c
-@@ -424,6 +424,7 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -448,6 +448,7 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
      META_COMPOSITOR_VIEW (view_native);
    ClutterStageView *stage_view;
    CoglFramebuffer *framebuffer;
@@ -2148,7 +2148,7 @@ index a6b7175687..a4ac5de50d 100644
    MetaSurfaceActorWayland *surface_actor_wayland;
    MetaWaylandSurface *surface;
    gboolean tearing_enabled;
-@@ -459,20 +460,19 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -483,20 +484,19 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
    if (!META_IS_ONSCREEN_NATIVE (framebuffer))
      return;
  
@@ -2174,7 +2174,7 @@ index a6b7175687..a4ac5de50d 100644
        return;
      }
  
-@@ -480,8 +480,7 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -504,8 +504,7 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
    surface = meta_surface_actor_wayland_get_surface (surface_actor_wayland);
    if (!surface)
      {
@@ -2184,7 +2184,7 @@ index a6b7175687..a4ac5de50d 100644
        return;
      }
  
-@@ -492,21 +491,22 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -516,21 +515,22 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
  
        if (window && meta_window_is_fullscreen (window))
          {
@@ -2309,10 +2309,10 @@ index d4e504bac9..9f63ef0fac 100644
  
  static void
 -- 
-2.53.0
+2.55.0
 
 
-From c9c33659d2b056004a16010f830a85fb1e09a3b4 Mon Sep 17 00:00:00 2001
+From 177abce967f664db961d323766614dcaa2caab53 Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Tue, 10 Feb 2026 04:20:00 +0000
 Subject: [PATCH 15/17] compositor: Restore auto-fullscreen tearing force path
@@ -2323,10 +2323,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 1 insertion(+), 4 deletions(-)
 
 diff --git a/src/compositor/meta-compositor-view-native.c b/src/compositor/meta-compositor-view-native.c
-index a4ac5de50d..1fe98739c3 100644
+index fc59e28c06..abdadcf15d 100644
 --- a/src/compositor/meta-compositor-view-native.c
 +++ b/src/compositor/meta-compositor-view-native.c
-@@ -492,14 +492,11 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -516,14 +516,11 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
        if (window && meta_window_is_fullscreen (window))
          {
            MetaCrtc *view_crtc = meta_onscreen_native_get_crtc (onscreen_native);
@@ -2343,10 +2343,10 @@ index a4ac5de50d..1fe98739c3 100644
          }
      }
 -- 
-2.53.0
+2.55.0
 
 
-From e12b0f711497b6a67574bca73191dc45a89d161c Mon Sep 17 00:00:00 2001
+From 84bab7707192a80e6deb8962441921f44d0cfb41 Mon Sep 17 00:00:00 2001
 From: Sultech <6282-Sultech@users.noreply.gitlab.gnome.org>
 Date: Tue, 10 Feb 2026 22:58:31 +0000
 Subject: [PATCH 16/17] tearing: Keep async+VRR coexistence and refresh
@@ -2359,7 +2359,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  2 files changed, 53 insertions(+), 27 deletions(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 8a29b08a0b..621278b08b 100644
+index 7d0edd6a0f..31a2f5cbc9 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -181,6 +181,9 @@ post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
@@ -2372,7 +2372,7 @@ index 8a29b08a0b..621278b08b 100644
  static gboolean
  init_secondary_gpu_state (MetaRendererNative  *renderer_native,
                            CoglOnscreen        *onscreen,
-@@ -2115,7 +2118,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
+@@ -2106,7 +2109,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
      }
  
    meta_kms_update_set_async (kms_update,
@@ -2381,7 +2381,7 @@ index 8a29b08a0b..621278b08b 100644
  
    meta_kms_device_post_update (kms_device, kms_update,
                                 META_KMS_UPDATE_FLAG_NONE);
-@@ -2128,6 +2131,29 @@ post_failed:
+@@ -2119,6 +2122,29 @@ post_failed:
    meta_onscreen_native_notify_frame_complete (onscreen);
  }
  
@@ -2411,7 +2411,7 @@ index 8a29b08a0b..621278b08b 100644
  gboolean
  meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
                                                     CoglScanout  *scanout)
-@@ -2155,7 +2181,7 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
+@@ -2146,7 +2172,7 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
    cogl_scanout_get_dst_rect (scanout, &dst_rect);
  
    meta_kms_update_set_async (test_update,
@@ -2421,10 +2421,10 @@ index 8a29b08a0b..621278b08b 100644
    buffer = META_DRM_BUFFER (cogl_scanout_get_buffer (scanout));
    assign_primary_plane (crtc_kms,
 diff --git a/src/compositor/meta-compositor-view-native.c b/src/compositor/meta-compositor-view-native.c
-index 1fe98739c3..13f6947a93 100644
+index abdadcf15d..6a9dc4578f 100644
 --- a/src/compositor/meta-compositor-view-native.c
 +++ b/src/compositor/meta-compositor-view-native.c
-@@ -429,30 +429,33 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
+@@ -453,30 +453,33 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
    MetaWaylandSurface *surface;
    gboolean tearing_enabled;
  
@@ -2480,7 +2480,7 @@ index 1fe98739c3..13f6947a93 100644
  
    stage_view = meta_compositor_view_get_stage_view (compositor_view);
  
-@@ -515,9 +518,6 @@ meta_compositor_view_native_maybe_update_fullscreen_actor (MetaCompositorViewNat
+@@ -539,9 +542,6 @@ meta_compositor_view_native_maybe_update_fullscreen_actor (MetaCompositorViewNat
  
    fullscreen_actor = find_fullscreen_candidate (compositor_view, compositor);
  
@@ -2491,10 +2491,10 @@ index 1fe98739c3..13f6947a93 100644
  }
  
 -- 
-2.53.0
+2.55.0
 
 
-From 831f626405affe088ea9f0658325851cbee9e198 Mon Sep 17 00:00:00 2001
+From 5480d663cde435dce5ac9ec31a9f2ee9b7371736 Mon Sep 17 00:00:00 2001
 From: Vasiliy Stelmachenok <ventureo@cachyos.org>
 Date: Thu, 9 Apr 2026 18:47:39 +0300
 Subject: [PATCH 17/17] Fix crash if pending surface state is NULL
@@ -2533,5 +2533,5 @@ index 9f63ef0fac..d979d3e084 100644
  }
  
 -- 
-2.53.0
+2.55.0
 

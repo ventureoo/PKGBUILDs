@@ -1,0 +1,82 @@
+From 6f0b92d6caa63870e3d5a7691766a4ffccf5e282 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Fri, 19 Jun 2026 15:44:56 +0200
+Subject: [PATCH] clutter/frame-clock: Use latest possible
+ next_smooth_presentation_time_us
+
+The target presentation time of pending frames can be not only later
+than earliest possible extrapolated from the last presentation time
+(when the frame explicitly targets a later refresh cycle), but also
+earlier (when a previous frame missed its target cycle).
+
+With a series of frames hitting each refresh cycle, the latter case
+resulted in later frames all missing the cycle they were targetting,
+and corresponding higher latency for clients using the Wayland
+commit-timing protocol.
+
+Solve this by calculating the earliest presentation time all possible
+ways, and using the maximum result for next_smooth_presentation_time_us.
+
+Fixes: 23f285f972ae ("clutter/frame-clock: Take previous target presentation time into account")
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/5137>
+---
+ clutter/clutter/clutter-frame-clock.c | 40 ++++++++-------------------
+ 1 file changed, 12 insertions(+), 28 deletions(-)
+
+diff --git a/clutter/clutter/clutter-frame-clock.c b/clutter/clutter/clutter-frame-clock.c
+index f0e24f4ad89..feac00beb46 100644
+--- a/clutter/clutter/clutter-frame-clock.c
++++ b/clutter/clutter/clutter-frame-clock.c
+@@ -997,37 +997,21 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED:
+     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_NOW:
+     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_LATER:
+-      if (frame_clock->next_presentation->target_presentation_time_us > 0)
+-        {
+-          next_smooth_presentation_time_us =
+-            frame_clock->next_presentation->target_presentation_time_us +
+-            refresh_interval_us;
+-        }
+-      else
+-        {
+-          next_smooth_presentation_time_us = last_presentation_time_us +
+-                                             2 * refresh_interval_us;
+-        }
++      next_smooth_presentation_time_us =
++        MAX (frame_clock->next_presentation->target_presentation_time_us +
++             refresh_interval_us,
++             last_presentation_time_us + 2 * refresh_interval_us);
+       break;
+     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO:
+       g_warn_if_reached ();  /* quad buffering would be a bug */
+-      if (frame_clock->next_next_presentation->target_presentation_time_us > 0)
+-        {
+-          next_smooth_presentation_time_us =
+-            frame_clock->next_next_presentation->target_presentation_time_us +
+-            refresh_interval_us;
+-        }
+-      else if (frame_clock->next_presentation->target_presentation_time_us > 0)
+-        {
+-          next_smooth_presentation_time_us =
+-            frame_clock->next_presentation->target_presentation_time_us +
+-            2 * refresh_interval_us;
+-        }
+-      else
+-        {
+-          next_smooth_presentation_time_us = last_presentation_time_us +
+-                                             3 * refresh_interval_us;
+-        }
++      next_smooth_presentation_time_us =
++        MAX (frame_clock->next_next_presentation->target_presentation_time_us +
++             refresh_interval_us,
++             frame_clock->next_presentation->target_presentation_time_us +
++             2 * refresh_interval_us);
++      next_smooth_presentation_time_us =
++        MAX (next_smooth_presentation_time_us,
++             last_presentation_time_us + 3 * refresh_interval_us);
+       break;
+     }
+ 
+-- 
+GitLab
+
