@@ -5,7 +5,7 @@
 # Contributor: Jakub Schmidtke <sjakub@gmail.com>
 
 pkgname=firefox-pure
-pkgver=153.0
+pkgver=153.0.3
 pkgrel=1
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.firefox.com"
@@ -63,7 +63,8 @@ makedepends=(
   zip
 )
 optdepends=(
-  'hunspell-en_US: Spell checking, American English'
+  'firefox-i18n: Localizations'
+  'hunspell-dictionary: Spell checking, American English'
   'libnotify: Notification integration'
   'xdg-desktop-portal: Screensharing with Wayland'
 )
@@ -81,10 +82,11 @@ source=(
   "firefox.desktop"
   "org.mozilla.firefox.metainfo.xml"
   "0001-Install-under-remoting-name.patch"
+  "0002-Bug-2057577-DOM-Media-Add-FFmpeg-63-support.-r-alwu-.patch"
   "https://dev.gentoo.org/~juippis/mozilla/patchsets/firefox-153-patches-01.tar.xz"
 )
 sha256sums=(
-  'bc510f74c8c4c692d31e559aeb5850849d13bc98214ac81e004f66f819a55522'
+  '471468648b815088734142f67b46c6040334d5b73e645fdd0936426e28ccbc25'
   'cb00ea359d6daf37900102307be4f515f1b7ef9c98825c64cc55bb562449d0d8'
   '71fe797430198ac8c00b538dce537284cf526e48be0496698cf5a980d70c16da'
   '4e01a62e20026b67466943bad9dfba47874c5e1492375f8293aeb85ecedf2288'
@@ -98,6 +100,10 @@ prepare() {
 
   # Make different channels installable in parallel
   patch -Np1 -i "${srcdir}"/0001-Install-under-remoting-name.patch
+
+  # Support FFmpeg 9
+  # https://gitlab.archlinux.org/archlinux/packaging/packages/firefox/-/work_items/34
+  patch -Np1 -i "${srcdir}"/0002-Bug-2057577-DOM-Media-Add-FFmpeg-63-support.-r-alwu-.patch
 
   # Gentoo patches
   for patch in "${srcdir}/firefox-patches"/*.patch; do
