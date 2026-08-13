@@ -1,0 +1,30 @@
+From df487d5d65b17014ebb5d7a0bccd05de2d89006b Mon Sep 17 00:00:00 2001
+From: Vasiliy Stelmachenok <ventureo@cachyos.org>
+Date: Wed, 12 Aug 2026 15:04:51 +0300
+Subject: [PATCH] ntdll: Set correct default high limit on image map for WoW64
+
+Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
+---
+ dlls/ntdll/unix/virtual.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/dlls/ntdll/unix/virtual.c b/dlls/ntdll/unix/virtual.c
+index db820a89525..110a8274272 100644
+--- a/dlls/ntdll/unix/virtual.c
++++ b/dlls/ntdll/unix/virtual.c
+@@ -3349,7 +3349,11 @@ static NTSTATUS map_image_view( struct file_view **view_ret, struct pe_image_inf
+                     (image_info->image_flags & IMAGE_FLAGS_ImageDynamicallyRelocated);
+ 
+     limit_low = max( limit_low, (ULONG_PTR)address_space_start );  /* make sure the DOS area remains free */
+-    if (!limit_high) limit_high = (ULONG_PTR)user_space_limit;
++    if (!limit_high)
++    {
++        if (is_wow64()) limit_high = get_wow_user_space_limit();
++        else limit_high = (ULONG_PTR)user_space_limit;
++    }
+ 
+     /* first try the specified base */
+ 
+-- 
+2.55.0
+
