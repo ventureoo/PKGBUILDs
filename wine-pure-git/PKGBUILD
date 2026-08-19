@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=11.15.r84.g1d3e3ed5750
+pkgver=11.15.r175.g3b6b0cedd98
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -22,7 +22,6 @@ source=(
   winecfg-Add-tweaks-tab-page.patch
   ntdll-loader-add-support-for-overriding-IMAGE_FILE_L.patch
   Add-workarounds-for-game-launchers.patch
-  ntdll-Set-correct-default-high-limit-on-image-map-fo.patch
   Disable-optimization-of-some-functions.patch
   Configure-Enforce-4-byte-stack-alignment-on-clang-for-PE-builds.patch
   10108.patch
@@ -42,9 +41,8 @@ sha256sums=(
   'c19b69bba9bf59683e784987663c1c1f0ebfc99d5050bda0b041b14f4cb0c7bc'
   'd133ef2daeb2f3e6a2359850d1ece08e2944c505ac08ff219ef59294e9df10a2'
   'e732361371cec88fdd74a773be9bf6e8062b1179e4829bf65c9a6f7e2bbe3518'
-  '906f5dab93dd61f0b74cf3e83adeec1509dd1f610366c903b628c962ff48399a'
+  'f5ab442bd07af3df7b279f406b3cb41d5bb89557ad37652034319519c7bad68a'
   '07b0cbe87d08ce9272c15870acfc4f8a467990fc1b4405329e96d76c23f0fc58'
-  '897b6fb4944ce086655946d44c8cd9ece03c65206fccc9b7d829ac111146b536'
   '328fc86db171eead5b6a0a4e261cb652c4d452b5ed82704b9844a9ff3da25399'
   'cc2dce94d6d34b63dab273d9293c7644a6d4677f7b234e1551f64db35238bef0'
   'a24c846ee68b9d071431e23447c8eacad554fdda1954d626656b7fde3a415d14'
@@ -143,10 +141,6 @@ prepare() {
   # Patch from Proton. Works only if WINE_LARGE_ADDRESS_AWARE environment
   # variable is specified.
   patch -Np1 -i "${srcdir}/ntdll-loader-add-support-for-overriding-IMAGE_FILE_L.patch"
-
-  # Fixes progress freezing for a number of installers, notably Fitgirl and Hatab repacks.
-  # https://gitlab.winehq.org/wine/wine/-/merge_requests/11656
-  patch -Np1 -i "${srcdir}/ntdll-Set-correct-default-high-limit-on-image-map-fo.patch"
 
   # Fix black windows in some launchers when using winewayland
   patch -Np1 -i "${srcdir}/Add-workarounds-for-game-launchers.patch"

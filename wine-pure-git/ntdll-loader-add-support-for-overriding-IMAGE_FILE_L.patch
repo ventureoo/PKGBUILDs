@@ -1,4 +1,4 @@
-From a5661f37077a4f1bd35464fbaeb1ae56b9f1f7f5 Mon Sep 17 00:00:00 2001
+From 0470d0c8865655db0226529fb6a6f005d25379d4 Mon Sep 17 00:00:00 2001
 From: Steven Noonan <steven@valvesoftware.com>
 Date: Wed, 17 Oct 2018 04:13:37 -0700
 Subject: [PATCH] ntdll/loader: add support for overriding
@@ -55,10 +55,10 @@ index 1ec2f5cce0d..10f6895478e 100644
          if (lpBuffer->dwTotalPhys > MAXLONG) lpBuffer->dwTotalPhys = MAXLONG;
          if (lpBuffer->dwAvailPhys > MAXLONG) lpBuffer->dwAvailPhys = MAXLONG;
 diff --git a/dlls/ntdll/ntdll.spec b/dlls/ntdll/ntdll.spec
-index 64f35d0b54d..54f811e79fb 100644
+index 10d42eeb138..74b50b9100f 100644
 --- a/dlls/ntdll/ntdll.spec
 +++ b/dlls/ntdll/ntdll.spec
-@@ -1759,3 +1759,6 @@
+@@ -1781,3 +1781,6 @@
  @ cdecl wine_get_version()
  @ cdecl wine_get_build_id()
  @ cdecl wine_get_host_version(ptr ptr)
@@ -66,10 +66,10 @@ index 64f35d0b54d..54f811e79fb 100644
 +# Filesystem
 +@ stdcall -syscall __wine_needs_override_large_address_aware()
 diff --git a/dlls/ntdll/signal_arm64ec.c b/dlls/ntdll/signal_arm64ec.c
-index a93aae89554..eaa448e54bc 100644
+index 824d47e558c..92475a59e31 100644
 --- a/dlls/ntdll/signal_arm64ec.c
 +++ b/dlls/ntdll/signal_arm64ec.c
-@@ -597,6 +597,7 @@ DEFINE_SYSCALL(NtWriteFileGather, (HANDLE file, HANDLE event, PIO_APC_ROUTINE ap
+@@ -612,6 +612,7 @@ DEFINE_SYSCALL(NtWriteFileGather, (HANDLE file, HANDLE event, PIO_APC_ROUTINE ap
  DEFINE_SYSCALL(NtWriteRequestData, (HANDLE handle, LPC_MESSAGE *request, ULONG id, void *buffer, ULONG len, ULONG *retlen))
  DEFINE_SYSCALL(NtWriteVirtualMemory, (HANDLE process, void *addr, const void *buffer, SIZE_T size, SIZE_T *bytes_written))
  DEFINE_SYSCALL(NtYieldExecution, (void))
@@ -78,10 +78,10 @@ index a93aae89554..eaa448e54bc 100644
  NTSTATUS SYSCALL_API NtAllocateVirtualMemory( HANDLE process, PVOID *ret, ULONG_PTR zero_bits,
                                                SIZE_T *size_ptr, ULONG type, ULONG protect )
 diff --git a/dlls/ntdll/unix/unix_private.h b/dlls/ntdll/unix/unix_private.h
-index d8db3842e9c..62d07086c3a 100644
+index c8ca97d21a0..5080f9c2947 100644
 --- a/dlls/ntdll/unix/unix_private.h
 +++ b/dlls/ntdll/unix/unix_private.h
-@@ -693,4 +693,6 @@ static inline int is_gdt_sel( WORD sel )
+@@ -737,4 +737,6 @@ static inline int is_gdt_sel( WORD sel )
  
  #endif  /* defined(__i386__) || defined(__x86_64__) */
  
@@ -89,10 +89,10 @@ index d8db3842e9c..62d07086c3a 100644
 +
  #endif /* __NTDLL_UNIX_PRIVATE_H */
 diff --git a/dlls/ntdll/unix/virtual.c b/dlls/ntdll/unix/virtual.c
-index 99ae256e872..8b1f2f905b6 100644
+index 42eb1f6bb9f..f35f5bc3a13 100644
 --- a/dlls/ntdll/unix/virtual.c
 +++ b/dlls/ntdll/unix/virtual.c
-@@ -5016,6 +5016,24 @@ static void virtual_release_address_space(void)
+@@ -5082,6 +5082,24 @@ static void virtual_release_address_space(void)
  
  #endif  /* _WIN64 */
  
@@ -117,12 +117,16 @@ index 99ae256e872..8b1f2f905b6 100644
  
  /***********************************************************************
   *           virtual_set_large_address_space
-@@ -5035,11 +5053,11 @@ void virtual_set_large_address_space(void)
+@@ -5101,7 +5119,7 @@ void virtual_set_large_address_space(void)
                  free_reserved_memory( 0, (char *)0x7ffe0000 );
  #endif
          }
--        else user_space_wow_limit = ((main_image_info.ImageCharacteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE) ? limit_4g : limit_2g) - 1;
-+        else user_space_wow_limit = (is_large_address_aware() ? limit_4g : limit_2g) - 1;
+-        else if (main_image_info.ImageCharacteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE)
++        else if (is_large_address_aware())
+         {
+             user_space_wow_limit = limit_4g - 1;
+             /* reserve space for top-down allocations; some apps break if the entire high 2G is available */
+@@ -5111,7 +5129,7 @@ void virtual_set_large_address_space(void)
      }
      else
      {
@@ -132,10 +136,10 @@ index 99ae256e872..8b1f2f905b6 100644
      }
      user_space_limit = working_set_limit = address_space_limit;
 diff --git a/dlls/wow64/system.c b/dlls/wow64/system.c
-index fd10a0585ce..933a594f29b 100644
+index eb57d35f41e..8b108b406d6 100644
 --- a/dlls/wow64/system.c
 +++ b/dlls/wow64/system.c
-@@ -857,3 +857,9 @@ NTSTATUS WINAPI wow64_NtWow64GetNativeSystemInformation( UINT *args )
+@@ -886,3 +886,9 @@ NTSTATUS WINAPI wow64_NtWow64GetNativeSystemInformation( UINT *args )
          return STATUS_INVALID_INFO_CLASS;
      }
  }
@@ -146,5 +150,5 @@ index fd10a0585ce..933a594f29b 100644
 +    return __wine_needs_override_large_address_aware();
 +}
 -- 
-2.51.0
+2.55.0
 
