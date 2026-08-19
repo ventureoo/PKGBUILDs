@@ -5,7 +5,7 @@
 # Contributor: Jakub Schmidtke <sjakub@gmail.com>
 
 pkgname=firefox-pure
-pkgver=153.0.3
+pkgver=154.0
 pkgrel=1
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.firefox.com"
@@ -82,17 +82,15 @@ source=(
   "firefox.desktop"
   "org.mozilla.firefox.metainfo.xml"
   "0001-Install-under-remoting-name.patch"
-  "0002-Bug-2057577-DOM-Media-Add-FFmpeg-63-support.-r-alwu-.patch"
-  "https://dev.gentoo.org/~juippis/mozilla/patchsets/firefox-153-patches-01.tar.xz"
+  "https://dev.gentoo.org/~juippis/mozilla/patchsets/firefox-154-patches-01.tar.xz"
 )
 sha256sums=(
-  '471468648b815088734142f67b46c6040334d5b73e645fdd0936426e28ccbc25'
+  '36cec5b3688a60f78a6d20dcaee15b598f84e03c66f6587056aead6cb498b99a'
   'cb00ea359d6daf37900102307be4f515f1b7ef9c98825c64cc55bb562449d0d8'
   '71fe797430198ac8c00b538dce537284cf526e48be0496698cf5a980d70c16da'
   '4e01a62e20026b67466943bad9dfba47874c5e1492375f8293aeb85ecedf2288'
   'a7364ddb3b6eab922873f35731ed5cfb61e8022a35d54edd2f80b95a4f5625ed'
-  '55aeec4d098990e91f881de32126ea91576b0d185e322b561241c513ea5b9fcd'
-  '9dc3e9423eea9b8bf16cd7cc2545a539717e9b32c1e4242a332988ff0add923e'
+  '74be0633ade277e269f5bbdedef84a50c1430fba56e6d7fd56878a963e07a124'
 )
 
 prepare() {
@@ -101,10 +99,6 @@ prepare() {
 
   # Make different channels installable in parallel
   patch -Np1 -i "${srcdir}"/0001-Install-under-remoting-name.patch
-
-  # Support FFmpeg 9
-  # https://gitlab.archlinux.org/archlinux/packaging/packages/firefox/-/work_items/34
-  patch -Np1 -i "${srcdir}"/0002-Bug-2057577-DOM-Media-Add-FFmpeg-63-support.-r-alwu-.patch
 
   # Gentoo patches
   for patch in "${srcdir}/firefox-patches"/*.patch; do
