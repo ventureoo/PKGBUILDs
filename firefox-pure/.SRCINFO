@@ -1,7 +1,7 @@
 pkgbase = firefox-pure
 	pkgdesc = Fast, Private & Safe Web Browser
 	pkgver = 154.0
-	pkgrel = 1
+	pkgrel = 2
 	url = https://www.firefox.com
 	arch = x86_64
 	license = MPL-2.0

@@ -6,7 +6,7 @@
 
 pkgname=firefox-pure
 pkgver=154.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Fast, Private & Safe Web Browser"
 url="https://www.firefox.com"
 arch=(x86_64)
@@ -132,8 +132,7 @@ ac_add_options --enable-rust-simd
 ac_add_options --enable-wasm-simd
 ac_add_options --enable-lto=cross,full
 ac_add_options --enable-linker=lld
-ac_add_options --enable-jemalloc
-ac_add_options --enable-replace-malloc
+ac_add_options --disable-jemalloc
 ac_add_options --disable-cargo-incremental
 ac_add_options --disable-elf-hack
 ac_add_options --disable-bootstrap
