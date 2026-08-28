@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=11.16.r0.g8da89f8493b
+pkgver=11.16.r93.ge6e9d7627c0
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -28,6 +28,7 @@ source=(
   10864.patch
   10829.patch
   kernelbase-Handle-misaligned-stack-in-OpenThread.patch
+  proton-em-winewayland.patch
 )
 sha256sums=(
   'SKIP'
@@ -49,6 +50,7 @@ sha256sums=(
   '394ddf84380e4b87d2779a3236757d8d923042afb889b58d131752ff9bdc42cb'
   'd0178e2750fcd13b6c5360edafa49d95607b2198850ecb40873f83bfd5a70092'
   'd989e594b544abfc0924ca9d1554f4cac215a78d8612a4e935cc89511677fa21'
+  '527da94b2d56b3ccfb2be81823359c9b803d21249f97fe4ab3c5db8d10b8390b'
 )
 
 pkgdesc="Bleeding-edge Wine build (Staging, WoW64, Wayland)"
@@ -167,6 +169,9 @@ prepare() {
   # kernelbase: Handle misaligned stack in OpenThread
   # https://gitlab.winehq.org/wine/wine/-/merge_requests/11069
   patch -Np1 -i "${srcdir}/kernelbase-Handle-misaligned-stack-in-OpenThread.patch"
+
+  # winewayland fixes & improvements from Proton-EM
+  patch -Np1 -i "${srcdir}/proton-em-winewayland.patch"
 
   ./dlls/winevulkan/make_vulkan
   ./tools/make_requests
