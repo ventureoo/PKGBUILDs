@@ -1,4 +1,4 @@
-From d9b1289379846b0c93f4a207ba8df74826ae6ac5 Mon Sep 17 00:00:00 2001
+From 5840e4f8f6411925fd95662adaf576ce9ffcf118 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 1 Jul 2026 19:12:54 -0400
@@ -7,13 +7,13 @@ Subject: [PATCH 01/79] winewayland: Implement exclusive fullscreen ensure
 
 Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
 ---
- dlls/winewayland.drv/wayland_surface.c | 146 ++++++++++++++-----------
+ dlls/winewayland.drv/wayland_surface.c | 143 ++++++++++++++-----------
  dlls/winewayland.drv/waylanddrv.h      |   9 +-
  dlls/winewayland.drv/window.c          |   3 +
- 3 files changed, 94 insertions(+), 64 deletions(-)
+ 3 files changed, 94 insertions(+), 61 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index a6353a10981..62feeaeaca2 100644
+index bcaa8c07f29..50ba7e3b205 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -226,6 +226,7 @@ struct wayland_surface *wayland_surface_create(HWND hwnd)
@@ -128,7 +128,7 @@ index a6353a10981..62feeaeaca2 100644
  
          /* Handle any processed configure request, to ensure the related
           * surface state is applied by the compositor. */
-@@ -1327,68 +1409,6 @@ done:
+@@ -1328,65 +1410,6 @@ done:
      wayland_win_data_release(toplevel_data);
  }
  
@@ -186,11 +186,8 @@ index a6353a10981..62feeaeaca2 100644
 -        wayland_surface_attach_shm(surface, dummy_shm_buffer, damage);
 -        wl_surface_commit(surface->wl_surface);
 -    }
--    else
--    {
--        wayland_shm_buffer_unref(dummy_shm_buffer);
--    }
 -
+-    wayland_shm_buffer_unref(dummy_shm_buffer);
 -    if (damage) NtGdiDeleteObjectApp(damage);
 -}
 -
@@ -256,7 +253,7 @@ index 270fdfb40e6..402b1251074 100644
 2.55.0
 
 
-From c53505c078a403ed3250f68253f746dbcd116e32 Mon Sep 17 00:00:00 2001
+From 11605b87d15492c7cd1fec8888b4cd542dfb213d Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 5 Jun 2026 14:18:04 -0400
@@ -285,7 +282,7 @@ index 402b1251074..76ccad3d7fa 100644
 2.55.0
 
 
-From ee179e6e2af717e14c7b995fbb59e3259689f4d1 Mon Sep 17 00:00:00 2001
+From 01604ada5ad4df475c4c2ea8e6e54fd493c82147 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty <etaash.mathamsetty@gmail.com>
 Date: Mon, 1 Jun 2026 03:20:43 -0400
 Subject: [PATCH 03/79] winewayland: Implement xdg-popup for unmanaged windows.
@@ -320,7 +317,7 @@ index 52ba39ce2be..d2119d76ebb 100644
      }
      else if (strcmp(interface, "wl_shm") == 0)
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 62feeaeaca2..8087c811c08 100644
+index 50ba7e3b205..c2a3068b081 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -34,11 +34,21 @@
@@ -888,7 +885,7 @@ index 76ccad3d7fa..ff44a5768ff 100644
 2.55.0
 
 
-From f93534118fbb435ebd54dba42f733695a2240e42 Mon Sep 17 00:00:00 2001
+From d0136fae9e2a4088612cb81a57a80f98bb05d4be Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 8 Nov 2025 13:42:41 -0600
@@ -1237,7 +1234,7 @@ index d2119d76ebb..4139aea6495 100644
  
      if (!process_wayland.xdg_toplevel_icon_manager_v1)
 diff --git a/dlls/winewayland.drv/wayland_data_device.c b/dlls/winewayland.drv/wayland_data_device.c
-index 1a2cd27fe80..9a10dc5aa29 100644
+index 4683025c550..86d3f8ee10d 100644
 --- a/dlls/winewayland.drv/wayland_data_device.c
 +++ b/dlls/winewayland.drv/wayland_data_device.c
 @@ -52,6 +52,7 @@ struct wayland_data_offer
@@ -1601,7 +1598,7 @@ index 275a3907f92..fb5e9bb22a8 100644
 2.55.0
 
 
-From 1bc7a1bc4bde43d4b664d2a1b3c16908aa07da03 Mon Sep 17 00:00:00 2001
+From 1d1f2b8f762dab1b702855c0d060598bc65b8640 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 17 May 2025 15:08:08 -0400
@@ -1679,7 +1676,7 @@ index c2cf04d4f90..c2f8c73aa33 100644
 2.55.0
 
 
-From a495416cfb765cfa742f446cf135a06c7905fffb Mon Sep 17 00:00:00 2001
+From 878a9f9a993aaa174c787c10ee618ec8cf151e75 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 30 Mar 2026 01:03:35 -0500
@@ -1716,7 +1713,7 @@ index ff44a5768ff..571f2f1099b 100644
 2.55.0
 
 
-From 94842f12ddade4874d1829b98114a5d9cc255006 Mon Sep 17 00:00:00 2001
+From 1ebdddd866ea188adc7582d2ce4c1211a4b96b60 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 15 Aug 2025 11:41:18 -0400
@@ -1772,7 +1769,7 @@ index 4139aea6495..96a5a87bb91 100644
  
      return TRUE;
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 8087c811c08..d8c674e8074 100644
+index c2a3068b081..5629fd4a395 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -426,6 +426,18 @@ void wayland_surface_make_toplevel(struct wayland_surface *surface)
@@ -1909,7 +1906,7 @@ index 00000000000..5e20bdf45f8
 2.55.0
 
 
-From 272c64f6254314ebbeb9d9dbd434926ef6582632 Mon Sep 17 00:00:00 2001
+From 0e84ad72dfdf58fb43dd8b318c5a073e1600ca26 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 17 Apr 2026 20:35:31 -0500
@@ -2098,7 +2095,7 @@ index 96a5a87bb91..8752ea5300a 100644
  
      return TRUE;
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index d8c674e8074..3c1f9f9bf9f 100644
+index 5629fd4a395..925a8872952 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1262,6 +1262,8 @@ static void wayland_client_surface_destroy(struct client_surface *client)
@@ -2110,7 +2107,7 @@ index d8c674e8074..3c1f9f9bf9f 100644
      if (surface->wp_viewport)
          wp_viewport_destroy(surface->wp_viewport);
      if (surface->wl_subsurface)
-@@ -1459,6 +1461,20 @@ struct client_surface *WAYLAND_CreateClientSurface(HWND hwnd, int pixel_format,
+@@ -1460,6 +1462,20 @@ struct client_surface *WAYLAND_CreateClientSurface(HWND hwnd, int pixel_format,
          goto err;
      }
  
@@ -2163,7 +2160,7 @@ index 306e2ed30a1..1899c60bbdb 100644
 2.55.0
 
 
-From b7a8047aa8c724ecb5e3879c1ba32bb1610ef788 Mon Sep 17 00:00:00 2001
+From cf96f8b7df7c27a7fcff469158b6042f3428a56a Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 17 Apr 2026 21:07:55 -0500
@@ -2282,7 +2279,7 @@ index 1d46d64df6f..645a60554fa 100644
      /* Populate GDI devices. */
      wayland_add_device_gpu(device_manager, param);
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 3c1f9f9bf9f..8fc1a352953 100644
+index 925a8872952..cf43966be85 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -608,6 +608,8 @@ void wayland_surface_clear_role(struct wayland_surface *surface)
@@ -2373,7 +2370,7 @@ index 571f2f1099b..c3cbd2b95d7 100644
 2.55.0
 
 
-From 648863672d18b058b2a0c6e18ae01a3c6969982c Mon Sep 17 00:00:00 2001
+From e2dd3985ff8d1a77beaf423f607fe7f0c2676258 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 10 Feb 2026 23:30:27 -0600
@@ -2451,7 +2448,7 @@ index 8752ea5300a..42a499ceef8 100644
  
      return TRUE;
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 8fc1a352953..9cc88d8f28c 100644
+index cf43966be85..8017277aad7 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -52,7 +52,7 @@ static void xdg_surface_handle_configure(void *private, struct xdg_surface *xdg_
@@ -3016,7 +3013,7 @@ index 00000000000..4426f6cd8e4
 2.55.0
 
 
-From ab8c2671ea7fc0a77904a58aebae7494b759089e Mon Sep 17 00:00:00 2001
+From 1889b43cc6ad2c0602bd3752a94c966c465df73b Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sun, 29 Mar 2026 03:07:24 -0500
@@ -3132,7 +3129,7 @@ index 4e54286d0c8..81e73f3d538 100644
 2.55.0
 
 
-From a916ad3924f451f7f6008746535bdf06c53472a1 Mon Sep 17 00:00:00 2001
+From 0841c59f099ed103ebf62acc320e7d342874213f Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 21 Apr 2026 23:10:08 -0500
@@ -3233,7 +3230,7 @@ index 645a60554fa..0b203ffa5b0 100644
 2.55.0
 
 
-From e4027d9d4fecf3f511ed923627bc196700031501 Mon Sep 17 00:00:00 2001
+From 4edf39f063c1b96537f141094c1efda480e5da3a Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 22 Apr 2026 01:31:18 -0500
@@ -3401,7 +3398,7 @@ index 62f21e205ae..06dedea7aae 100644
 2.55.0
 
 
-From d30bc872066166ec655acd658e6242eb1543a198 Mon Sep 17 00:00:00 2001
+From e31b73d1cf4e0631a7011b11d0ea2bc648669ba0 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 22 Apr 2026 18:59:27 -0500
@@ -5831,7 +5828,7 @@ index 06dedea7aae..60e4f1f2d95 100644
 2.55.0
 
 
-From 3efc76da88e4dd12ffc17f6d08ed8fb646d62fd1 Mon Sep 17 00:00:00 2001
+From 5284b352980074bae038a587a251ecfee8592daf Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 9 Jun 2025 09:07:33 -0400
@@ -5888,10 +5885,10 @@ index 67d1b0ca9ec..7e05f59fc40 100644
  
      return TRUE;
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 9cc88d8f28c..9c3c3da7238 100644
+index 8017277aad7..eca999802fe 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
-@@ -1723,3 +1723,47 @@ void wayland_surface_set_opacity(struct wayland_surface *surface, BYTE alpha, UI
+@@ -1724,3 +1724,47 @@ void wayland_surface_set_opacity(struct wayland_surface *surface, BYTE alpha, UI
          wl_display_flush(process_wayland.wl_display);
      }
  }
@@ -6225,7 +6222,7 @@ index 00000000000..9adcc274ef1
 2.55.0
 
 
-From b35506e61ef70b4b2617e833ef661ba03c5ee5cd Mon Sep 17 00:00:00 2001
+From 455f14277ca94dcdd5b5f3b6662cfe2e626feb17 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 24 Apr 2026 00:25:47 -0500
@@ -6258,7 +6255,7 @@ index 223a0ee5e72..415a2bd0542 100644
 2.55.0
 
 
-From 26f5b89aa5e2363b9d8d4297dee3de5dadf71214 Mon Sep 17 00:00:00 2001
+From d507c692cb2f9337f6d1ef4e7b9020a25045d518 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 24 Apr 2026 22:12:30 -0500
@@ -6326,7 +6323,7 @@ index 415a2bd0542..5d3ace2ecf1 100644
 2.55.0
 
 
-From 5d3701b427f9e7a5865d422761efa7b87750d954 Mon Sep 17 00:00:00 2001
+From 008962202b72b4281102c736c14968c51b4e6741 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 24 Apr 2026 22:16:14 -0500
@@ -6413,7 +6410,7 @@ index 5d3ace2ecf1..619505c97e9 100644
 2.55.0
 
 
-From c494a18be6af04a8593b2b32ee397979fb342632 Mon Sep 17 00:00:00 2001
+From 8178edfeda0e7623c9893ca39d26dd66eb7b06b3 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 29 Apr 2026 22:10:25 -0500
@@ -6570,7 +6567,7 @@ index d2209a3ef54..ec93dcb4467 100644
 2.55.0
 
 
-From a99afdfead95af08d5cda797a459955079009d5e Mon Sep 17 00:00:00 2001
+From 577e8723e7c46d4b5071bf939b641325de62d67a Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 1 May 2026 16:19:01 -0500
@@ -6765,7 +6762,7 @@ index 7e05f59fc40..a9d85812d58 100644
  
  static void registry_handle_global_remove(void *data, struct wl_registry *registry,
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 9c3c3da7238..adfce668b48 100644
+index eca999802fe..bf09bb68425 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -669,6 +669,13 @@ void wayland_surface_clear_role(struct wayland_surface *surface)
@@ -6782,7 +6779,7 @@ index 9c3c3da7238..adfce668b48 100644
          if (surface->zxdg_toplevel_decoration_v1)
          {
              zxdg_toplevel_decoration_v1_destroy(surface->zxdg_toplevel_decoration_v1);
-@@ -1767,3 +1774,42 @@ void wayland_surface_activate(struct wayland_surface *surface)
+@@ -1768,3 +1775,42 @@ void wayland_surface_activate(struct wayland_surface *surface)
          xdg_activation_token_v1_commit(token);
      }
  }
@@ -6885,7 +6882,7 @@ index 0692cfff015..63c9f534798 100644
 2.55.0
 
 
-From efc55c200342a650c2e7478a8114fcf489545dcd Mon Sep 17 00:00:00 2001
+From 147d129d34806f58401e3c7a98fe298cab2f24ea Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sun, 3 May 2026 16:33:43 -0500
@@ -6915,7 +6912,7 @@ index a9d85812d58..d61730e3d89 100644
 2.55.0
 
 
-From e1e9390d6c7fa4d15ec0db0e717a4a3b6bbfa4d6 Mon Sep 17 00:00:00 2001
+From 5607ea2c045c8c7b14be2c63ebd390e6893efdfd Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 29 Apr 2026 22:12:11 -0500
@@ -7139,7 +7136,7 @@ index cb588ecdad7..eb77cc89e45 100644
          process_wayland.supports_extended_volume = TRUE;
  
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index adfce668b48..481eb736eac 100644
+index bf09bb68425..432926247e3 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1351,6 +1351,8 @@ static void wayland_client_surface_destroy(struct client_surface *client)
@@ -7151,7 +7148,7 @@ index adfce668b48..481eb736eac 100644
      if (surface->wp_content_type_v1)
          wp_content_type_v1_destroy(surface->wp_content_type_v1);
      if (surface->wp_viewport)
-@@ -1618,6 +1620,75 @@ done:
+@@ -1619,6 +1621,75 @@ done:
      wayland_win_data_release(toplevel_data);
  }
  
@@ -7260,7 +7257,7 @@ index 43f5a9654e3..9ac257bc2e0 100644
 2.55.0
 
 
-From 33d14652a966d16ce1b5d3266920f5265d05b1c1 Mon Sep 17 00:00:00 2001
+From fd3b06905608cb879c6f50de952d932cebf46000 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 12 May 2026 10:12:17 -0500
@@ -7293,7 +7290,7 @@ index 6ed5b772320..c277a8be7d7 100644
 2.55.0
 
 
-From 7128be91c3407ebe49c7924990d4ed35f856c761 Mon Sep 17 00:00:00 2001
+From 038957336c1a159afa7f9484235b9cb58f65f3c7 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 16 May 2026 22:19:45 -0500
@@ -7322,7 +7319,7 @@ index 63c9f534798..f7cb8adbb99 100644
 2.55.0
 
 
-From 2a35524f6f5553dd2f65af5e89ad788c21e8a6e6 Mon Sep 17 00:00:00 2001
+From cb6e7926c382d5c60973da8d7cee790ff0c577f9 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 19 May 2026 01:49:00 -0400
@@ -7373,7 +7370,7 @@ index 3a79c15b670..82e7d3399c8 100644
 2.55.0
 
 
-From 057aa3ea035300afb600ae2055738980b5fe86f6 Mon Sep 17 00:00:00 2001
+From 4a5b289e5fb36a1d3ad21287db43164a819e9992 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 19 May 2026 20:32:58 -0400
@@ -7441,7 +7438,7 @@ index f7cb8adbb99..0b0295f9281 100644
 2.55.0
 
 
-From d7e45d69fd276be389f59bfceac7d9bd6a0d0f7c Mon Sep 17 00:00:00 2001
+From 5643abc160897bc274e3e161c1bf87659c2a912e Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 30 May 2026 21:12:07 -0400
@@ -7474,7 +7471,7 @@ index 548222155c3..b2116471103 100644
 2.55.0
 
 
-From 099321d91704100a4bbfc15f317408aa43578aea Mon Sep 17 00:00:00 2001
+From 629cddfa93a6c2fd65800ec551f135de358e9934 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sun, 14 Jun 2026 00:52:06 -0400
@@ -7503,7 +7500,7 @@ index b2116471103..e9c0fa28d25 100644
 2.55.0
 
 
-From 2de4f212c2ee3c9129dfd713c61f1c9470de50b4 Mon Sep 17 00:00:00 2001
+From e37ba982a91600f4164062e19418f886ffd011a7 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Thu, 2 Jul 2026 02:22:00 -0400
@@ -7517,7 +7514,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  2 files changed, 43 insertions(+), 35 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 481eb736eac..bb092f2137f 100644
+index 432926247e3..8131cd076d3 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1376,6 +1376,12 @@ static void wayland_client_surface_detach(struct client_surface *client)
@@ -7610,7 +7607,7 @@ index 481eb736eac..bb092f2137f 100644
 +
  static const struct client_surface_funcs wayland_client_surface_funcs =
  {
-     .destroy = wayland_client_surface_destroy,
+     .size = sizeof(struct wayland_client_surface),
 diff --git a/dlls/winewayland.drv/window.c b/dlls/winewayland.drv/window.c
 index 0b0295f9281..0afa1213b7a 100644
 --- a/dlls/winewayland.drv/window.c
@@ -7656,7 +7653,7 @@ index 0b0295f9281..0afa1213b7a 100644
 2.55.0
 
 
-From fdc4d2ecbb8f6ff20ebb3e0d8544dbf1e0b5822b Mon Sep 17 00:00:00 2001
+From 3e009f7b4b1bdbdaa3ee5aa4f40b80e90042031a Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Thu, 2 Jul 2026 03:15:04 -0400
@@ -7669,7 +7666,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/dlls/win32u/window.c b/dlls/win32u/window.c
-index 0dcfdbb56b8..0571ef9846b 100644
+index 9a57c00cdbe..9b1efabc355 100644
 --- a/dlls/win32u/window.c
 +++ b/dlls/win32u/window.c
 @@ -1066,7 +1066,8 @@ BOOL is_window_visible( HWND hwnd )
@@ -7696,7 +7693,7 @@ index 0dcfdbb56b8..0571ef9846b 100644
 2.55.0
 
 
-From d2a1c2f9745f14087419e9f4d831f3f6fd70f01c Mon Sep 17 00:00:00 2001
+From 0f33dafa357e8f4384feef5799c0bbc440915b55 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Thu, 2 Jul 2026 16:48:22 -0400
@@ -7724,7 +7721,7 @@ index 0afa1213b7a..ac437c65e3f 100644
 2.55.0
 
 
-From 1c08ffb8df3d0231f202b2a36a623c1b5b26a715 Mon Sep 17 00:00:00 2001
+From 3fe42375d3c26832f7d88303948000293e0840e4 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sun, 12 Jul 2026 04:11:51 -0400
@@ -7737,7 +7734,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 15 insertions(+), 14 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index bb092f2137f..7c54e306231 100644
+index 8131cd076d3..5fdf5b8c469 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1419,7 +1419,7 @@ static const struct wl_buffer_listener dummy_buffer_listener =
@@ -7827,7 +7824,7 @@ index bb092f2137f..7c54e306231 100644
 2.55.0
 
 
-From 844a4ee8c3cabb6b54db0f6b5eaa7cfe117763de Mon Sep 17 00:00:00 2001
+From 639777b65995a9eeaa8f072a4104451bdc4904f7 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sun, 12 Jul 2026 19:33:22 -0400
@@ -7840,7 +7837,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 7c54e306231..5fea8dd5dfb 100644
+index 5fdf5b8c469..1f6a696d110 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -972,6 +972,8 @@ static BOOL wayland_surface_reconfigure_xdg(struct wayland_surface *surface, REC
@@ -7856,7 +7853,7 @@ index 7c54e306231..5fea8dd5dfb 100644
 2.55.0
 
 
-From 77e0ea828e984433fbf612418e58cd8b9b1a0d49 Mon Sep 17 00:00:00 2001
+From 11f8cb56062db826b01c62db53e93c8ba8968616 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 13 Jul 2026 00:18:34 -0400
@@ -7869,7 +7866,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 10 insertions(+)
 
 diff --git a/dlls/winewayland.drv/window_surface.c b/dlls/winewayland.drv/window_surface.c
-index e7595b7ccb0..98cf8123fea 100644
+index 36a825a7ab7..87474c65964 100644
 --- a/dlls/winewayland.drv/window_surface.c
 +++ b/dlls/winewayland.drv/window_surface.c
 @@ -111,7 +111,17 @@ static struct wayland_buffer_queue *wayland_buffer_queue_create(int width, int h
@@ -7894,7 +7891,7 @@ index e7595b7ccb0..98cf8123fea 100644
 2.55.0
 
 
-From 7996329f98125083b68ad2eafc50b67360dc86e5 Mon Sep 17 00:00:00 2001
+From 3cf8682ba69aa1829d2d70fb02dccf5fd4c5b7bc Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 13 Jul 2026 00:48:41 -0400
@@ -7956,7 +7953,7 @@ index d46aebbfdd7..56d8d8ad644 100644
 2.55.0
 
 
-From 5d4d73997131628b9c9df07675bb7566d6497a61 Mon Sep 17 00:00:00 2001
+From 7c99ea90d918f007e21d35b12d05334be54d6b73 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 13 Jul 2026 15:33:27 -0400
@@ -7994,7 +7991,7 @@ index ac437c65e3f..81e877cd140 100644
 2.55.0
 
 
-From d142786f78cf3429be9452f584ac424c988cd2d4 Mon Sep 17 00:00:00 2001
+From 81a7b50e7974afa476742746d8bec84c8c57bd5a Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 13 Jul 2026 22:44:00 -0400
@@ -8009,7 +8006,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  3 files changed, 31 insertions(+), 1 deletion(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 5fea8dd5dfb..d73312747b9 100644
+index 1f6a696d110..0d04f9be916 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -462,6 +462,8 @@ void wayland_surface_make_toplevel(struct wayland_surface *surface, BOOL server_
@@ -8105,7 +8102,7 @@ index 81e877cd140..220fda133eb 100644
 2.55.0
 
 
-From 5768c4df8ef7a74aca5c0f8f07b0fb54bd73552e Mon Sep 17 00:00:00 2001
+From 8773a04c1834be75c96d2cf83e9824074cb5ea06 Mon Sep 17 00:00:00 2001
 From: panhui <panhui@uniontech.com>
 Date: Mon, 13 Jul 2026 23:25:07 -0400
 Subject: [PATCH 38/79] winewayland: Reset size hint when updating toplevel
@@ -8135,7 +8132,7 @@ index 220fda133eb..1d13ae94a82 100644
 2.55.0
 
 
-From 95f266aba3fa2eeea9e713f9679d8278a01c6c40 Mon Sep 17 00:00:00 2001
+From c2f5dc076588dea17160826ac170095fa65e527a Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 15 Jul 2026 18:21:38 -0400
@@ -8182,7 +8179,7 @@ index d7df0a85199..7544d17280b 100644
 2.55.0
 
 
-From 1efacf1e82de594f2bd2ec0d0ce010f4c45c0d56 Mon Sep 17 00:00:00 2001
+From b6038cd3cd72f6317c0d2802d1f692fcd5c05117 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty <etaash.mathamsetty@gmail.com>
 Date: Sun, 31 May 2026 02:13:44 -0400
 Subject: [PATCH 40/79] winewayland: Implement touch input.
@@ -8535,7 +8532,7 @@ index 9190cac4ae1..ce5da56cd2f 100644
 2.55.0
 
 
-From 8f9eeb9ca91811e3c8c68d6056ae15bf781d50fc Mon Sep 17 00:00:00 2001
+From d5652332a1822adae39c0feadcc476d332b3a1e7 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty <etaash.mathamsetty@gmail.com>
 Date: Tue, 7 Jul 2026 22:44:51 -0400
 Subject: [PATCH 41/79] winewayland: Introduce reference counting for
@@ -8662,7 +8659,7 @@ index ce5da56cd2f..f4540bda44e 100644
 2.55.0
 
 
-From 9fbf263235a8e70b10afec416b8951d923baa34e Mon Sep 17 00:00:00 2001
+From 7cb41d8533d4f1920ed204d8a07d5eeb0cd727d6 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Thu, 16 Jul 2026 16:00:22 -0400
@@ -8962,7 +8959,7 @@ index 1d13ae94a82..0cb37bbe9ee 100644
 2.55.0
 
 
-From a15b9e83b89aa2f3786c605ee62eeb67148d798d Mon Sep 17 00:00:00 2001
+From a3e8ea5e977484923c66f6688b299c1474bc76ff Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Thu, 16 Jul 2026 19:46:41 -0400
@@ -8977,7 +8974,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  3 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index d73312747b9..e688e898ef3 100644
+index 0d04f9be916..76acca74795 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -328,6 +328,7 @@ struct wayland_surface *wayland_surface_create(HWND hwnd)
@@ -9034,7 +9031,7 @@ index 0cb37bbe9ee..10b5614de57 100644
 2.55.0
 
 
-From 5074ee4505f4393f2b185a462c34c45e296eb7cb Mon Sep 17 00:00:00 2001
+From 95a6f5c9e503d2236dc4620205cb329a0f84192b Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 17 Jul 2026 00:31:57 -0400
@@ -9256,7 +9253,7 @@ index 10b5614de57..e440413f8b5 100644
 2.55.0
 
 
-From 5a7730b954edd5f6c31f10adc90658e23d274858 Mon Sep 17 00:00:00 2001
+From 004a7187aa77b084f81f684bf31cf81f826c0942 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Fri, 17 Jul 2026 03:13:31 -0400
@@ -9273,10 +9270,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  4 files changed, 66 insertions(+), 16 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index e688e898ef3..5248dd4932b 100644
+index 76acca74795..20cc3894ae1 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
-@@ -1880,7 +1880,6 @@ static void xdg_activation_token_handle_done(void *user_data,
+@@ -1881,7 +1881,6 @@ static void xdg_activation_token_handle_done(void *user_data,
      struct wayland_win_data *data;
      struct wayland_surface *surface;
  
@@ -9284,7 +9281,7 @@ index e688e898ef3..5248dd4932b 100644
      if ((data = wayland_win_data_get(hwnd)))
      {
          if ((surface = data->wayland_surface))
-@@ -1888,32 +1887,47 @@ static void xdg_activation_token_handle_done(void *user_data,
+@@ -1889,32 +1888,47 @@ static void xdg_activation_token_handle_done(void *user_data,
          wayland_win_data_release(data);
      }
  
@@ -9453,7 +9450,7 @@ index e440413f8b5..f57d1521455 100644
 2.55.0
 
 
-From 933a0d015b50d4ea5ba9a7f88dd6b49f148a75fb Mon Sep 17 00:00:00 2001
+From 3aade43f41afbcfaa041a6c87d662bd891cbe10f Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 18 Jul 2026 00:04:47 -0400
@@ -9873,10 +9870,10 @@ index 8a5e6b9a83f..070a96325ad 100644
 -                                     &wp_color_manager_listener, NULL);
 -}
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 5248dd4932b..b810cdcfc0f 100644
+index 20cc3894ae1..53f775e496a 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
-@@ -1744,6 +1744,7 @@ void wayland_client_surface_attach_image_description(struct client_surface *clie
+@@ -1745,6 +1745,7 @@ void wayland_client_surface_attach_image_description(struct client_surface *clie
                                                       struct wp_image_description_v1 *image_desc)
  {
      struct wayland_client_surface *surface = impl_from_client_surface(client);
@@ -9942,7 +9939,7 @@ index ec93dcb4467..f3cc93c3898 100644
 2.55.0
 
 
-From 4578151039bd371a82bfd455ae84157ab8875e7e Mon Sep 17 00:00:00 2001
+From 9b9b70ccf1070ed59a49b25fb3446f67be33c9e8 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 18 Jul 2026 03:04:24 -0400
@@ -9956,7 +9953,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  2 files changed, 13 insertions(+), 15 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index b810cdcfc0f..78b862b471b 100644
+index 53f775e496a..c2baf59bea7 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -112,6 +112,9 @@ static void xdg_toplevel_handle_configure(void *private,
@@ -10080,7 +10077,7 @@ index f57d1521455..b3e5cb58bbb 100644
 2.55.0
 
 
-From 920c7fc46bf14da74eab5a21ad1a360fad7fee92 Mon Sep 17 00:00:00 2001
+From 5f0778bdeecfe8de30ee58c042dfb6ff44e3b1eb Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 18 Jul 2026 21:29:54 -0400
@@ -10110,7 +10107,7 @@ index 175dfda8da3..80cccc66efa 100644
 2.55.0
 
 
-From de74d8eb15f1cb70ef7b2b6496bb84285094472b Mon Sep 17 00:00:00 2001
+From 4f57baaa54d7198c925130a070d62f12a31d551b Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 18 Jul 2026 23:24:23 -0400
@@ -10125,7 +10122,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 78b862b471b..b33cf2f227e 100644
+index c2baf59bea7..1b33e0843f8 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1451,7 +1451,7 @@ static const struct wl_buffer_listener dummy_buffer_listener =
@@ -10159,7 +10156,7 @@ index 78b862b471b..b33cf2f227e 100644
 2.55.0
 
 
-From cbfa4113fe0387ab6a899f302beb4bfc40d800dd Mon Sep 17 00:00:00 2001
+From 260c162bf90e4399dcb6de7c19a286dcdeae1cd4 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sun, 19 Jul 2026 18:30:21 -0400
@@ -10221,7 +10218,7 @@ index 516dbdcf3a7..7dc35302f3b 100644
 2.55.0
 
 
-From df8557d79c26197780a6efc86eb137c3985ad689 Mon Sep 17 00:00:00 2001
+From b134e1861ba31c1d6cbd197e5dadfd78e4b8558a Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 20 Jul 2026 15:09:17 -0400
@@ -10281,7 +10278,7 @@ index 070a96325ad..87e4ad19851 100644
 2.55.0
 
 
-From 9df231e7e72afd96df54e4d5bf884766b7389dc0 Mon Sep 17 00:00:00 2001
+From 31024d0eea1bddd6c60c08c4b527beba97578231 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 20 Jul 2026 15:28:52 -0400
@@ -13775,7 +13772,7 @@ index 97555c6d683..35ae43dfde2 100644
 2.55.0
 
 
-From 8ca0d6886c96d2999e8caf787574386abb0c0e78 Mon Sep 17 00:00:00 2001
+From 529ab57c118720401ad2591a1f40d04a8c1979c6 Mon Sep 17 00:00:00 2001
 From: Vlad Zahorodnii <vlad.zahorodnii@kde.org>
 Date: Mon, 20 Jul 2026 15:30:31 -0400
 Subject: [PATCH 53/79] winewayland: Add support for
@@ -13814,7 +13811,7 @@ index 772a8067638..3ebf9ade2ba 100644
 2.55.0
 
 
-From 42dfce1353a03adec407dffe79d50fdcf0d7c2cc Mon Sep 17 00:00:00 2001
+From 554638c7c2db85846ac76689b60a7310383c2611 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 21 Jul 2026 18:37:03 -0400
@@ -13830,7 +13827,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  2 files changed, 21 insertions(+), 8 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index b33cf2f227e..d990740355b 100644
+index 1b33e0843f8..339a1b94162 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -946,7 +946,7 @@ static void wayland_surface_reconfigure_size(struct wayland_surface *surface,
@@ -13865,7 +13862,7 @@ index b33cf2f227e..d990740355b 100644
  }
  
  /**********************************************************************
-@@ -1637,6 +1637,8 @@ struct client_surface *WAYLAND_CreateClientSurface(HWND hwnd, int pixel_format,
+@@ -1638,6 +1638,8 @@ struct client_surface *WAYLAND_CreateClientSurface(HWND hwnd, int pixel_format,
              TRACE("set game content on client surface!\n");
          }
      }
@@ -13874,7 +13871,7 @@ index b33cf2f227e..d990740355b 100644
      return &client->client;
  
  err:
-@@ -1657,6 +1659,7 @@ void wayland_client_surface_attach(struct wayland_client_surface *client, HWND t
+@@ -1658,6 +1660,7 @@ void wayland_client_surface_attach(struct wayland_client_surface *client, HWND t
              client->wl_subsurface = NULL;
          }
  
@@ -13882,7 +13879,7 @@ index b33cf2f227e..d990740355b 100644
          client->toplevel = 0;
          return;
      }
-@@ -1677,15 +1680,23 @@ void wayland_client_surface_attach(struct wayland_client_surface *client, HWND t
+@@ -1678,15 +1681,23 @@ void wayland_client_surface_attach(struct wayland_client_surface *client, HWND t
                                              surface->wl_surface);
          if (!client->wl_subsurface) goto done;
  
@@ -13926,7 +13923,7 @@ index 35ae43dfde2..390e53a4961 100644
 2.55.0
 
 
-From 8a3577eddeeae98b5cf41d70f13b22d99a5d7cbe Mon Sep 17 00:00:00 2001
+From 0df3f661f37f9ead3786d6333ab758d8e885f52e Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 21 Jul 2026 22:59:38 -0400
@@ -13971,10 +13968,10 @@ index 7dc35302f3b..6a41f723e10 100644
      return new;
  err:
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index d990740355b..ca4eb5fc1d2 100644
+index 339a1b94162..61b9e2154ef 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
-@@ -1752,11 +1752,9 @@ static const struct wp_image_description_v1_listener image_description_listener
+@@ -1753,11 +1753,9 @@ static const struct wp_image_description_v1_listener image_description_listener
      wayland_image_description_v1_ready2
  };
  
@@ -14004,7 +14001,7 @@ index 390e53a4961..685e9de7fc5 100644
 2.55.0
 
 
-From ff0e2d4845c1f8855066a74102e1b9916f81a9ed Mon Sep 17 00:00:00 2001
+From 1bb89348092b40e46eb46d5d001e4a49aa3b9f2d Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 22 Jul 2026 04:12:15 -0400
@@ -14054,10 +14051,10 @@ index 6a41f723e10..38d86d2f5c1 100644
  
      return new;
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index ca4eb5fc1d2..592435c675d 100644
+index 61b9e2154ef..4f1f42ab461 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
-@@ -1762,6 +1762,7 @@ void wayland_client_surface_attach_image_description(struct wayland_client_surfa
+@@ -1763,6 +1763,7 @@ void wayland_client_surface_attach_image_description(struct wayland_client_surfa
              wp_color_management_surface_v1_destroy(surface->wp_color_management_surface_v1);
              surface->wp_color_management_surface_v1 = NULL;
          }
@@ -14069,7 +14066,7 @@ index ca4eb5fc1d2..592435c675d 100644
 2.55.0
 
 
-From d1462f2be975fdfb86af22f76527dd959821b1c3 Mon Sep 17 00:00:00 2001
+From d847b37fdf2ae65d03c0f4050df06e2e8e3f5802 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 28 Jul 2026 17:25:26 -0400
@@ -14948,7 +14945,7 @@ index 685e9de7fc5..002d64996ae 100644
 2.55.0
 
 
-From 2d8a07e069291e6f58d397aac17992bc190c5582 Mon Sep 17 00:00:00 2001
+From 8bb2b9304f82433e83d532e6fe88819004a12253 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 29 Jul 2026 00:40:55 -0400
@@ -14961,10 +14958,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 4 insertions(+)
 
 diff --git a/dlls/win32u/window.c b/dlls/win32u/window.c
-index 0571ef9846b..55667419bc1 100644
+index 9b1efabc355..f1d0f639942 100644
 --- a/dlls/win32u/window.c
 +++ b/dlls/win32u/window.c
-@@ -2140,6 +2140,10 @@ static RECT get_visible_rect( HWND hwnd, BOOL shaped, UINT style, UINT ex_style,
+@@ -2145,6 +2145,10 @@ static RECT get_visible_rect( HWND hwnd, BOOL shaped, UINT style, UINT ex_style,
      if (visible_rect.top >= visible_rect.bottom) visible_rect.bottom = visible_rect.top + 1;
      if (visible_rect.left >= visible_rect.right) visible_rect.right = visible_rect.left + 1;
  
@@ -14979,7 +14976,7 @@ index 0571ef9846b..55667419bc1 100644
 2.55.0
 
 
-From fa287cf067082633978cf3ad302d08f51a1ee789 Mon Sep 17 00:00:00 2001
+From 96ef3b0d20fb325b25f716c61afdd537741fa05d Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 3 Aug 2026 12:04:15 -0400
@@ -15030,7 +15027,7 @@ index b3e5cb58bbb..380261861c1 100644
 2.55.0
 
 
-From 17d9a03a1718f2445a6ea52fb4d7a21e41f7a349 Mon Sep 17 00:00:00 2001
+From 6df8f3eff392026bf61158a6df0c91a89eea7968 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 3 Aug 2026 11:53:23 -0400
@@ -15046,7 +15043,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  3 files changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/dlls/win32u/driver.c b/dlls/win32u/driver.c
-index b4701932d65..64b636c8f9e 100644
+index 0cb874c83a9..9913f895223 100644
 --- a/dlls/win32u/driver.c
 +++ b/dlls/win32u/driver.c
 @@ -683,6 +683,10 @@ static BOOL nulldrv_SetIMECompositionRect( HWND hwnd, RECT rect )
@@ -15060,7 +15057,7 @@ index b4701932d65..64b636c8f9e 100644
  static LRESULT nulldrv_DesktopWindowProc( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam )
  {
      return default_window_proc( hwnd, msg, wparam, lparam, FALSE );
-@@ -1140,6 +1144,11 @@ static BOOL loaderdrv_SetIMECompositionRect( HWND hwnd, RECT rect )
+@@ -1141,6 +1145,11 @@ static BOOL loaderdrv_SetIMECompositionRect( HWND hwnd, RECT rect )
      return load_driver()->pSetIMECompositionRect( hwnd, rect );
  }
  
@@ -15072,7 +15069,7 @@ index b4701932d65..64b636c8f9e 100644
  static LONG loaderdrv_ChangeDisplaySettings( LPDEVMODEW displays, LPCWSTR primary_name, HWND hwnd,
                                               DWORD flags, LPVOID lparam )
  {
-@@ -1285,6 +1294,7 @@ static const struct user_driver_funcs lazy_load_driver =
+@@ -1286,6 +1295,7 @@ static const struct user_driver_funcs lazy_load_driver =
      loaderdrv_ImeToAsciiEx,
      loaderdrv_NotifyIMEStatus,
      loaderdrv_SetIMECompositionRect,
@@ -15080,7 +15077,7 @@ index b4701932d65..64b636c8f9e 100644
      /* cursor/icon functions */
      nulldrv_DestroyCursorIcon,
      loaderdrv_SetCursor,
-@@ -1390,6 +1400,7 @@ void __wine_set_user_driver( const struct user_driver_funcs *funcs, UINT version
+@@ -1391,6 +1401,7 @@ void __wine_set_user_driver( const struct user_driver_funcs *funcs, UINT version
      SET_USER_FUNC(ImeToAsciiEx);
      SET_USER_FUNC(NotifyIMEStatus);
      SET_USER_FUNC(SetIMECompositionRect);
@@ -15135,10 +15132,10 @@ index 03c454d7377..e1e44518e8d 100644
  
  /***********************************************************************
 diff --git a/include/wine/gdi_driver.h b/include/wine/gdi_driver.h
-index 6f8a58dc3dd..860976ed16a 100644
+index ad00912c4dd..45baafa9d46 100644
 --- a/include/wine/gdi_driver.h
 +++ b/include/wine/gdi_driver.h
-@@ -380,6 +380,7 @@ struct user_driver_funcs
+@@ -382,6 +382,7 @@ struct user_driver_funcs
      UINT    (*pImeToAsciiEx)(UINT,UINT,const BYTE*,HIMC);
      void    (*pNotifyIMEStatus)(HWND,UINT);
      BOOL    (*pSetIMECompositionRect)(HWND,RECT);
@@ -15150,7 +15147,7 @@ index 6f8a58dc3dd..860976ed16a 100644
 2.55.0
 
 
-From b5850f5acba6afc0258476f2b3ca7a92edc3149f Mon Sep 17 00:00:00 2001
+From f2a3108db83ed21a0b2ee628421d25371d227475 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 3 Aug 2026 14:43:02 -0400
@@ -15399,7 +15396,7 @@ index 80cccc66efa..9deed92d0b9 100644
 2.55.0
 
 
-From d88eb28f252d9b7f23b5253b77ef2510871c2280 Mon Sep 17 00:00:00 2001
+From 7da0c3c409f2da3b02466b7e62e25dd6118c6548 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 3 Aug 2026 15:01:27 -0400
@@ -15446,7 +15443,7 @@ index 0e58fec2258..9e7dd3e8566 100644
 2.55.0
 
 
-From 590e654dc4d438c5d2c012c2c34eff55f680d0c6 Mon Sep 17 00:00:00 2001
+From 43a4c13f12d28cc1e942b6e9f7ec83bb003fe7c9 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 5 Aug 2026 18:24:18 -0400
@@ -15461,7 +15458,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 2 insertions(+), 13 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 592435c675d..389f47e85eb 100644
+index 4f1f42ab461..a60431fb5e4 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -34,16 +34,6 @@
@@ -15504,7 +15501,7 @@ index 592435c675d..389f47e85eb 100644
 2.55.0
 
 
-From fc1e850e1fced5630f69d05b988e729743597177 Mon Sep 17 00:00:00 2001
+From 59268e6e10cf9e3c007bcfafdc9c5897f8d738e5 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 11 Aug 2026 13:57:57 -0400
@@ -15792,10 +15789,10 @@ index c277a8be7d7..7233abbbba2 100644
  
  static UINT add_screen_size( SIZE *sizes, UINT count, SIZE size )
 diff --git a/include/wine/gdi_driver.h b/include/wine/gdi_driver.h
-index 860976ed16a..8749cddaee2 100644
+index 45baafa9d46..0834482b129 100644
 --- a/include/wine/gdi_driver.h
 +++ b/include/wine/gdi_driver.h
-@@ -336,12 +336,46 @@ struct pci_id
+@@ -338,12 +338,46 @@ struct pci_id
      UINT16 revision;
  };
  
@@ -15846,7 +15843,7 @@ index 860976ed16a..8749cddaee2 100644
 2.55.0
 
 
-From 20d30b7ea8f77924fcd7f923ceb106ab8d002a1c Mon Sep 17 00:00:00 2001
+From 94ea830b94d82621d4a7f9d745a37db49f2adb04 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 11 Aug 2026 15:15:38 -0400
@@ -16302,7 +16299,7 @@ index 028fddeca91..3bff6ddfca0 100644
 2.55.0
 
 
-From e1db1c264da918ed9e50f8e5a1afb5a52d37810d Mon Sep 17 00:00:00 2001
+From eea7e49434c0a2cdeffaac1265e70964194243e6 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 11 Aug 2026 15:36:50 -0400
@@ -16343,7 +16340,7 @@ index 7233abbbba2..0619b87b7dd 100644
 2.55.0
 
 
-From a8170a8a8db619fafa495433918d5f0198ea1b71 Mon Sep 17 00:00:00 2001
+From 48a5a48bf4096fe0cb4b6dedb3ff5e9415f5e647 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 15 Aug 2026 23:06:03 -0400
@@ -16356,7 +16353,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 3 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 389f47e85eb..5d02aa73040 100644
+index a60431fb5e4..62ef42f494d 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -234,9 +234,6 @@ void wp_fractional_scale_handle_scale(void* user_data,
@@ -16373,7 +16370,7 @@ index 389f47e85eb..5d02aa73040 100644
 2.55.0
 
 
-From 22757bcb8548e79986eeebfab264e1f64dd18300 Mon Sep 17 00:00:00 2001
+From 75c1b2f6862b7f6855f767a8abd8176332a74431 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 15 Aug 2026 21:35:19 -0400
@@ -16386,7 +16383,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  2 files changed, 33 insertions(+), 13 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 5d02aa73040..4eea004f7f9 100644
+index 62ef42f494d..b0f6cc27178 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1400,6 +1400,20 @@ static BOOL is_client_visible(HWND hwnd)
@@ -16491,7 +16488,7 @@ index 3bff6ddfca0..80ea629d191 100644
 2.55.0
 
 
-From ce854aa7289785791d521adb630eaac35ccb5c69 Mon Sep 17 00:00:00 2001
+From adbb8bd989695683596131303f74f03b39319adf Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sat, 15 Aug 2026 23:21:59 -0400
@@ -16504,7 +16501,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 35 insertions(+), 1 deletion(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index 4eea004f7f9..ef75c6bc572 100644
+index b0f6cc27178..3b0a8c23851 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1400,6 +1400,31 @@ static BOOL is_client_visible(HWND hwnd)
@@ -16568,7 +16565,7 @@ index 4eea004f7f9..ef75c6bc572 100644
 2.55.0
 
 
-From 22475885b9e4f793b8af9d7b7fda0a7260492a74 Mon Sep 17 00:00:00 2001
+From 4fc6ba0e2f98fb7cc26d884ad49234d2afda51f0 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sun, 16 Aug 2026 22:56:35 -0400
@@ -16581,7 +16578,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index ef75c6bc572..c1a8eeabefd 100644
+index 3b0a8c23851..3aff6c24a89 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1425,10 +1425,20 @@ static BOOL needs_client_window_clipping(HWND hwnd)
@@ -16610,7 +16607,7 @@ index ef75c6bc572..c1a8eeabefd 100644
 2.55.0
 
 
-From 6141057fbd96aeba9e8074848ef0ec28676bf100 Mon Sep 17 00:00:00 2001
+From 8056a012a1b20b0aeb273a0f96a17abb63aca08b Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 17 Aug 2026 22:41:40 -0400
@@ -16656,7 +16653,7 @@ index 380261861c1..f9d00acf0e0 100644
 2.55.0
 
 
-From 76a5295ee29c6451e6c94038cf42f80ccc7bdffc Mon Sep 17 00:00:00 2001
+From bef01829c9715cc61cf8dd1f6aaadc055c56521b Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Mon, 17 Aug 2026 22:42:44 -0400
@@ -16671,7 +16668,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index c1a8eeabefd..cbe40d57001 100644
+index 3aff6c24a89..dccd3d0c302 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1439,11 +1439,16 @@ static void wayland_client_surface_update_offscreen(struct wayland_client_surfac
@@ -16696,7 +16693,7 @@ index c1a8eeabefd..cbe40d57001 100644
 2.55.0
 
 
-From 52a8b5d675f3bbf3e0abb8c771c5ae0d71b358d6 Mon Sep 17 00:00:00 2001
+From 6f5190f4c496127015600fec9a0d1e2cfecd3119 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 18 Aug 2026 00:19:19 -0400
@@ -16742,7 +16739,7 @@ index 8055d883ee0..b13628c872b 100644
 2.55.0
 
 
-From 916c23b3b0bc682833b7405f6335d3dfc61a212b Mon Sep 17 00:00:00 2001
+From a65dc87dfffaa4e05c376f7fb18fb19fa6984784 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 19 Aug 2026 00:06:52 -0400
@@ -16757,7 +16754,7 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  3 files changed, 10 insertions(+), 7 deletions(-)
 
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index cbe40d57001..e2ff4c382eb 100644
+index dccd3d0c302..ec031fbd926 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1438,12 +1438,17 @@ static LONG force_use_offscreen(void)
@@ -16827,7 +16824,7 @@ index f9d00acf0e0..0cb83c2a5b9 100644
 2.55.0
 
 
-From 7d42635113493ec1e6852fb66ee05da1f92cb0f0 Mon Sep 17 00:00:00 2001
+From 40fdc54ee719de0e7be1fb14ede0fc95a6520112 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Wed, 19 Aug 2026 01:02:32 -0400
@@ -16864,7 +16861,7 @@ index 0cb83c2a5b9..f375891a7c1 100644
 2.55.0
 
 
-From bb6b66212aab87b3632f73d352f44ce76044647c Mon Sep 17 00:00:00 2001
+From 2926065ec075d372aefe292efadec350bcce55fc Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Thu, 20 Aug 2026 01:20:39 -0400
@@ -16937,7 +16934,7 @@ index 9e7dd3e8566..92e11682599 100644
  
      if (!process_wayland.xdg_toplevel_icon_manager_v1)
 diff --git a/dlls/winewayland.drv/wayland_data_device.c b/dlls/winewayland.drv/wayland_data_device.c
-index 9a10dc5aa29..6fbbc49e2f8 100644
+index 86d3f8ee10d..5bb39ffe44f 100644
 --- a/dlls/winewayland.drv/wayland_data_device.c
 +++ b/dlls/winewayland.drv/wayland_data_device.c
 @@ -51,7 +51,6 @@ struct wayland_data_offer
@@ -17674,7 +17671,7 @@ index 75e8671b0de..00000000000
 2.55.0
 
 
-From d13fbf46e2cd4c492a91d2df72f4b9a0f366e9a3 Mon Sep 17 00:00:00 2001
+From bc58d0133f56f61d42fb9280c1709eb1b5b35a3d Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Sun, 16 Aug 2026 16:33:51 -0400
@@ -17687,10 +17684,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  2 files changed, 39 insertions(+), 7 deletions(-)
 
 diff --git a/dlls/win32u/opengl.c b/dlls/win32u/opengl.c
-index 907082c1fec..60bc55bca07 100644
+index 8fd0c6fd600..8f1e0a992a0 100644
 --- a/dlls/win32u/opengl.c
 +++ b/dlls/win32u/opengl.c
-@@ -199,10 +199,47 @@ static void opengl_drawable_flush( struct opengl_drawable *drawable, int interva
+@@ -381,10 +381,47 @@ static void opengl_drawable_flush( struct opengl_drawable *drawable, int interva
      if (flags) drawable->funcs->flush( drawable, flags );
  }
  
@@ -17739,7 +17736,7 @@ index 907082c1fec..60bc55bca07 100644
  }
  
 diff --git a/dlls/winewayland.drv/wayland_surface.c b/dlls/winewayland.drv/wayland_surface.c
-index e2ff4c382eb..0b354e0700b 100644
+index ec031fbd926..69fa7163a1e 100644
 --- a/dlls/winewayland.drv/wayland_surface.c
 +++ b/dlls/winewayland.drv/wayland_surface.c
 @@ -1571,13 +1571,8 @@ static void wayland_client_surface_present(struct client_surface *client, HDC hd
@@ -17762,7 +17759,7 @@ index e2ff4c382eb..0b354e0700b 100644
 2.55.0
 
 
-From a49db8e00d8d290ce3cc60b78fb98622e4b69719 Mon Sep 17 00:00:00 2001
+From d05a6b83e39e0f62ab372f359e312e00c82eaa39 Mon Sep 17 00:00:00 2001
 From: Etaash Mathamsetty
  <45927311+Etaash-mathamsetty@users.noreply.github.com>
 Date: Tue, 18 Aug 2026 17:13:52 -0400
@@ -17809,10 +17806,10 @@ index 7c26322eb39..23e3f892cc1 100644
          set_window_pixel_format( hwnd, wparam, lparam );
          return 0;
 diff --git a/dlls/win32u/opengl.c b/dlls/win32u/opengl.c
-index 60bc55bca07..cdfc61f91e9 100644
+index 8f1e0a992a0..35396797cd4 100644
 --- a/dlls/win32u/opengl.c
 +++ b/dlls/win32u/opengl.c
-@@ -204,14 +204,16 @@ static void opengl_update_toplevel_contents( struct opengl_drawable *draw )
+@@ -386,14 +386,16 @@ static void opengl_update_toplevel_contents( struct opengl_drawable *draw )
      struct client_surface *surface = draw->client;
      const struct opengl_funcs *funcs = &display_funcs;
      HWND hwnd = surface->hwnd;
@@ -17833,7 +17830,7 @@ index 60bc55bca07..cdfc61f91e9 100644
  
      info.bmiHeader.biSize = sizeof(info.bmiHeader);
      info.bmiHeader.biWidth = client.right - client.left;
-@@ -219,7 +221,58 @@ static void opengl_update_toplevel_contents( struct opengl_drawable *draw )
+@@ -401,7 +403,58 @@ static void opengl_update_toplevel_contents( struct opengl_drawable *draw )
      info.bmiHeader.biPlanes = 1;
      info.bmiHeader.biBitCount = 32;
      info.bmiHeader.biCompression = BI_RGB;
@@ -17893,7 +17890,7 @@ index 60bc55bca07..cdfc61f91e9 100644
  
      funcs->p_glBindFramebuffer( GL_READ_FRAMEBUFFER, draw->draw_fbo );
      funcs->p_glReadBuffer( GL_BACK );
-@@ -227,10 +280,21 @@ static void opengl_update_toplevel_contents( struct opengl_drawable *draw )
+@@ -409,10 +462,21 @@ static void opengl_update_toplevel_contents( struct opengl_drawable *draw )
                             GL_UNSIGNED_BYTE, bits );
      funcs->p_glBindFramebuffer( GL_READ_FRAMEBUFFER, 0 );
  
@@ -17931,7 +17928,7 @@ index be41b33adfd..567afb3622a 100644
 2.55.0
 
 
-From 01be6feed2609cdb2303a1aadd346c6eb9f0d947 Mon Sep 17 00:00:00 2001
+From 8a2316b710b4009b065bf5f6350175607cb2e5dc Mon Sep 17 00:00:00 2001
 From: Vasiliy Stelmachenok <ventureo@cachyos.org>
 Date: Fri, 28 Aug 2026 12:29:40 +0300
 Subject: [PATCH 79/79] win32u: Disable support for color management temporary

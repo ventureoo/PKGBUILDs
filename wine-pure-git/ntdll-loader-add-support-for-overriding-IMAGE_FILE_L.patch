@@ -1,4 +1,4 @@
-From 0470d0c8865655db0226529fb6a6f005d25379d4 Mon Sep 17 00:00:00 2001
+From 9ceba7cc6f6212b90080661bcaa6e2fc6e2c3cd4 Mon Sep 17 00:00:00 2001
 From: Steven Noonan <steven@valvesoftware.com>
 Date: Wed, 17 Oct 2018 04:13:37 -0700
 Subject: [PATCH] ntdll/loader: add support for overriding
@@ -55,10 +55,10 @@ index 1ec2f5cce0d..10f6895478e 100644
          if (lpBuffer->dwTotalPhys > MAXLONG) lpBuffer->dwTotalPhys = MAXLONG;
          if (lpBuffer->dwAvailPhys > MAXLONG) lpBuffer->dwAvailPhys = MAXLONG;
 diff --git a/dlls/ntdll/ntdll.spec b/dlls/ntdll/ntdll.spec
-index 10d42eeb138..74b50b9100f 100644
+index 2c66313e6ce..3489c29e63c 100644
 --- a/dlls/ntdll/ntdll.spec
 +++ b/dlls/ntdll/ntdll.spec
-@@ -1781,3 +1781,6 @@
+@@ -1783,3 +1783,6 @@
  @ cdecl wine_get_version()
  @ cdecl wine_get_build_id()
  @ cdecl wine_get_host_version(ptr ptr)
@@ -66,7 +66,7 @@ index 10d42eeb138..74b50b9100f 100644
 +# Filesystem
 +@ stdcall -syscall __wine_needs_override_large_address_aware()
 diff --git a/dlls/ntdll/signal_arm64ec.c b/dlls/ntdll/signal_arm64ec.c
-index 824d47e558c..92475a59e31 100644
+index 24d3b6d27e4..036acb36bbb 100644
 --- a/dlls/ntdll/signal_arm64ec.c
 +++ b/dlls/ntdll/signal_arm64ec.c
 @@ -612,6 +612,7 @@ DEFINE_SYSCALL(NtWriteFileGather, (HANDLE file, HANDLE event, PIO_APC_ROUTINE ap
@@ -78,10 +78,10 @@ index 824d47e558c..92475a59e31 100644
  NTSTATUS SYSCALL_API NtAllocateVirtualMemory( HANDLE process, PVOID *ret, ULONG_PTR zero_bits,
                                                SIZE_T *size_ptr, ULONG type, ULONG protect )
 diff --git a/dlls/ntdll/unix/unix_private.h b/dlls/ntdll/unix/unix_private.h
-index c8ca97d21a0..5080f9c2947 100644
+index 9b6401ee37d..b9fc21cb15a 100644
 --- a/dlls/ntdll/unix/unix_private.h
 +++ b/dlls/ntdll/unix/unix_private.h
-@@ -737,4 +737,6 @@ static inline int is_gdt_sel( WORD sel )
+@@ -739,4 +739,6 @@ static inline int is_gdt_sel( WORD sel )
  
  #endif  /* defined(__i386__) || defined(__x86_64__) */
  
@@ -89,12 +89,12 @@ index c8ca97d21a0..5080f9c2947 100644
 +
  #endif /* __NTDLL_UNIX_PRIVATE_H */
 diff --git a/dlls/ntdll/unix/virtual.c b/dlls/ntdll/unix/virtual.c
-index 42eb1f6bb9f..f35f5bc3a13 100644
+index 38cab9060b8..162788bcca1 100644
 --- a/dlls/ntdll/unix/virtual.c
 +++ b/dlls/ntdll/unix/virtual.c
-@@ -5082,6 +5082,24 @@ static void virtual_release_address_space(void)
- 
- #endif  /* _WIN64 */
+@@ -4069,6 +4069,25 @@ static struct thread_data *init_thread_data( void *ptr )
+     return data;
+ }
  
 +BOOL WINAPI __wine_needs_override_large_address_aware(void)
 +{
@@ -114,11 +114,12 @@ index 42eb1f6bb9f..f35f5bc3a13 100644
 +    return (main_image_info.ImageCharacteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE)
 +           || __wine_needs_override_large_address_aware();
 +}
- 
- /***********************************************************************
-  *           virtual_set_large_address_space
-@@ -5101,7 +5119,7 @@ void virtual_set_large_address_space(void)
-                 free_reserved_memory( 0, (char *)0x7ffe0000 );
++
+ /* enable use of a large address space when allowed by the application */
+ static void set_large_address_space(void)
+ {
+@@ -4091,7 +4110,7 @@ static void set_large_address_space(void)
+             if (use_aslr()) free_reserved_memory( 0, (char *)0x7ffe0000 );
  #endif
          }
 -        else if (main_image_info.ImageCharacteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE)
@@ -126,15 +127,14 @@ index 42eb1f6bb9f..f35f5bc3a13 100644
          {
              user_space_wow_limit = limit_4g - 1;
              /* reserve space for top-down allocations; some apps break if the entire high 2G is available */
-@@ -5111,7 +5129,7 @@ void virtual_set_large_address_space(void)
-     }
-     else
-     {
--        if (!(main_image_info.ImageCharacteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE)) return;
-+        if (!is_large_address_aware()) return;
-         free_reserved_memory( (char *)0x80000000, address_space_limit );
-     }
-     user_space_limit = working_set_limit = address_space_limit;
+@@ -5141,7 +5160,6 @@ static void virtual_release_address_space(void)
+ 
+ #endif  /* _WIN64 */
+ 
+-
+ /***********************************************************************
+  *             allocate_virtual_memory
+  *
 diff --git a/dlls/wow64/system.c b/dlls/wow64/system.c
 index eb57d35f41e..8b108b406d6 100644
 --- a/dlls/wow64/system.c

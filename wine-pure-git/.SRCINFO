@@ -1,6 +1,6 @@
 pkgbase = wine-pure-git
 	pkgdesc = Bleeding-edge Wine build (Staging, WoW64, Wayland)
-	pkgver = 11.17.r203.g788d90c4e1d
+	pkgver = 11.18.r44.g4f4d68f6a78
 	pkgrel = 1
 	url = https://github.com/ventureoo/PKGBUILDs
 	install = wine.install
@@ -51,7 +51,7 @@ pkgbase = wine-pure-git
 	provides = wine-staging
 	provides = wine
 	provides = wine-wow64
-	provides = wine=11.17
+	provides = wine=11.18
 	conflicts = wine
 	options = !lto
 	source = git+https://gitlab.winehq.org/wine/wine.git
