@@ -1,4 +1,4 @@
-From b598ef66080cef17f35ab7c835e200db60704eff Mon Sep 17 00:00:00 2001
+From 0ef538e941e60ed0e6d52cc424bc27fc0c3d9331 Mon Sep 17 00:00:00 2001
 From: Vasiliy Stelmachenok <ventureo@cachyos.org>
 Date: Fri, 16 Jan 2026 00:01:30 +0300
 Subject: [PATCH] Revert "wsi/wayland: Add support for PresentWait2"
@@ -11,10 +11,10 @@ Signed-off-by: Vasiliy Stelmachenok <ventureo@cachyos.org>
  1 file changed, 70 deletions(-)
 
 diff --git a/src/vulkan/wsi/wsi_common_wayland.c b/src/vulkan/wsi/wsi_common_wayland.c
-index fd0b398d5f1..33f52d9e5d7 100644
+index 33a4059617c..ecc1793e3ca 100644
 --- a/src/vulkan/wsi/wsi_common_wayland.c
 +++ b/src/vulkan/wsi/wsi_common_wayland.c
-@@ -1966,32 +1966,6 @@ wsi_wl_surface_get_capabilities2(VkIcdSurfaceBase *surface,
+@@ -2078,32 +2078,6 @@ wsi_wl_surface_get_capabilities2(VkIcdSurfaceBase *surface,
           break;
        }
  
@@ -47,7 +47,7 @@ index fd0b398d5f1..33f52d9e5d7 100644
        case VK_STRUCTURE_TYPE_PRESENT_TIMING_SURFACE_CAPABILITIES_EXT: {
           VkPresentTimingSurfaceCapabilitiesEXT *wait = (void *)ext;
           bool has_feedback, has_commit_timing, has_fifo;
-@@ -2797,49 +2771,6 @@ already_dispatching:
+@@ -2894,49 +2868,6 @@ already_dispatching:
     return ret;
  }
  
@@ -78,12 +78,12 @@ index fd0b398d5f1..33f52d9e5d7 100644
 -      return result;
 -
 -   while (1) {
--      err = pthread_mutex_lock(&chain->present_ids.lock);
--      if (err != 0)
+-      err = mtx_lock(&chain->present_ids.lock);
+-      if (err != thrd_success)
 -         return VK_ERROR_OUT_OF_DATE_KHR;
 -
 -      bool completed = chain->present_ids.max_completed >= present_id;
--      pthread_mutex_unlock(&chain->present_ids.lock);
+-      mtx_unlock(&chain->present_ids.lock);
 -
 -      if (completed)
 -         return VK_SUCCESS;
@@ -97,14 +97,14 @@ index fd0b398d5f1..33f52d9e5d7 100644
  static VkResult
  wsi_wl_swapchain_acquire_next_image_explicit(struct wsi_swapchain *wsi_chain,
                                               const VkAcquireNextImageInfoKHR *info,
-@@ -3848,7 +3779,6 @@ wsi_wl_surface_create_swapchain(VkIcdSurfaceBase *icd_surface,
-             clock_id_to_vk_time_domain(wsi_wl_surface->display->presentation_clock_id);
+@@ -3941,7 +3872,6 @@ wsi_wl_surface_create_swapchain(VkIcdSurfaceBase *icd_surface,
     }
+ 
     chain->base.wait_for_present = wsi_wl_swapchain_wait_for_present;
 -   chain->base.wait_for_present2 = wsi_wl_swapchain_wait_for_present2;
     chain->base.present_mode = present_mode;
     chain->base.image_count = num_images;
     chain->base.set_hdr_metadata = wsi_wl_swapchain_set_hdr_metadata;
 -- 
-2.54.0
+2.55.0
 
