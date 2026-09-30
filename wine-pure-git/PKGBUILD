@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-pure-git
-pkgver=11.18.r44.g4f4d68f6a78
+pkgver=11.18.r287.gabc6aebd55b
 pkgrel=1
 source=(
   "git+https://gitlab.winehq.org/wine/wine.git"
@@ -192,6 +192,7 @@ build() {
   cd "$pkgname-build"
   ../wine/configure \
     --disable-tests \
+    --disable-winemenubuilder \
     --prefix=/usr \
     --libdir=/usr/lib \
     --with-x \
